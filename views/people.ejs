@@ -1,0 +1,60 @@
+<!-- <%- layout("/layouts/navbar.ejs")%>
+<link rel="stylesheet" href="/people.css">
+
+<div class="passport-container">
+    <% people.forEach((person, index) => { %>
+      <div class="passport-card">
+        <img src="<%=person.image%>" alt="Profile Picture">
+        <h3><%= person.first_name %> <%= person.last_name %></h3>
+        <p>Address: <%= person.address %></p>
+      </div>
+    <% }) %>
+  </div> -->
+
+  <%- layout("/layouts/navbar.ejs") %>
+  <link rel="stylesheet" href="/people.css">
+  
+  <!-- 🔍 Filter Section -->
+  <div class="filter-section">
+    <form id="filterForm" method="GET" action="/people">
+      <!-- Name & Address -->
+      <input type="text" name="name" placeholder="Search by name" value="<%= query?.name || '' %>">
+      <input type="text" name="address" placeholder="Search by address" value="<%= query?.address || '' %>">
+  
+      <!-- Age Range -->
+      <input type="number" name="minAge" placeholder="Min Age" value="<%= query?.minAge || '' %>">
+      <input type="number" name="maxAge" placeholder="Max Age" value="<%= query?.maxAge || '' %>">
+  
+      <!-- Gender -->
+      <select name="gender">
+        <option value="">Any Gender</option>
+        <option value="Male" <%= query?.gender === "Male" ? "selected" : "" %>>Male</option>
+        <option value="Female" <%= query?.gender === "Female" ? "selected" : "" %>>Female</option>
+        <option value="Other" <%= query?.gender === "Other" ? "selected" : "" %>>Other</option>
+      </select>
+  
+      <!-- Interests -->
+      <input type="text" name="interest" placeholder="Search by interest (e.g. music)" value="<%= query?.interest || '' %>">
+  
+      <button type="submit">Filter</button>
+    </form>
+  </div>
+  
+  <!-- 🪪 Passport Cards -->
+  <div class="passport-container">
+    <% if (people.length === 0) { %>
+      <p>No matching results found.</p>
+    <% } %>
+  
+    <% people.forEach((person) => { %>
+        <a href="/people/<%= person._id %>" class="passport-link">
+          <div class="passport-card">
+            <img src="<%= person.image %>" alt="Profile Picture">
+            <h3><%= person.first_name %> <%= person.last_name %></h3>
+            <p>Address: <%= person.address %></p>
+          </div>
+        </a>
+      <% }) %>
+  </div>
+  
+<%-include("layouts/footer.ejs") %>

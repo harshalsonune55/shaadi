@@ -1,0 +1,161 @@
+<%- layout("/layouts/navbar.ejs") %>
+<link rel="stylesheet" href="/profiledetail.css">
+<div class="listing-wrapper">
+  <div class="listing-main">
+    <img class="listing-photo" src="<%= person.image %>" alt="Rental property photo" />
+    <h1 class="listing-title"><%=person.first_name%> <%=person.last_name%></h1>
+    <div class="listing-sub">best of the choiced candidate</div>
+
+    <div class="badge-row">
+      <div class="badge">
+        <span>🌿</span>
+        <div>
+          <div style="font-size:13px; color:#666;">Guest favourite</div>
+          <div class="score">One of the most loved homes</div>
+        </div>
+      </div>
+      <div class="badge" style="align-items:center">
+        <div>
+          <div style="font-size:13px; color:#666;">4.91</div>
+          <div style="font-size:13px; color:#999;">★★★★★ &nbsp; 22 Reviews</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="icon">💬</div>
+        <div>
+          <p><strong>Exceptional Host communication</strong></p>
+          <small>Recent guests gave Shivdas a 5-star rating for communication.</small>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="icon">🐾</div>
+        <div>
+          <p><strong>Furry friends welcome</strong></p>
+          <small>Bring your pets along for the stay.</small>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="icon">🔁</div>
+        <div>
+          <p><strong>Free cancellation before 23 Oct</strong></p>
+          <small>Get a full refund if you change your mind.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="listing-desc">
+      <div class="education-field">
+        <h3>🧑🏻‍🏫 Education:</h3>
+        <p><%= person.Education %></p>
+      </div>
+      <div class="work-field">
+        <h3>💼 Work:</h3>
+        <p><%= person.work %></p>
+      </div>
+      <div class="address-field">
+        <h3>📇 Address:</h3>
+        <p><%= person.address %></p>
+      </div>
+      <p>Enjoy a memorable visit when you stay in this unique place...</p>
+      <p>Self check-in facility is available here. The unit is well-suited for short stays and business travelers.</p>
+    </div>
+  </div>
+
+  <aside class="listing-aside">
+    <div class="aside-outer">
+      <div class="aside-badge">💎 Rare find! You have the great choice</div>
+      <div class="booking-card" role="region" aria-label="Booking card">
+        <button class="reserve-btn" id="reserveBtn">Talk</button>
+        <div class="reserve-note">You won't be charged yet</div>
+
+        <% if (!user || !user.isSubscribed) { %>
+        <div class="subscription-plans">
+          <h3>Choose a Plan</h3>
+          <div class="plan">
+            <strong>Basic</strong>
+            <p>₹499/month — Chat access + limited support</p>
+            <button class="plan-btn">Subscribe</button>
+          </div>
+          <div class="plan">
+            <strong>Standard</strong>
+            <p>₹999/month — Priority chat + exclusive offers</p>
+            <button class="plan-btn">Subscribe</button>
+          </div>
+          <div class="plan">
+            <strong>Premium</strong>
+            <p>₹2,999/month — Unlimited chat + premium perks</p>
+            <button class="plan-btn">Subscribe</button>
+          </div>
+        </div>
+        <% } %>
+
+        <a class="report-link" href="#" id="reportLink">🏳️ Report this listing</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<%-include("layouts/footer.ejs") %>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+// let isSubscribed = <%= user && user.isSubscribed ? 'true' : 'false' %>;
+let isSubscribed = true;
+
+document.getElementById("reserveBtn").addEventListener("click", () => {
+  if (!<%= user ? true : false %>) {
+    alert("Please login to subscribe or start chatting.");
+    return;
+  }
+
+  if (!isSubscribed) {
+    alert("You need an active subscription to start chatting.");
+    document.querySelector(".subscription-plans").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  alert("Opening chat room... 🚀");
+  window.location.href = "/chat";
+});
+
+document.querySelectorAll(".plan-btn").forEach(btn => {
+  btn.addEventListener("click", async (e) => {
+    if (!<%= user ? true : false %>) {
+      alert("Please login first!");
+      return;
+    }
+
+    const plan = e.target.parentElement.querySelector("strong").textContent;
+    let amount = plan === "Standard" ? 999 : plan === "Premium" ? 2999 : 499;
+
+    const res = await fetch("/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount }),
+    });
+    const data = await res.json();
+
+    const options = {
+      key: "<%= process.env.Razor_key_id %>",
+      amount: amount * 100,
+      currency: "INR",
+      name: "Chat Subscription",
+      description: `${plan} Plan`,
+      order_id: data.orderId,
+      handler: function () {
+        isSubscribed = true;
+        alert(`🎉 Payment successful for ${plan} plan! You can now start chatting.`);
+      },
+      prefill: {
+        name: "<%= person.first_name %> <%= person.last_name %>",
+        email: "<%= person.email %>",
+      },
+      theme: { color: "#3399cc" },
+    };
+    new Razorpay(options).open();
+  });
+});
+</script>

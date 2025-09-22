@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    overflow-x: hidden;
+  }
+  header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 50px;
+    z-index: 10;
+  }
+  header img {
+    height: 40px;
+  }
+  nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+  }
+  nav a:hover {
+    color: #e63946;
+  }
+  .hero {
+    position: relative;
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .hero-content {
+    max-width: 600px;
+    z-index: 2;
+  }
+  .hero h1 {
+    font-size: 3rem;
+    margin: 0;
+    font-weight: bold;
+  }
+  .hero h1 span {
+    color: red;
+  }
+  .hero p {
+    font-size: 1.2rem;
+    margin: 15px 0 30px;
+  }
+  .hero button {
+    background: #00bcd4;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .hero button:hover {
+    background: #0097a7;
+  }
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-size: 0.9rem;
+  }
+  .star {
+    color: gold;
+  }

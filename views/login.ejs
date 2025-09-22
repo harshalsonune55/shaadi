@@ -1,0 +1,30 @@
+<%- layout("layouts/navbar.ejs") %>
+<link rel="stylesheet" href="/login.css">
+
+
+  <!-- Centered login form -->
+  <div class="main-container">
+    <% if (typeof error !== "undefined" && error) { %>
+        <div class="error-message"><%= error %></div>
+    <% } %>
+      
+    <div class="login-container">
+      <h2>Login</h2>
+      <form action="/login_user" method="post">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="login-btn">Login</button>
+      </form>
+      <div class="extra-links">
+        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+        <p><a href="#">Forgot Password?</a></p>
+      </div>
+    </div>
+  </div>
+

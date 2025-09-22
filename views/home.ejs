@@ -1,0 +1,126 @@
+
+<%- layout("/layouts/navbar.ejs")%>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Find your forever <span>❤️</span></h1>
+      <p>Discover a world beyond matrimony</p>
+      <button>Find Your Match</button>
+    </div>
+    <div class="bottom-bar">
+      <span>#1 Matchmaking Service</span>
+      <span>⭐⭐⭐⭐⭐ Ratings on Playstore by 2.4 lakh users</span>
+      <span>80 Lakh Success Stories</span>
+    </div>
+  </section>
+
+
+<!-- section 2 -->
+<section class="experience-section">
+    <h2 id="heading_bottom">The Shaadi Experience</h2>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <h3>30 Day Money Back Guarantee</h3>
+        <p>Get matched with someone special within 30 days, or we’ll refund your money—guaranteed!</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">✔️</div>
+        <h3>Blue Tick to find your Green Flag</h3>
+        <p>Did you know our blue-tick profiles get 40% more connection requests than others?</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>Matchmaking Powered by AI</h3>
+        <p>Cutting-edge technology with two decades of matchmaking expertise to help you find "the one".</p>
+      </div>
+    </div>
+
+    <div class="vip-banner">
+      <div class="left">
+        <h3>Experience the world of elite personalised matchmaking by Shaadi.com</h3>
+      </div>
+      <button>Free Consultation</button>
+    </div>
+  </section>
+
+
+
+
+  <section class="stories-section">
+    <!-- Left Side -->
+    <div class="stories-text">
+      <h2>Real Stories, True Connections</h2>
+      <p>Discover how Shaadi has brought together couples through meaningful connections and shared journeys. Your success story could be next!</p>
+      <button>Know more →</button>
+    </div>
+
+    <!-- Right Side -->
+    <div class="carousel-container">
+      <div class="stories-cards" id="carousel">
+        <div class="story-card">
+          <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/ajinkya_ashwini.jpg" alt="Couple 1">
+          <div class="content">
+            <h3>Shreyashree & Sukdev</h3>
+            <p>Swipe, match, chat—our bond on Shaadi.com was instant. From shared values to laughter and dreams, we just clicked.</p>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/shreyashree_sukdev.jpg" alt="Couple 2">
+          <div class="content">
+            <h3>Piyas & Anindita</h3>
+            <p>Thanks to Shaadi.com, my life has truly settled. Grateful to have found my partner through this platform.</p>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/rohit_sonam.jpg" alt="Couple 3">
+          <div class="content">
+            <h3>Ravi & Neha</h3>
+            <p>We connected instantly on Shaadi.com and knew we were meant for each other. Forever grateful for this platform.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="stories-navigation">
+        <div class="nav-btn" id="prev">←</div>
+        <div class="nav-btn" id="next">→</div>
+      </div>
+    </div>
+  </section>
+
+
+
+<%-include("layouts/footer.ejs") %>
+
+
+  <script>
+    const carousel = document.getElementById("carousel");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+
+    let offset = 0;
+    const cardWidth = 320; // card width + gap
+
+    nextBtn.addEventListener("click", () => {
+      const maxOffset = -(carousel.scrollWidth - carousel.parentElement.clientWidth);
+      if (offset > maxOffset) {
+        offset -= cardWidth;
+        carousel.style.transform = `translateX(${offset}px)`;
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (offset < 0) {
+        offset += cardWidth;
+        carousel.style.transform = `translateX(${offset}px)`;
+      }
+    });
+  </script>
+
