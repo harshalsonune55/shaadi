@@ -102,8 +102,8 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-// let isSubscribed = <%= user && user.isSubscribed ? 'true' : 'false' %>;
-let isSubscribed = true;
+let isSubscribed = <%= user && user.isSubscribed ? 'true' : 'false' %>;
+// let isSubscribed = true;
 
 document.getElementById("reserveBtn").addEventListener("click", () => {
   if (!<%= user ? true : false %>) {
@@ -118,7 +118,7 @@ document.getElementById("reserveBtn").addEventListener("click", () => {
   }
 
   alert("Opening chat room... 🚀");
-  window.location.href = "/chat";
+  window.location.href = "/chat/<%= person._id %>";
 });
 
 document.querySelectorAll(".plan-btn").forEach(btn => {

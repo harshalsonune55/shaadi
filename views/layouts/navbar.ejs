@@ -5,27 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shaadi</title>
   <link rel="stylesheet" href="/home.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-  <!-- Navbar included here -->
+  <!-- Navbar -->
   <header>
     <h1 class="logo"><a href="/">SHAADI</a></h1>
     <nav>
-        <a href="/">Home</a>
-
-        <% if (!user) { %>
-          <!-- Show when NOT logged in -->
-          <a href="/signup">Signup</a>
-          <a href="/login">Login</a>
-        <% } else { %>
-          <!-- Show when logged in -->
-           <a href="/people">people</a>
-          <a href="/logout">Logout</a>
-        <% } %>
+      <a href="/">Home</a>
+      <% if (!user) { %>
+        <a href="/signup">Signup</a>
+        <a href="/login">Login</a>
+      <% } else { %>
+        <a href="/people">People</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/profile/<%= userProfile ? userProfile._id : (user ? user._id : '') %>">Profile</a>
+        <a href="/logout">Logout</a>
+      <% } %>
     </nav>
   </header>
 
-  <!-- Dynamic content -->
+  <!-- Dynamic body content -->
   <%- body %>
-</body>
+
 </html>

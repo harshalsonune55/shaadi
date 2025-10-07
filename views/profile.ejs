@@ -1,0 +1,59 @@
+<%- layout("/layouts/navbar.ejs") %>
+<link rel="stylesheet" href="/profile.css">
+
+<div class="profile-page">
+  <div class="profile-container">
+    <div class="profile-header">
+      <img 
+        src="<%= userProfile?.profilePicture || 'https://via.placeholder.com/100' %>" 
+        alt="Profile Picture" 
+        class="profile-pic"
+      >
+      <h2><%= user.fullname || user.username %></h2>
+      <p class="title"><%= userProfile?.title || 'Member' %></p>
+      <div class="tags">
+        <% if (userProfile?.tags && userProfile.tags.length > 0) { %>
+          <% userProfile.tags.forEach(tag => { %>
+            <span class="tag"><%= tag %></span>
+          <% }) %>
+        <% } else { %>
+          <span class="tag">New User</span>
+        <% } %>
+      </div>
+      <div class="edit-button-container" style="margin-top: 10px;">
+        <a href="/profile/edit/<%=user.id%>" class="edit-button">Edit Profile</a>
+      </div>
+    </div>
+
+    <div class="profile-content">
+      <div class="card">
+        <h3>Personal Information</h3>
+        <ul>
+          <li><strong>Email:</strong> <%= user.email %></li>
+          <li><strong>Gender:</strong> <%= userProfile?.gender || 'Not specified' %></li>
+          <li><strong>Age:</strong> <%= userProfile?.age ? userProfile.age + ' years old' : 'Not specified' %></li>
+          <li><strong>Location:</strong> <%= userProfile?.location || 'Not specified' %></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Professional Background</h3>
+        <ul>
+          <li><strong>Education:</strong> <%= userProfile?.education || 'Not specified' %></li>
+          <li><strong>Current Roles:</strong></li>
+          <div class="roles">
+            <% if (userProfile?.roles && userProfile.roles.length > 0) { %>
+              <% userProfile.roles.forEach(role => { %>
+                <span class="tag"><%= role %></span>
+              <% }) %>
+            <% } else { %>
+              <span class="tag">No roles added</span>
+            <% } %>
+          </div>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include("layouts/footer.ejs") %>

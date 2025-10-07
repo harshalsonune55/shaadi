@@ -8,3 +8,4 @@ export function setUser(id, user) {
 export function getUser(id) {
     return sessionIdToUserIdMap.get(id);
 }
+

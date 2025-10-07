@@ -7,15 +7,15 @@ import ejsmate from 'ejs-mate';
 import mongoose from 'mongoose';
 import User from './model/user.js';
 import { v4 as uuidv4 } from 'uuid';
-import { setUser,getUser } from './service/auth.js';
+import { setUser, getUser } from './service/auth.js';
 import cookieParser from 'cookie-parser';
 import session from "express-session";
 import UserProfile from './model/user.profile.js';
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import chat from './model/chat.js';
 app.use(cookieParser());
-// import { restricttologinuser } from './middleware/auth.js';
+import { restricttologinuser } from './middleware/auth.js';
+import Chat from './model/chat.js';
 
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -36,6 +36,22 @@ app.use(session({
   }));
 
 app.engine('ejs', ejsmate);
+app.use(async (req, res, next) => {
+  try {
+    if (req.session.user) {
+      const profile = await UserProfile.findOne({ userId: req.session.user._id });
+      res.locals.userProfile = profile || null;
+    } else {
+      res.locals.userProfile = null;
+    }
+    next();
+  } catch (err) {
+    console.error("Error loading user profile:", err);
+    res.locals.userProfile = null;
+    next();
+  }
+});
+
 app.use(express.json());   
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
@@ -77,10 +93,9 @@ app.post("/login_user",(req,res)=>{
 
 app.post("/create-order", async (req, res) => {
     try {
-      const { amount } = req.body; // amount in INR
-  
+      const { amount } = req.body;
       const order = await razorpay.orders.create({
-        amount: amount * 100, // Razorpay expects paise
+        amount: amount * 100, 
         currency: "INR",
         payment_capture: 1,
       });
@@ -123,8 +138,7 @@ app.get("/people", async(req, res) => {
         const { name, address, minAge, maxAge, gender, interest } = req.query;
     
         let filter = {};
-    
-        // Name filter
+   
         if (name) {
           filter.$or = [
             { first_name: new RegExp(name, "i") },
@@ -132,7 +146,7 @@ app.get("/people", async(req, res) => {
           ];
         }
     
-        // Address filter
+
         if (address) {
           filter.address = new RegExp(address, "i");
         }
@@ -162,6 +176,74 @@ app.get("/people", async(req, res) => {
       }
   });
   
+app.get("/profile/:id",async(req,res)=>{
+  try {
+    const user = await UserProfile.findById(req.params.id);
+
+    if (!user) {
+      return res.send("User not found");
+    }
+
+    res.render("profile", {
+      user: {
+        id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        gender: user.gender,
+        age: user.age,
+        location: user.location,
+        education: user.education,
+        roles: user.roles || [],
+        title: user.title,
+        profile_pic: user.profile_pic || "/default.png"
+      }
+    });
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    res.send("Error loading profile");
+
+  };
+});
+
+
+app.get("/profile/edit/:id",async(req,res)=>{
+    try {
+      const user = await UserProfile.findById(req.params.id);
+  
+      if (!user) {
+        return res.send("User not found");
+      }
+  
+      res.render("edit_profile", { user });
+    } catch (err) {
+      console.error("Error loading profile for edit:", err);
+      res.send("Error loading profile for edit");
+    }
+  });
+  
+  app.post("/profile/edit/:id",async(req,res)=>{
+    try {
+      const { first_name, last_name, email  } = req.body;       
+      const user = await UserProfile.findByIdAndUpdate(req.params.id, {
+        first_name,
+        last_name,
+        email
+      }, { new: true });
+  
+      if (!user) {
+        return res.send("User not found");
+      }
+  
+      res.redirect(`/profile/${user._id}`);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      res.send("Error updating profile");
+    }
+  }); 
+
+app.get("/pricing",restricttologinuser,(req,res)=>{
+    res.render("pricing.ejs");
+});
 
 app.get("/signup",(req,res)=>{
     res.render("signup.ejs");
@@ -180,9 +262,32 @@ app.get("/people/:id", async (req, res) => {
   
 
 
-app.get('/', (req, res) => {
-    res.render("home.ejs");
-});
+  app.get('/', async (req, res) => {
+    try {
+      // Check if the user is logged in
+      const loggedInUser = req.session?.user || req.user;
+      if (!loggedInUser) {
+        return res.redirect('/login');
+      }
+  
+      // Find the profile of the logged-in user
+      const userProfile = await UserProfile.findOne({ userId: loggedInUser._id });
+  
+      if (!userProfile) {
+        return res.status(404).send('Profile not found');
+      }
+  
+      // Render home.ejs with user and their profile data
+      res.render('home.ejs', {
+        user: loggedInUser,
+        profile: userProfile
+      });
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      res.status(500).send('Server error');
+    }
+  });
+  
 
 app.get("/chat/:personId", async (req, res) => {
     const userId = req.session.user?._id;
@@ -226,6 +331,30 @@ app.post("/verify-payment", (req, res) => {
     }
   });
 
+
+
+
+app.get("/chat/:personId",restricttologinuser, async (req, res) => {
+    const { personId } = req.params;
+    const person = await UserProfile.findById(personId);
+    if (!person) return res.status(404).send("Person not found");
+    res.render("chat_room.ejs", { person });
+  });
+
+app.get("/logout",(req,res)=>{
+    const sessionId = req.cookies.sessionId;
+    if (sessionId) {
+        req.session.destroy(err => {
+            if (err) {
+                console.error("Error destroying session:", err);
+            }
+        });
+        res.clearCookie("sessionId");
+        res.redirect("/");
+    } else {
+        res.redirect("/");
+    }
+}); 
 
  
 
