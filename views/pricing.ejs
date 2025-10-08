@@ -1,0 +1,183 @@
+<%- layout("/layouts/navbar.ejs") %>
+<link rel="stylesheet" href="/pricing.css">
+<div class="pricing-main">
+    <div class="subscription-page">
+        <div class="page-header">
+            <h1>Find Your Perfect Match</h1>
+            <p>Choose the plan that's right for you and start your journey today</p>
+        </div>
+
+        <div class="plans-container">
+            <!-- Basic Plan -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <span class="plan-icon">🌟</span>
+                    <h2 class="plan-name">Basic</h2>
+                    <p class="plan-description">Perfect for getting started</p>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount">499</span>
+                        <span class="duration">/month</span>
+                    </div>
+                </div>
+
+                <ul class="plan-features">
+                    <li>View up to 50 profiles</li>
+                    <li>Send 10 interests per day</li>
+                    <li>Basic profile visibility</li>
+                    <li>Chat with matches</li>
+                    <li>Email support</li>
+                    <li class="disabled">Priority customer support</li>
+                    <li class="disabled">Profile highlighting</li>
+                    <li class="disabled">Advanced search filters</li>
+                </ul>
+
+                <button class="subscribe-button" onclick="subscribe('Basic', 499)">Get Started</button>
+            </div>
+
+            <!-- Premium Plan (Popular) -->
+            <div class="plan-card popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="plan-header">
+                    <span class="plan-icon">👑</span>
+                    <h2 class="plan-name">Premium</h2>
+                    <p class="plan-description">Best value for serious seekers</p>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount">999</span>
+                        <span class="duration">/month</span>
+                    </div>
+                </div>
+
+                <ul class="plan-features">
+                    <li>View unlimited profiles</li>
+                    <li>Send unlimited interests</li>
+                    <li>Enhanced profile visibility</li>
+                    <li>Unlimited chat with matches</li>
+                    <li>Priority email & phone support</li>
+                    <li>Profile highlighting (3x per week)</li>
+                    <li>Advanced search filters</li>
+                    <li>See who viewed your profile</li>
+                </ul>
+
+                <button class="subscribe-button" onclick="subscribe('Premium', 999)">Choose Premium</button>
+            </div>
+
+            <!-- Elite Plan -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <span class="plan-icon">💎</span>
+                    <h2 class="plan-name">Elite</h2>
+                    <p class="plan-description">Complete matrimonial solution</p>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount">2999</span>
+                        <span class="duration">/month</span>
+                    </div>
+                </div>
+
+                <ul class="plan-features">
+                    <li>Everything in Premium</li>
+                    <li>Featured profile placement</li>
+                    <li>Dedicated relationship manager</li>
+                    <li>Personalized match recommendations</li>
+                    <li>Profile verification badge</li>
+                    <li>Background verification assistance</li>
+                    <li>Exclusive matchmaking events</li>
+                    <li>24/7 priority support</li>
+                </ul>
+
+                <button class="subscribe-button" onclick="subscribe('Elite', 2999)">Go Elite</button>
+            </div>
+        </div>
+
+        <div class="guarantee-section">
+            <h2>🛡️ Why Choose Us?</h2>
+            <p>We are committed to helping you find your perfect life partner. Our platform has successfully united thousands of couples. With verified profiles, advanced privacy settings, and dedicated support, we ensure a safe and meaningful matchmaking experience.</p>
+            
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>✓ Verified Profiles</h3>
+                    <p>All profiles are manually verified for authenticity and safety</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔒 100% Privacy</h3>
+                    <p>Your information is secure with advanced encryption</p>
+                </div>
+                <div class="feature-item">
+                    <h3>💝 Success Stories</h3>
+                    <p>Over 10,000+ happy couples found their match</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🎯 Smart Matching</h3>
+                    <p>AI-powered algorithm for better compatibility</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials">
+            <h2>❤️ Success Stories</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Found my soulmate within 3 months! The Premium plan was totally worth it. Thank you for making our journey so special."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">RS</div>
+                        <div class="author-info">
+                            <h4>Rahul & Sneha</h4>
+                            <p>Married in 2024</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"The Elite plan's personalized service helped us find compatible matches. We're now happily married and expecting our first child!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AP</div>
+                        <div class="author-info">
+                            <h4>Amit & Priya</h4>
+                            <p>Married in 2023</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Best decision ever! The advanced filters helped me find someone with similar values. Couldn't be happier with my choice."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">VK</div>
+                        <div class="author-info">
+                            <h4>Vikram & Kavya</h4>
+                            <p>Married in 2024</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        function subscribe(planName, price) {
+            // Simulate subscription process
+            const confirmation = confirm(`Subscribe to ${planName} plan for ₹${price}/month?\n\nThis will redirect you to the payment page.`);
+            
+            if (confirmation) {
+                // In a real application, this would redirect to payment gateway
+                alert(`🎉 Thank you for choosing the ${planName} plan!\n\nYou will be redirected to the secure payment page.`);
+                
+                // Simulate redirect
+                console.log('Redirecting to payment gateway...');
+                console.log('Plan:', planName);
+                console.log('Amount:', price);
+                
+                // In production, you would do:
+                // window.location.href = `/payment?plan=${planName}&amount=${price}`;
+            }
+        }
+
+        // Add smooth scroll animation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.plan-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+    <%- include("layouts/footer.ejs") %> 

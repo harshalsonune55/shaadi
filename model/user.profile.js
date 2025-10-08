@@ -4,6 +4,9 @@ const userProfileSchema = new mongoose.Schema({
     id:{
         type: Number, unique: true  
     },
+    username:{
+        type:String,
+    },
     first_name:{
         type: String,
         default: ""

@@ -241,7 +241,7 @@ app.get("/profile/edit/:id",async(req,res)=>{
     }
   }); 
 
-app.get("/pricing",restricttologinuser,(req,res)=>{
+app.get("/pricing",(req,res)=>{
     res.render("pricing.ejs");
 });
 
