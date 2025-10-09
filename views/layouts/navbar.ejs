@@ -14,15 +14,15 @@
       <h1 class="logo"><a href="/">SHAADIWALI</a></h1></div>
 
     <nav>
-      <a href="/">Home</a>
+      <a href="/"><i class="fa-solid fa-house"></i>Home</a>
       <% if (!user) { %>
         <a href="/signup">Signup</a>
         <a href="/login">Login</a>
       <% } else { %>
-        <a href="/people">People</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/profile/<%= userProfile ? userProfile._id : (user ? user._id : '') %>">Profile</a>
-        <a href="/logout">Logout</a>
+        <a href="/people"><i class="fa-solid fa-person"></i>People</a>
+        <a href="/pricing"><i class="fa-solid fa-tag"></i>Pricing</a>
+        <a href="/profile/<%= userProfile ? userProfile._id : (user ? user._id : '') %>"><i class="fa-solid fa-circle-user"></i>Profile</a>
+        <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
       <% } %>
       <div class="logo2">
         <img src="/images/Logo2.jpeg" alt="Logo" class="logo2-img" />
@@ -33,4 +33,6 @@
   <%- body %>
 
 </html>
+
+
 
