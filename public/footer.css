@@ -36,3 +36,10 @@ footer {
     margin-top: 20px;
     font-size: 0.8em;
 }
+
+.logo-img-bot{
+    width: 50px;   /* adjust as you like */
+    height: 50px;
+    object-fit: contain;
+    margin-left: 25px;
+}

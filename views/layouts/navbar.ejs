@@ -8,9 +8,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-  <!-- Navbar -->
+
   <header>
-    <h1 class="logo"><a href="/">SHAADI</a></h1>
+    <div class="logoname">    <img src="/images/Logo1.jpeg" alt="Logo" class="logo-img" />
+      <h1 class="logo"><a href="/">SHAADIWALI</a></h1></div>
+
     <nav>
       <a href="/">Home</a>
       <% if (!user) { %>
@@ -22,10 +24,13 @@
         <a href="/profile/<%= userProfile ? userProfile._id : (user ? user._id : '') %>">Profile</a>
         <a href="/logout">Logout</a>
       <% } %>
+      <div class="logo2">
+        <img src="/images/Logo2.jpeg" alt="Logo" class="logo2-img" />
+      </div>
     </nav>
   </header>
 
-  <!-- Dynamic body content -->
   <%- body %>
 
 </html>
+

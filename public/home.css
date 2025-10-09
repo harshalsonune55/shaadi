@@ -339,3 +339,38 @@ nav a:hover {
       justify-content: center;
     }
   }
+
+/* Wrap the logo image and text */
+.logoname {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between logo and text */
+}
+
+/* Adjust the logo image size */
+.logo-img {
+  width: 45px;   /* adjust as you like */
+  height: 45px;
+  object-fit: contain;
+}
+
+.logo2-img {
+  width: 50px;   /* adjust as you like */
+  height: 50px;
+  object-fit: contain;
+  margin-left: 25px;
+}
+
+/* Make the name align nicely with the image */
+.logo {
+  margin: 0;
+}
+
+.logo a {
+  font-size: 32px;
+  color: #e63946;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+}
+
