@@ -264,20 +264,17 @@ app.get("/people/:id", async (req, res) => {
 
   app.get('/', async (req, res) => {
     try {
-      // Check if the user is logged in
-      const loggedInUser = req.session?.user || req.user;
-      if (!loggedInUser) {
-        return res.redirect('/login');
+      // Get the logged-in user if available
+      const loggedInUser = req.session?.user || req.user || null;
+  
+      let userProfile = null;
+  
+      // If user is logged in, fetch their profile
+      if (loggedInUser) {
+        userProfile = await UserProfile.findOne({ userId: loggedInUser._id });
       }
   
-      // Find the profile of the logged-in user
-      const userProfile = await UserProfile.findOne({ userId: loggedInUser._id });
-  
-      if (!userProfile) {
-        return res.status(404).send('Profile not found');
-      }
-  
-      // Render home.ejs with user and their profile data
+      // ✅ Always render home.ejs, whether logged in or not
       res.render('home.ejs', {
         user: loggedInUser,
         profile: userProfile
