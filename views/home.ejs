@@ -1,127 +1,137 @@
+<%- layout("/layouts/navbar.ejs") %>
+<script src="https://cdn.tailwindcss.com"></script>
 
-<%- layout("/layouts/navbar.ejs")%>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Hero Section -->
+<section class="relative h-[90vh] sm:h-screen bg-[url('/images/home.jpg')] bg-cover bg-center flex items-center justify-center text-white text-center">
+  <div class="z-10 max-w-lg px-4">
+    <h1 class="text-4xl sm:text-5xl font-bold leading-snug">
+      Find your forever <span class="text-red-500">❤️</span>
+    </h1>
+    <p class="mt-3 sm:mt-4 text-base sm:text-lg">Discover a world beyond matrimony</p>
+    <button onclick="window.location.href='/people'"
+      class="mt-5 sm:mt-6 bg-cyan-500 hover:bg-cyan-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-base sm:text-lg font-medium transition">
+      Find Your Match
+    </button>
+  </div>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Find your forever <span>❤️</span></h1>
-      <p>Discover a world beyond matrimony</p>
-      <button onclick="window.location.href='/people'">Find Your Match</button>
-    </div>
-    <div class="bottom-bar">
-      <span>#1 Matchmaking Service</span>
-      <span>⭐⭐⭐⭐⭐ Ratings on Playstore by 2.4 lakh users</span>
-      <span>80 Lakh Success Stories</span>
-    </div>
-  </section>
+  <div class="absolute bottom-0 left-0 w-full bg-black/70 text-xs sm:text-sm text-gray-200 py-3 flex flex-wrap justify-center gap-3 sm:gap-6 px-2">
+    <span>#1 Matchmaking Service</span>
+    <span>⭐⭐⭐⭐⭐ 2.4L+ Ratings</span>
+    <span>80 Lakh Success Stories</span>
+  </div>
+</section>
 
+<!-- Shaadi Experience Section -->
+<section class="max-w-6xl mx-auto my-14 sm:my-20 px-4 sm:px-6">
+  <h2 id="heading_bottom" class="text-3xl sm:text-5xl font-bold text-center mb-10 sm:mb-12">The Shaadi Experience</h2>
 
-<!-- section 2 -->
-<section class="experience-section">
-    <h2 id="heading_bottom">The Shaadi Experience</h2>
-
-    <div class="cards">
-      <div class="card">
-        <div class="card-icon">💰</div>
-        <h3>30 Day Money Back Guarantee</h3>
-        <p>Get matched with someone special within 30 days, or we’ll refund your money—guaranteed!</p>
-      </div>
-
-      <div class="card">
-        <div class="card-icon">✔️</div>
-        <h3>Blue Tick to find your Green Flag</h3>
-        <p>Did you know our blue-tick profiles get 40% more connection requests than others?</p>
-      </div>
-
-      <div class="card">
-        <div class="card-icon">🤖</div>
-        <h3>Matchmaking Powered by AI</h3>
-        <p>Cutting-edge technology with two decades of matchmaking expertise to help you find "the one".</p>
-      </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Card 1 -->
+    <div class="bg-white shadow-md rounded-xl p-6 hover:-translate-y-1 transition">
+      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl">💰</div>
+      <h3 class="font-semibold text-base sm:text-lg mb-2">30 Day Money Back Guarantee</h3>
+      <p class="text-gray-600 text-sm sm:text-base">Get matched within 30 days or we’ll refund your money — guaranteed!</p>
     </div>
 
-    <div class="vip-banner">
-      <div class="left">
-        <h3>Experience the world of elite personalised matchmaking by Shaadi.com</h3>
-      </div>
-      <button>Free Consultation</button>
-    </div>
-  </section>
-
-
-
-
-  <section class="stories-section">
-    <!-- Left Side -->
-    <div class="stories-text">
-      <h2>Real Stories, True Connections</h2>
-      <p>Discover how Shaadi has brought together couples through meaningful connections and shared journeys. Your success story could be next!</p>
-      <button>Know more →</button>
+    <!-- Card 2 -->
+    <div class="bg-white shadow-md rounded-xl p-6 hover:-translate-y-1 transition">
+      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl">✔️</div>
+      <h3 class="font-semibold text-base sm:text-lg mb-2">Blue Tick to find your Green Flag</h3>
+      <p class="text-gray-600 text-sm sm:text-base">Blue-tick profiles get 40% more connection requests — verified and trusted.</p>
     </div>
 
-    <!-- Right Side -->
-    <div class="carousel-container">
-      <div class="stories-cards" id="carousel">
-        <div class="story-card">
-          <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/ajinkya_ashwini.jpg" alt="Couple 1">
-          <div class="content">
-            <h3>Shreyashree & Sukdev</h3>
-            <p>Swipe, match, chat—our bond on Shaadi.com was instant. From shared values to laughter and dreams, we just clicked.</p>
-          </div>
-        </div>
+    <!-- Card 3 -->
+    <div class="bg-white shadow-md rounded-xl p-6 hover:-translate-y-1 transition">
+      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl">🤖</div>
+      <h3 class="font-semibold text-base sm:text-lg mb-2">Matchmaking Powered by AI</h3>
+      <p class="text-gray-600 text-sm sm:text-base">AI + 20 years of expertise help you find “the one”.</p>
+    </div>
+  </div>
 
-        <div class="story-card">
-          <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/shreyashree_sukdev.jpg" alt="Couple 2">
-          <div class="content">
-            <h3>Piyas & Anindita</h3>
-            <p>Thanks to Shaadi.com, my life has truly settled. Grateful to have found my partner through this platform.</p>
-          </div>
-        </div>
+  <!-- VIP Banner -->
+  <div class="bg-purple-100 rounded-xl flex flex-col md:flex-row justify-between items-center p-6 sm:p-8 mt-10 sm:mt-12 gap-4 sm:gap-6 text-center md:text-left">
+    <h3 class="text-base sm:text-xl font-semibold">
+      Experience the world of elite personalised matchmaking by Shaadi.com
+    </h3>
+    <button class="bg-purple-800 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full hover:bg-purple-900 transition">
+      Free Consultation
+    </button>
+  </div>
+</section>
 
-        <div class="story-card">
-          <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/rohit_sonam.jpg" alt="Couple 3">
-          <div class="content">
-            <h3>Ravi & Neha</h3>
-            <p>We connected instantly on Shaadi.com and knew we were meant for each other. Forever grateful for this platform.</p>
-          </div>
+<!-- Stories Section -->
+<section class="max-w-6xl mx-auto my-14 sm:my-20 px-4 sm:px-6 flex flex-col md:flex-row items-center gap-8 sm:gap-10">
+  <!-- Left Text -->
+  <div class="flex-1 text-center md:text-left">
+    <h2 class="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4">Real Stories, True Connections</h2>
+    <p class="text-gray-600 mb-5 sm:mb-6 text-sm sm:text-base">
+      Discover how Shaadi has brought together couples through meaningful connections. Your success story could be next!
+    </p>
+    <button class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full transition text-sm sm:text-base">
+      Know more →
+    </button>
+  </div>
+
+  <!-- Carousel -->
+  <div class="flex-1 relative overflow-hidden w-full">
+    <div id="carousel" class="flex gap-4 sm:gap-6 transition-transform duration-500">
+      <!-- Card 1 -->
+      <div class="bg-white shadow-md rounded-xl overflow-hidden min-w-[250px] sm:min-w-[300px]">
+        <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/ajinkya_ashwini.jpg" class="w-full h-48 sm:h-56 object-cover" />
+        <div class="p-4">
+          <h3 class="font-semibold text-base sm:text-lg">Shreyashree & Sukdev</h3>
+          <p class="text-gray-600 text-xs sm:text-sm mt-2">We just clicked instantly through shared values and dreams.</p>
         </div>
       </div>
 
-      <!-- Navigation -->
-      <div class="stories-navigation">
-        <div class="nav-btn" id="prev">←</div>
-        <div class="nav-btn" id="next">→</div>
+      <!-- Card 2 -->
+      <div class="bg-white shadow-md rounded-xl overflow-hidden min-w-[250px] sm:min-w-[300px]">
+        <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/shreyashree_sukdev.jpg" class="w-full h-48 sm:h-56 object-cover" />
+        <div class="p-4">
+          <h3 class="font-semibold text-base sm:text-lg">Piyas & Anindita</h3>
+          <p class="text-gray-600 text-xs sm:text-sm mt-2">Grateful to have found my life partner through Shaadi.com.</p>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white shadow-md rounded-xl overflow-hidden min-w-[250px] sm:min-w-[300px]">
+        <img src="https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/rohit_sonam.jpg" class="w-full h-48 sm:h-56 object-cover" />
+        <div class="p-4">
+          <h3 class="font-semibold text-base sm:text-lg">Ravi & Neha</h3>
+          <p class="text-gray-600 text-xs sm:text-sm mt-2">We knew we were meant for each other — forever grateful!</p>
+        </div>
       </div>
     </div>
-  </section>
 
+    <!-- Navigation -->
+    <div class="absolute top-1/2 -translate-y-1/2 right-2 flex gap-2">
+      <button id="prev" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-white shadow-md rounded-full hover:bg-gray-100 text-base sm:text-lg">←</button>
+      <button id="next" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-white shadow-md rounded-full hover:bg-gray-100 text-base sm:text-lg">→</button>
+    </div>
+  </div>
+</section>
 
+<%- include("layouts/footer.ejs") %>
 
-<%-include("layouts/footer.ejs") %>
+<script>
+  const carousel = document.getElementById("carousel");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+  let offset = 0;
+  const cardWidth = 280;
 
+  nextBtn.addEventListener("click", () => {
+    const maxOffset = -(carousel.scrollWidth - carousel.parentElement.clientWidth);
+    if (offset > maxOffset) {
+      offset -= cardWidth;
+      carousel.style.transform = `translateX(${offset}px)`;
+    }
+  });
 
-  <script>
-    const carousel = document.getElementById("carousel");
-    const prevBtn = document.getElementById("prev");
-    const nextBtn = document.getElementById("next");
-
-    let offset = 0;
-    const cardWidth = 320; // card width + gap
-
-    nextBtn.addEventListener("click", () => {
-      const maxOffset = -(carousel.scrollWidth - carousel.parentElement.clientWidth);
-      if (offset > maxOffset) {
-        offset -= cardWidth;
-        carousel.style.transform = `translateX(${offset}px)`;
-      }
-    });
-
-    prevBtn.addEventListener("click", () => {
-      if (offset < 0) {
-        offset += cardWidth;
-        carousel.style.transform = `translateX(${offset}px)`;
-      }
-    });
-  </script>
-
+  prevBtn.addEventListener("click", () => {
+    if (offset < 0) {
+      offset += cardWidth;
+      carousel.style.transform = `translateX(${offset}px)`;
+    }
+  });
+</script>

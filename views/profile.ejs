@@ -1,336 +1,207 @@
- <%- layout("/layouts/navbar.ejs") %>
-<link rel="stylesheet" href="/profile.css">
+<%- layout("/layouts/navbar.ejs") %>
 
-<!-- <div class="profile-page">
-  <div class="profile-container">
-    <div class="profile-header">
-      <img 
-        src="<%= userProfile?.profilePicture || 'https://via.placeholder.com/100' %>" 
-        alt="Profile Picture" 
-        class="profile-pic"
-      >
-      <h2><%= user.fullname || user.username %></h2>
-      <p class="title"><%= userProfile?.title || 'Member' %></p>
-      <div class="tags">
-        <% if (userProfile?.tags && userProfile.tags.length > 0) { %>
-          <% userProfile.tags.forEach(tag => { %>
-            <span class="tag"><%= tag %></span>
-          <% }) %>
-        <% } else { %>
-          <span class="tag">New User</span>
-        <% } %>
+<div class="min-h-screen bg-gradient-to-br from-red-400 to-red-800 py-10 px-4">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+    
+    <!-- Profile Header -->
+    <div class="relative bg-gradient-to-br from-red-400 to-red-700 text-center py-12 px-6">
+      <div class="absolute top-4 left-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow">
+        <span>✓</span>
+        <span>Verified Profile</span>
       </div>
-      <div class="edit-button-container" style="margin-top: 10px;">
-        <a href="/profile/edit/<%=user.id%>" class="edit-button">Edit Profile</a>
+
+      <img src="https://ui-avatars.com/api/?name=Priya+Sharma&size=150&background=ff6b6b&color=fff&bold=true" 
+           alt="Profile Picture" 
+           class="w-36 h-36 mx-auto rounded-full border-4 border-white shadow-lg transform transition-transform hover:scale-105 mb-4">
+
+      <h2 class="text-3xl font-bold text-white mb-1"><%= user.first_name %> <%= user.last_name %></h2>
+      <p class="text-white/90 text-lg mb-4" id="displayTitle"><%=user.title%></p>
+
+      <div class="flex flex-wrap justify-center gap-2 mb-4" id="tagsContainer">
+        <span class="bg-white/25 backdrop-blur-sm text-white px-4 py-1 rounded-full text-sm font-medium border border-white/30">MBA Graduate</span>
+        <span class="bg-white/25 backdrop-blur-sm text-white px-4 py-1 rounded-full text-sm font-medium border border-white/30">Never Married</span>
+        <span class="bg-white/25 backdrop-blur-sm text-white px-4 py-1 rounded-full text-sm font-medium border border-white/30">Hindu</span>
+        <span class="bg-white/25 backdrop-blur-sm text-white px-4 py-1 rounded-full text-sm font-medium border border-white/30">Non-Smoker</span>
+      </div>
+
+      <!-- Stats -->
+      <div class="flex justify-center gap-10 border-t border-white/30 pt-4 mt-4">
+        <div class="text-white text-center">
+          <span class="block text-xl font-bold">26</span>
+          <span class="text-sm opacity-90">Years Old</span>
+        </div>
+        <div class="text-white text-center">
+          <span class="block text-xl font-bold">5'4"</span>
+          <span class="text-sm opacity-90">Height</span>
+        </div>
+        <div class="text-white text-center">
+          <span class="block text-xl font-bold">Mumbai</span>
+          <span class="text-sm opacity-90">Location</span>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <a href="#" onclick="toggleEditMode(event)" 
+           class="inline-block bg-white text-red-700 font-semibold px-6 py-2 rounded-full shadow hover:bg-red-50 transition">
+           ✏️ Edit Profile
+        </a>
       </div>
     </div>
 
-    <div class="profile-content">
-      <div class="card">
-        <h3>Personal Information</h3>
-        <ul>
-          <li><strong>Email:</strong> <%= user.email %></li>
-          <li><strong>Gender:</strong> <%= userProfile?.gender || 'Not specified' %></li>
-          <li><strong>Age:</strong> <%= userProfile?.age ? userProfile.age + ' years old' : 'Not specified' %></li>
-          <li><strong>Location:</strong> <%= userProfile?.location || 'Not specified' %></li>
+    <!-- Profile Content -->
+    <div class="px-6 py-8 space-y-6">
+      
+      <!-- Personal Information -->
+      <div class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hover:shadow-lg transition">
+        <h3 class="text-red-700 text-2xl font-bold mb-4">Personal Information</h3>
+        <ul class="space-y-3 text-gray-700 text-base">
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Email:</strong>
+            <span class="display-text">priya.sharma@example.com</span>
+            <input type="email" class="edit-input hidden w-full md:max-w-xs" value="priya.sharma@example.com">
+          </li>
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Gender:</strong>
+            <span class="display-text">Female</span>
+            <select class="edit-input hidden w-full md:max-w-xs">
+              <option value="Female" selected>Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </li>
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Age:</strong>
+            <span class="display-text">26 years old</span>
+            <input type="number" class="edit-input hidden w-full md:max-w-xs" value="26">
+          </li>
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Location:</strong>
+            <span class="display-text">Mumbai, Maharashtra</span>
+            <input type="text" class="edit-input hidden w-full md:max-w-xs" value="Mumbai, Maharashtra">
+          </li>
         </ul>
       </div>
 
-      <div class="card">
-        <h3>Professional Background</h3>
-        <ul>
-          <li><strong>Education:</strong> <%= userProfile?.education || 'Not specified' %></li>
-          <li><strong>Current Roles:</strong></li>
-          <div class="roles">
-            <% if (userProfile?.roles && userProfile.roles.length > 0) { %>
-              <% userProfile.roles.forEach(role => { %>
-                <span class="tag"><%= role %></span>
-              <% }) %>
-            <% } else { %>
-              <span class="tag">No roles added</span>
-            <% } %>
-          </div>
+      <!-- Professional Background -->
+      <div class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hover:shadow-lg transition">
+        <h3 class="text-red-700 text-2xl font-bold mb-4">Professional Background</h3>
+        <ul class="space-y-3 text-gray-700 text-base">
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Education:</strong>
+            <span class="display-text">MBA in Finance</span>
+            <input type="text" class="edit-input hidden w-full md:max-w-xs" value="MBA in Finance">
+          </li>
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Occupation:</strong>
+            <span class="display-text">Financial Analyst</span>
+            <input type="text" class="edit-input hidden w-full md:max-w-xs" value="Financial Analyst">
+          </li>
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Company:</strong>
+            <span class="display-text">Fortune 500 Company</span>
+            <input type="text" class="edit-input hidden w-full md:max-w-xs" value="Fortune 500 Company">
+          </li>
+          <li class="flex justify-between md:justify-start md:gap-4">
+            <strong class="md:w-40">Current Roles:</strong>
+            <div class="flex flex-wrap gap-2 ml-0 md:ml-40 mt-1">
+              <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm">Finance Professional</span>
+              <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm">Team Leader</span>
+            </div>
+          </li>
         </ul>
       </div>
+
+      <!-- About Me -->
+      <div class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hover:shadow-lg transition">
+        <h3 class="text-red-700 text-2xl font-bold mb-4">About Me</h3>
+        <p class="display-text text-gray-700">I am a warm, caring, and ambitious professional looking for a life partner who values family, education, and personal growth. I enjoy reading, cooking, and traveling. Looking for someone respectful and understanding.</p>
+        <textarea class="edit-input hidden w-full mt-2 p-2 border rounded" rows="4">I am a warm, caring, and ambitious professional looking for a life partner who values family, education, and personal growth...</textarea>
+      </div>
+
     </div>
   </div>
-</div>-->
 
-
-
-
-
-<div class="main-full-profile-page">
-    <div class="profile-page">
-        <div class="profile-container">
-            <div class="profile-header">
-                <div class="verified-badge">
-                    <span>✓</span>
-                    <span>Verified Profile</span>
-                </div>
-                
-                <img 
-                    src="https://ui-avatars.com/api/?name=Priya+Sharma&size=150&background=ff6b6b&color=fff&bold=true" 
-                    alt="Profile Picture" 
-                    class="profile-pic"
-                    id="profilePic"
-                >
-                
-                <h2 id="displayName"> <%= user.first_name %> <%= user.last_name %></h2>
-                <p class="title" id="displayTitle"><%=user.title%></p>
-                
-                <div class="tags" id="tagsContainer">
-                    <span class="tag">MBA Graduate</span>
-                    <span class="tag">Never Married</span>
-                    <span class="tag">Hindu</span>
-                    <span class="tag">Non-Smoker</span>
-                </div>
-
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <span class="stat-value">26</span>
-                        <span class="stat-label">Years Old</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value">5'4"</span>
-                        <span class="stat-label">Height</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value">Mumbai</span>
-                        <span class="stat-label">Location</span>
-                    </div>
-                </div>
-
-                <div class="edit-button-container">
-                    <a href="#" class="edit-button" onclick="toggleEditMode(event)">✏️ Edit Profile</a>
-                </div>
-            </div>
-
-            <div class="profile-content">
-                <div class="card">
-                    <h3>Personal Information</h3>
-                    <ul>
-                        <li>
-                            <strong>Email:</strong> 
-                            <span class="display-text">priya.sharma@example.com</span>
-                            <input type="email" class="edit-input" value="priya.sharma@example.com" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Gender:</strong> 
-                            <span class="display-text">Female</span>
-                            <select class="edit-input" style="display: none;">
-                                <option value="Female" selected>Female</option>
-                                <option value="Male">Male</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </li>
-                        <li>
-                            <strong>Age:</strong> 
-                            <span class="display-text">26 years old</span>
-                            <input type="number" class="edit-input" value="26" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Location:</strong> 
-                            <span class="display-text">Mumbai, Maharashtra</span>
-                            <input type="text" class="edit-input" value="Mumbai, Maharashtra" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Marital Status:</strong> 
-                            <span class="display-text">Never Married</span>
-                            <select class="edit-input" style="display: none;">
-                                <option value="Never Married" selected>Never Married</option>
-                                <option value="Divorced">Divorced</option>
-                                <option value="Widowed">Widowed</option>
-                            </select>
-                        </li>
-                        <li>
-                            <strong>Religion:</strong> 
-                            <span class="display-text">Hindu</span>
-                            <input type="text" class="edit-input" value="Hindu" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Mother Tongue:</strong> 
-                            <span class="display-text">Hindi</span>
-                            <input type="text" class="edit-input" value="Hindi" style="display: none;">
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h3>Professional Background</h3>
-                    <ul>
-                        <li>
-                            <strong>Education:</strong> 
-                            <span class="display-text">MBA in Finance</span>
-                            <input type="text" class="edit-input" value="MBA in Finance" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Occupation:</strong> 
-                            <span class="display-text">Financial Analyst</span>
-                            <input type="text" class="edit-input" value="Financial Analyst" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Company:</strong> 
-                            <span class="display-text">Fortune 500 Company</span>
-                            <input type="text" class="edit-input" value="Fortune 500 Company" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Annual Income:</strong> 
-                            <span class="display-text">₹8-10 Lakhs</span>
-                            <input type="text" class="edit-input" value="₹8-10 Lakhs" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Current Roles:</strong>
-                            <div class="roles">
-                                <span class="tag">Finance Professional</span>
-                                <span class="tag">Team Leader</span>
-                                <span class="tag">MBA Graduate</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h3>Family Details</h3>
-                    <ul>
-                        <li>
-                            <strong>Father:</strong> 
-                            <span class="display-text">Business Owner</span>
-                            <input type="text" class="edit-input" value="Business Owner" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Mother:</strong> 
-                            <span class="display-text">Homemaker</span>
-                            <input type="text" class="edit-input" value="Homemaker" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Siblings:</strong> 
-                            <span class="display-text">1 Brother (Married)</span>
-                            <input type="text" class="edit-input" value="1 Brother (Married)" style="display: none;">
-                        </li>
-                        <li>
-                            <strong>Family Type:</strong> 
-                            <span class="display-text">Nuclear Family</span>
-                            <select class="edit-input" style="display: none;">
-                                <option value="Nuclear Family" selected>Nuclear Family</option>
-                                <option value="Joint Family">Joint Family</option>
-                            </select>
-                        </li>
-                        <li>
-                            <strong>Family Status:</strong> 
-                            <span class="display-text">Middle Class</span>
-                            <select class="edit-input" style="display: none;">
-                                <option value="Middle Class" selected>Middle Class</option>
-                                <option value="Upper Middle Class">Upper Middle Class</option>
-                                <option value="Rich">Rich</option>
-                            </select>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h3>About Me</h3>
-                    <ul>
-                        <li>
-                            <span class="display-text">I am a warm, caring, and ambitious professional looking for a life partner who values family, education, and personal growth. I believe in maintaining a balance between tradition and modernity. I enjoy reading, cooking, and traveling. Looking for someone who is respectful, understanding, and shares similar values.</span>
-                            <textarea class="edit-input" rows="5" style="display: none;">I am a warm, caring, and ambitious professional looking for a life partner who values family, education, and personal growth. I believe in maintaining a balance between tradition and modernity. I enjoy reading, cooking, and traveling. Looking for someone who is respectful, understanding, and shares similar values.</textarea>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="save-button-container" id="saveBar">
-        <button class="save-button" onclick="saveChanges()">💾 Save Changes</button>
-        <button class="cancel-button" onclick="cancelEdit()">✖ Cancel</button>
-    </div>
+  <!-- Save / Cancel Buttons -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white py-4 shadow-lg flex justify-center gap-4 transform translate-y-full transition-all" id="saveBar">
+    <button class="bg-green-500 text-white px-8 py-2 rounded-full font-semibold hover:bg-green-600 transition" onclick="saveChanges()">💾 Save Changes</button>
+    <button class="bg-gray-500 text-white px-8 py-2 rounded-full font-semibold hover:bg-gray-600 transition" onclick="cancelEdit()">✖ Cancel</button>
+  </div>
 </div>
 
-    <script>
-        let isEditMode = false;
-        let originalValues = {};
-
-        function toggleEditMode(event) {
-            event.preventDefault();
-            isEditMode = !isEditMode;
-            
-            const container = document.querySelector('.profile-container');
-            const editButton = document.querySelector('.edit-button');
-            const saveBar = document.getElementById('saveBar');
-            const displayTexts = document.querySelectorAll('.display-text');
-            const editInputs = document.querySelectorAll('.edit-input');
-
-            if (isEditMode) {
-                // Store original values
-                editInputs.forEach((input, index) => {
-                    if (input.tagName === 'TEXTAREA') {
-                        originalValues[index] = input.value;
-                    } else if (input.tagName === 'SELECT') {
-                        originalValues[index] = input.value;
-                    } else {
-                        originalValues[index] = input.value;
-                    }
-                });
-
-                container.classList.add('edit-mode');
-                editButton.textContent = '👁️ View Mode';
-                editButton.style.background = '#40c057';
-                editButton.style.color = 'white';
-                saveBar.classList.add('visible');
-
-                displayTexts.forEach(text => text.style.display = 'none');
-                editInputs.forEach(input => input.style.display = 'block');
-            } else {
-                container.classList.remove('edit-mode');
-                editButton.textContent = '✏️ Edit Profile';
-                editButton.style.background = 'white';
-                editButton.style.color = '#c92a2a';
-                saveBar.classList.remove('visible');
-
-                displayTexts.forEach(text => text.style.display = 'inline');
-                editInputs.forEach(input => input.style.display = 'none');
-            }
+<script>
+    let isEditMode = false;
+    let originalValues = {};
+  
+    function toggleEditMode(event) {
+      event.preventDefault();
+      isEditMode = !isEditMode;
+  
+      const editButton = document.querySelector('.edit-button');
+      const saveBar = document.getElementById('saveBar');
+      const displayTexts = document.querySelectorAll('.display-text');
+      const editInputs = document.querySelectorAll('.edit-input');
+  
+      if (isEditMode) {
+        // Store original values
+        editInputs.forEach((input, index) => {
+          originalValues[index] = input.value;
+        });
+  
+        // Show inputs, hide display texts
+        displayTexts.forEach(text => text.classList.add('hidden'));
+        editInputs.forEach(input => input.classList.remove('hidden'));
+  
+        // Update edit button
+        editButton.textContent = '👁️ View Mode';
+        editButton.classList.remove('text-red-700', 'bg-white');
+        editButton.classList.add('text-white', 'bg-green-500');
+  
+        // Show save bar
+        saveBar.classList.remove('translate-y-full');
+      } else {
+        // Hide inputs, show display texts
+        displayTexts.forEach(text => text.classList.remove('hidden'));
+        editInputs.forEach(input => input.classList.add('hidden'));
+  
+        // Update edit button
+        editButton.textContent = '✏️ Edit Profile';
+        editButton.classList.add('text-red-700', 'bg-white');
+        editButton.classList.remove('text-white', 'bg-green-500');
+  
+        // Hide save bar
+        saveBar.classList.add('translate-y-full');
+      }
+    }
+  
+    function saveChanges() {
+      const displayTexts = document.querySelectorAll('.display-text');
+      const editInputs = document.querySelectorAll('.edit-input');
+  
+      editInputs.forEach((input, index) => {
+        if (displayTexts[index]) {
+          if (input.tagName === 'TEXTAREA') {
+            displayTexts[index].textContent = input.value;
+          } else if (input.tagName === 'SELECT') {
+            displayTexts[index].textContent = input.options[input.selectedIndex].text;
+          } else {
+            displayTexts[index].textContent = input.value;
+          }
         }
-
-        function saveChanges() {
-            // Get all edit inputs
-            const editInputs = document.querySelectorAll('.edit-input');
-            const displayTexts = document.querySelectorAll('.display-text');
-
-            // Update display texts with input values
-            editInputs.forEach((input, index) => {
-                if (displayTexts[index]) {
-                    if (input.tagName === 'TEXTAREA') {
-                        displayTexts[index].textContent = input.value;
-                    } else if (input.tagName === 'SELECT') {
-                        displayTexts[index].textContent = input.options[input.selectedIndex].text;
-                    } else {
-                        displayTexts[index].textContent = input.value;
-                    }
-                }
-            });
-
-            // Show success message
-            alert('✅ Profile updated successfully!');
-
-            // Exit edit mode
-            const editButton = document.querySelector('.edit-button');
-            editButton.click();
+      });
+  
+      alert('✅ Profile updated successfully!');
+      toggleEditMode(new Event('click')); // Exit edit mode
+    }
+  
+    function cancelEdit() {
+      const editInputs = document.querySelectorAll('.edit-input');
+      editInputs.forEach((input, index) => {
+        if (originalValues[index] !== undefined) {
+          input.value = originalValues[index];
         }
-
-        function cancelEdit() {
-            // Restore original values
-            const editInputs = document.querySelectorAll('.edit-input');
-            editInputs.forEach((input, index) => {
-                if (originalValues[index] !== undefined) {
-                    input.value = originalValues[index];
-                }
-            });
-
-            // Exit edit mode
-            const editButton = document.querySelector('.edit-button');
-            editButton.click();
-        }
-    </script>
-<%- include("layouts/footer.ejs") %> 
+      });
+  
+      toggleEditMode(new Event('click')); // Exit edit mode
+    }
+  </script>
+  
