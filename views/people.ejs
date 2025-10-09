@@ -1,60 +1,49 @@
-<!-- <%- layout("/layouts/navbar.ejs")%>
-<link rel="stylesheet" href="/people.css">
+<%- layout("/layouts/navbar.ejs") %>
 
-<div class="passport-container">
-    <% people.forEach((person, index) => { %>
-      <div class="passport-card">
-        <img src="<%=person.image%>" alt="Profile Picture">
-        <h3><%= person.first_name %> <%= person.last_name %></h3>
-        <p>Address: <%= person.address %></p>
+<!-- 🔍 Filter Section -->
+<div class="flex flex-wrap justify-center gap-4 my-6 px-4 md:px-20">
+  <form id="filterForm" method="GET" action="/people" class="flex flex-wrap gap-3 justify-center w-full md:w-auto">
+    
+    <!-- Name & Address -->
+    <input type="text" name="name" placeholder="Search by name" value="<%= query?.name || '' %>" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none">
+    <input type="text" name="address" placeholder="Search by address" value="<%= query?.address || '' %>" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none">
+
+    <!-- Age Range -->
+    <input type="number" name="minAge" placeholder="Min Age" value="<%= query?.minAge || '' %>" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none w-24">
+    <input type="number" name="maxAge" placeholder="Max Age" value="<%= query?.maxAge || '' %>" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none w-24">
+
+    <!-- Gender -->
+    <select name="gender" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none">
+      <option value="">Any Gender</option>
+      <option value="Male" <%= query?.gender === "Male" ? "selected" : "" %>>Male</option>
+      <option value="Female" <%= query?.gender === "Female" ? "selected" : "" %>>Female</option>
+      <option value="Other" <%= query?.gender === "Other" ? "selected" : "" %>>Other</option>
+    </select>
+
+    <!-- Interests -->
+    <input type="text" name="interest" placeholder="Search by interest" value="<%= query?.interest || '' %>" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none">
+
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Filter</button>
+  </form>
+</div>
+
+<!-- 🪪 Passport Cards -->
+<div class="flex flex-wrap justify-center gap-6 px-4 md:px-20 mb-10">
+  <% if (people.length === 0) { %>
+    <p class="text-gray-500 text-lg">No matching results found.</p>
+  <% } %>
+
+  <% people.forEach((person) => { %>
+    <a href="/people/<%= person._id %>" class="block transform hover:scale-105 transition cursor-pointer">
+      <div class="bg-white rounded-lg shadow-md overflow-hidden w-64 h-80 flex flex-col">
+        <img src="<%= person.image %>" alt="Profile Picture" class="w-full h-60 object-cover">
+        <div class="p-4 flex flex-col flex-1">
+          <h3 class="text-lg font-semibold mb-1"><%= person.first_name %> <%= person.last_name %></h3>
+          <p class="text-gray-600 text-sm">Address: <%= person.address %></p>
+        </div>
       </div>
-    <% }) %>
-  </div> -->
+    </a>
+  <% }) %>
+</div>
 
-  <%- layout("/layouts/navbar.ejs") %>
-  <link rel="stylesheet" href="/people.css">
-  
-  <!-- 🔍 Filter Section -->
-  <div class="filter-section">
-    <form id="filterForm" method="GET" action="/people">
-      <!-- Name & Address -->
-      <input type="text" name="name" placeholder="Search by name" value="<%= query?.name || '' %>">
-      <input type="text" name="address" placeholder="Search by address" value="<%= query?.address || '' %>">
-  
-      <!-- Age Range -->
-      <input type="number" name="minAge" placeholder="Min Age" value="<%= query?.minAge || '' %>">
-      <input type="number" name="maxAge" placeholder="Max Age" value="<%= query?.maxAge || '' %>">
-  
-      <!-- Gender -->
-      <select name="gender">
-        <option value="">Any Gender</option>
-        <option value="Male" <%= query?.gender === "Male" ? "selected" : "" %>>Male</option>
-        <option value="Female" <%= query?.gender === "Female" ? "selected" : "" %>>Female</option>
-        <option value="Other" <%= query?.gender === "Other" ? "selected" : "" %>>Other</option>
-      </select>
-  
-      <!-- Interests -->
-      <input type="text" name="interest" placeholder="Search by interest (e.g. music)" value="<%= query?.interest || '' %>">
-  
-      <button type="submit">Filter</button>
-    </form>
-  </div>
-  
-  <!-- 🪪 Passport Cards -->
-  <div class="passport-container">
-    <% if (people.length === 0) { %>
-      <p>No matching results found.</p>
-    <% } %>
-  
-    <% people.forEach((person) => { %>
-        <a href="/people/<%= person._id %>" class="passport-link">
-          <div class="passport-card">
-            <img src="<%= person.image %>" alt="Profile Picture">
-            <h3><%= person.first_name %> <%= person.last_name %></h3>
-            <p>Address: <%= person.address %></p>
-          </div>
-        </a>
-      <% }) %>
-  </div>
-  
-<%-include("layouts/footer.ejs") %>
+<%- include("layouts/footer.ejs") %>
