@@ -124,27 +124,42 @@ function initializeChat() {
         }
         
         async function loadHistory() {
-            console.log("Attempting to load chat history...");
+            console.log("Attempting to load chat history for otherUser ID:", otherUser.id); // Added logging for the ID itself
             try {
-                const response = await fetch(`/api/chat/\${otherUser.id}`);
+                // Corrected URL construction using string concatenation
+                const response = await fetch('/api/chat/' + otherUser.id);
                 console.log("Fetch response status:", response.status);
 
-                if (!response.ok) {
-                    console.error("Failed to fetch history. Status:", response.statusText);
+                 if (!response.ok) {
+                    console.error("Failed to fetch history. Status:", response.status, response.statusText);
+                    const errorText = await response.text();
+                    console.error("Error response body:", errorText);
                     return;
                 }
 
                 const history = await response.json();
-                console.log("Received history:", history);
-                
+                console.log("Received history:", history); // Log received data
+
+                if (!Array.isArray(history)) {
+                    console.error("Received history is not an array:", history);
+                    return;
+                }
+
                 if (history.length === 0) {
                     console.log("No chat history found with this user.");
                 }
 
                 history.forEach(msg => {
+                     if (!msg || typeof msg.senderId === 'undefined' || typeof msg.message === 'undefined') {
+                        console.warn("Skipping invalid message object:", msg);
+                        return; // Skip if message structure is wrong
+                     }
                     const isSender = msg.senderId.toString() === currentUser.id.toString();
                     addMessage(msg.message, isSender);
                 });
+                // Scroll to bottom after loading history
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
             } catch (error) {
                 console.error("An error occurred while loading chat history:", error);
             }

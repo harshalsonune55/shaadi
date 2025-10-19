@@ -308,15 +308,42 @@ app.get("/chat/:personId", isLoggedIn, async (req, res) => {
 });
 
 app.get("/api/chat/:personId", isLoggedIn, async (req, res) => {
-    const userId = req.user?._id;
-    const { personId } = req.params;
-    const messages = await Chat.find({
-      $or: [
-        { senderId: userId, receiverId: personId },
-        { senderId: personId, receiverId: userId },
-      ]
-    }).sort({ createdAt: 1 });
-    res.json(messages);
+    try { // Wrap in try...catch for better error handling
+        const userId = req.user?._id;
+        const personId = req.params.personId; // Get the ID from the URL parameter
+
+        // --- Start Debugging ---
+        console.log("--- Fetching Chat History ---");
+        console.log("Current User ID (userId):", userId, `(Type: ${typeof userId})`);
+        console.log("Other Person ID (personId):", personId, `(Type: ${typeof personId})`);
+
+        if (!userId || !personId) {
+            console.error("Missing userId or personId");
+            return res.status(400).json({ error: "Invalid user IDs provided" });
+        }
+
+        // Ensure IDs are strings for the query, matching the Chat schema
+        const userIdString = userId.toString();
+        const personIdString = personId.toString();
+        console.log("Querying with User ID:", userIdString);
+        console.log("Querying with Person ID:", personIdString);
+        // --- End Debugging ---
+
+        const messages = await Chat.find({
+            $or: [
+                { senderId: userIdString, receiverId: personIdString },
+                { senderId: personIdString, receiverId: userIdString },
+            ]
+        }).sort({ createdAt: 1 });
+
+        console.log(`Found ${messages.length} messages between ${userIdString} and ${personIdString}`); // Log count
+
+        res.json(messages);
+
+    } catch (error) { // Add error handling
+        console.error("Error in /api/chat/:personId:", error);
+        res.status(500).json({ error: "Failed to fetch chat history due to server error" });
+    }
 });
 
 app.post("/chat/send", isLoggedIn, async (req, res) => {
