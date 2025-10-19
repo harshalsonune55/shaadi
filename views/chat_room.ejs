@@ -1,24 +1,162 @@
+<%- layout("/layouts/navbar.ejs") %>
 
-<%- layout("/layouts/navbar.ejs")%>
-<link rel="stylesheet" href="/chat_room.css">
-<div class="chat-container">
-    <div class="chat-header">
-      Chat Room
-      <span>5 Online</span>
-    </div>
+<div class="flex items-center justify-center w-full h-screen bg-gray-100">
 
-    <div class="chat-messages">
-      <div class="message received">Hello! 👋</div>
-      <div class="message sent">Hey! How are you?</div>
-      <div class="message received">I’m good, thanks. You?</div>
-    </div>
+  <div class="flex flex-col w-full max-w-md h-[70vh] antialiased text-gray-800">
+    <div class="flex flex-row h-full w-full overflow-hidden">
+      <div class="flex flex-col flex-auto h-full p-6">
+        <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-white shadow-xl h-full p-4">
+          <div class="flex items-center mb-4">
+              <img src="<%= person.image %>" alt="<%= person.first_name %>" class="w-10 h-10 rounded-full mr-3">
+              <h2 class="text-xl font-bold">Chat with <%= person.first_name %> <%= person.last_name %></h2>
+          </div>
 
-    <div class="chat-input">
-      <input type="text" placeholder="Type your message..." />
-      <button>Send</button>
+          <div class="flex flex-col h-full overflow-x-auto mb-4">
+            <div class="flex flex-col h-full">
+              <div id="messages" class="grid grid-cols-12 gap-y-2">
+                </div>
+            </div>
+          </div>
+
+          <form id="form" class="flex flex-row items-center h-16 rounded-xl bg-gray-100 w-full px-4">
+            <div class="flex-grow">
+              <div class="relative w-full">
+                <input id="input" type="text" autocomplete="off" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" placeholder="Type your message..." />
+              </div>
+            </div>
+            <div class="ml-4">
+              <button class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-2 flex-shrink-0">
+                <span>Send</span>
+                <span class="ml-2">
+                  <svg class="w-4 h-4 transform rotate-45 -mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 
+</div>
 
 
-<%-include("layouts/footer.ejs") %>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// Wrap all logic in a function to ensure everything is defined before running
+function initializeChat() {
+        const socket = io();
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messagesContainer = document.getElementById('messages');
+
+        console.log("Chat script initialized.");
+
+        // --- User and Room Setup ---
+        const currentUser = {
+            id: "<%= currentUser._id %>",
+            name: "<%= currentUser.fullname %>"
+        };
+
+        const otherUser = {
+            id: "<%= person._id %>",
+            name: "<%= person.first_name %>",
+            avatar: "<%= person.image %>"
+        };
+        
+        console.log("Current User ID:", currentUser.id);
+        console.log("Other User ID:", otherUser.id);
+
+        const roomId = [currentUser.id, otherUser.id].sort().join('-');
+        socket.emit('join room', roomId);
+        console.log("Joined room:", roomId);
+
+        // --- Event Handlers ---
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                const messageData = {
+                    room: roomId,
+                    message: input.value,
+                    senderId: currentUser.id,
+                    receiverId: otherUser.id
+                };
+                socket.emit('chat message', messageData);
+                addMessage(input.value, true);
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function(data) {
+            if (data.senderId.toString() === otherUser.id.toString()) {
+                addMessage(data.message, false);
+            }
+        });
+
+        // --- Helper Functions ---
+        function addMessage(msg, isSender) {
+            const messageElement = document.createElement('div');
+            const avatarInitial = isSender ? currentUser.name.charAt(0).toUpperCase() : otherUser.name.charAt(0).toUpperCase();
+
+            if (isSender) {
+                messageElement.className = 'col-start-6 col-end-13 p-3 rounded-lg';
+                messageElement.innerHTML = `
+                    <div class="flex items-center justify-start flex-row-reverse">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 text-white font-bold flex-shrink-0">${avatarInitial}</div>
+                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                            <div>${msg}</div>
+                        </div>
+                    </div>`;
+            } else {
+                messageElement.className = 'col-start-1 col-end-8 p-3 rounded-lg';
+                messageElement.innerHTML = `
+                    <div class="flex flex-row items-center">
+                        <img src="${otherUser.avatar}" alt="${otherUser.name}" class="w-10 h-10 rounded-full">
+                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                            <div>${msg}</div>
+                        </div>
+                    </div>`;
+            }
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        async function loadHistory() {
+            console.log("Attempting to load chat history...");
+            try {
+                const response = await fetch(`/api/chat/\${otherUser.id}`);
+                console.log("Fetch response status:", response.status);
+
+                if (!response.ok) {
+                    console.error("Failed to fetch history. Status:", response.statusText);
+                    return;
+                }
+
+                const history = await response.json();
+                console.log("Received history:", history);
+                
+                if (history.length === 0) {
+                    console.log("No chat history found with this user.");
+                }
+
+                history.forEach(msg => {
+                    const isSender = msg.senderId.toString() === currentUser.id.toString();
+                    addMessage(msg.message, isSender);
+                });
+            } catch (error) {
+                console.error("An error occurred while loading chat history:", error);
+            }
+        }
+
+        // Load history right away
+        loadHistory();
+    }
+
+    // Ensure the DOM is fully loaded before initializing the chat script
+    document.addEventListener('DOMContentLoaded', initializeChat);
+</script>
+
+
+<%- include("layouts/footer.ejs") %>

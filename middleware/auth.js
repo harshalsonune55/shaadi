@@ -1,15 +1,10 @@
-import { getUser } from "../service/auth.js";
-export function restricttologinuser(req, res, next) {
-    const sessionId = req.cookies?.sessionId;
-    if (!sessionId) {
-        return res.redirect("/login");
+// middleware/auth.js
+
+export function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
     }
-    const user=getUser(sessionId);
-    if (!user) {
-        return res.redirect("/login");
-    }
-    req.user=user;
-    next();
+    // You can store the URL they were trying to access and redirect them after login
+    req.session.returnTo = req.originalUrl;
+    res.redirect("/login");
 }
-
-

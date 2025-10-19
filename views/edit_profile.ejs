@@ -1,69 +1,75 @@
-<%- include("/layout/navbar.ejs") %>
-<link rel="stylesheet" href="/edit_profile.css">    
+<%- layout("/layouts/navbar.ejs") %>
 
-<div class="edit-profile-container">
-    <h2>Edit Profile</h2>
-    <form action="/profile/edit/<%= user.id %>" method="POST" enctype="multipart/form-data">
-        <!-- Profile Picture -->
-        <div class="form-group">
-            <label for="profilePicture">Profile Picture</label>
-            <input type="text" id="profilePicture" name="profilePicture" value="<%= userProfile?.profilePicture || '' %>">
+<div class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4">
+  <div class="bg-white p-8 md:p-10 rounded-xl shadow-lg w-full max-w-2xl">
+    
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">
+      <% if (userProfile) { %>
+        Edit Your Profile
+      <% } else { %>
+        Create Your Profile
+      <% } %>
+    </h2>
+    
+    <form action="/profile" method="POST" class="space-y-5">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label for="first_name" class="block text-gray-700 font-medium mb-1">First Name</label>
+          <input type="text" id="first_name" name="first_name" value="<%= userProfile ? userProfile.first_name : '' %>" required
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
         </div>
-
-        <!-- Full Name -->
-        <div class="form-group">
-            <label for="fullname">Full Name</label>
-            <input type="text" id="fullname" name="fullname" value="<%= user.fullname %>" required>
+        <div>
+          <label for="last_name" class="block text-gray-700 font-medium mb-1">Last Name</label>
+          <input type="text" id="last_name" name="last_name" value="<%= userProfile ? userProfile.last_name : '' %>" required
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
         </div>
+      </div>
 
-        <!-- Title -->
-        <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" id="title" name="title" value="<%= userProfile?.title || '' %>">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label for="age" class="block text-gray-700 font-medium mb-1">Age</label>
+          <input type="number" id="age" name="age" value="<%= userProfile ? userProfile.age : '' %>"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
         </div>
-
-        <!-- Tags -->
-        <div class="form-group">
-            <label for="tags">Tags (comma separated)</label>
-            <input type="text" id="tags" name="tags" value="<%= userProfile?.tags ? userProfile.tags.join(', ') : '' %>">
+        <div>
+          <label for="gender" class="block text-gray-700 font-medium mb-1">Gender</label>
+          <input type="text" id="gender" name="gender" value="<%= userProfile ? userProfile.gender : '' %>"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
         </div>
+      </div>
+      
+      <div>
+        <label for="address" class="block text-gray-700 font-medium mb-1">Address (City, Country)</label>
+        <input type="text" id="address" name="address" value="<%= userProfile ? userProfile.address : '' %>"
+          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+      </div>
 
-        <!-- Gender -->
-        <div class="form-group">
-            <label for="gender">Gender</label>
-            <select id="gender" name="gender">
-                <option value="" <%= !userProfile?.gender ? 'selected' : '' %>>Select</option>
-                <option value="Male" <%= userProfile?.gender === 'Male' ? 'selected' : '' %>>Male</option>
-                <option value="Female" <%= userProfile?.gender === 'Female' ? 'selected' : '' %>>Female</option>
-                <option value="Other" <%= userProfile?.gender === 'Other' ? 'selected' : '' %>>Other</option>
-            </select>
-        </div>
+      <div>
+        <label for="Education" class="block text-gray-700 font-medium mb-1">Education</label>
+        <input type="text" id="Education" name="Education" value="<%= userProfile ? userProfile.Education : '' %>"
+          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+      </div>
 
-        <!-- Age -->
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" id="age" name="age" min="0" value="<%= userProfile?.age || '' %>">
-        </div>
+      <div>
+        <label for="work" class="block text-gray-700 font-medium mb-1">Work / Occupation</label>
+        <input type="text" id="work" name="work" value="<%= userProfile ? userProfile.work : '' %>"
+          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+      </div>
 
-        <!-- Location -->
-        <div class="form-group">
-            <label for="location">Location</label>
-            <input type="text" id="location" name="location" value="<%= userProfile?.location || '' %>">
-        </div>
+      <div>
+        <label for="image" class="block text-gray-700 font-medium mb-1">Profile Image URL</label>
+        <input type="text" id="image" name="image" value="<%= userProfile ? userProfile.image : '' %>"
+          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+      </div>
 
-        <!-- Education -->
-        <div class="form-group">
-            <label for="education">Education</label>
-            <input type="text" id="education" name="education" value="<%= userProfile?.education || '' %>">
-        </div>
-
-        <!-- Roles -->
-        <div class="form-group">
-            <label for="roles">Roles (comma separated)</label>
-            <input type="text" id="roles" name="roles" value="<%= userProfile?.roles ? userProfile.roles.join(', ') : '' %>">
-        </div>
-
-        <button type="submit" class="save-button">Save Changes</button>
+      <button type="submit" 
+        class="w-full bg-pink-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-pink-700 transition-colors">
+        Save Profile
+      </button>
     </form>
+
+  </div>
 </div>
-<%- include("/layout/footer.ejs") %>
+
+<%- include("layouts/footer.ejs") %>

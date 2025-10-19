@@ -1,0 +1,31 @@
+<%- layout("/layouts/navbar.ejs") %>
+
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+  <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg">
+    <div class="p-6 border-b">
+      <h1 class="text-2xl font-bold text-gray-800">Your Conversations</h1>
+    </div>
+
+    <div class="divide-y divide-gray-200">
+      <% if (conversations.length === 0) { %>
+        <p class="p-6 text-gray-500">You have no messages yet. Start a conversation from a user's profile!</p>
+      <% } else { %>
+        <% conversations.forEach(convo => { %>
+          <a href="/chat/<%= convo.participant._id %>" class="flex items-center p-4 hover:bg-gray-50 transition-colors">
+            <img src="<%= convo.participant.image %>" alt="<%= convo.participant.first_name %>" class="w-14 h-14 rounded-full object-cover">
+            
+            <div class="flex-1 ml-4">
+              <div class="flex justify-between items-center">
+                <h3 class="font-semibold text-lg text-gray-800"><%= convo.participant.first_name %> <%= convo.participant.last_name %></h3>
+                <span class="text-xs text-gray-500"><%= new Date(convo.lastMessage.createdAt).toLocaleString() %></span>
+              </div>
+              <p class="text-gray-600 text-sm truncate">
+                <%= convo.lastMessage.message %>
+              </p>
+            </div>
+          </a>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</div>

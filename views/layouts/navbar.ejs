@@ -55,23 +55,28 @@
                Login
              </a>
            <% } else { %>
-             <a href="/people" class="flex flex-col items-center hover:text-pink-600">
-               <i class="fa-solid fa-user-group text-xl mb-1"></i>
-               People
-             </a>
-             <a href="/pricing" class="flex flex-col items-center hover:text-pink-600">
-               <i class="fa-solid fa-tag text-xl mb-1"></i>
-               Pricing
-             </a>
-             <a href="/profile/<%= userProfile ? userProfile._id : (user ? user._id : '') %>"
-               class="flex flex-col items-center hover:text-pink-600">
-               <i class="fa-solid fa-circle-user text-xl mb-1"></i>
-               Profile
-             </a>
-             <a href="/logout" class="flex flex-col items-center hover:text-pink-600">
-               <i class="fa-solid fa-right-from-bracket text-xl mb-1"></i>
-               Logout
-             </a>
+            <a href="/people" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-user-group text-xl mb-1"></i>
+              People
+            </a>
+          
+            <a href="/inbox" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-inbox text-xl mb-1"></i>
+              Inbox
+            </a>
+          
+            <a href="/pricing" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-tag text-xl mb-1"></i>
+              Pricing
+            </a>
+            <a href="/profile" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-circle-user text-xl mb-1"></i>
+              Profile
+            </a>
+            <a href="/logout" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-right-from-bracket text-xl mb-1"></i>
+              Logout
+            </a>
            <% } %>
  
            <div class="hidden md:block">

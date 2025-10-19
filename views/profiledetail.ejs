@@ -1,62 +1,66 @@
 <%- layout("/layouts/navbar.ejs") %>
-<link rel="stylesheet" href="/profiledetail.css">
-<div class="listing-wrapper">
-  <div class="listing-main">
-    <img class="listing-photo" src="<%= person.image %>" alt="Rental property photo" />
-    <h1 class="listing-title"><%=person.first_name%> <%=person.last_name%></h1>
-    <div class="listing-sub">best of the choiced candidate</div>
 
-    <div class="badge-row">
-      <div class="badge">
+<div class="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-8">
+  <!-- Left Column -->
+  <div class="flex-1 space-y-4">
+    <img src="<%= person.image %>" alt="Profile photo" class="w-full h-72 object-cover rounded-xl" />
+    <h1 class="text-2xl font-bold text-gray-800"><%= person.first_name %> <%= person.last_name %></h1>
+    <div class="text-gray-500 text-sm">Best of the chosen candidate</div>
+
+    <!-- Badge Row -->
+    <div class="flex gap-4">
+      <div class="flex items-start gap-2 bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
         <span>🌿</span>
         <div>
-          <div style="font-size:13px; color:#666;">Guest favourite</div>
-          <div class="score">One of the most loved homes</div>
+          <div class="text-xs text-gray-500">Guest favourite</div>
+          <div class="font-semibold text-lg">One of the most loved homes</div>
         </div>
       </div>
-      <div class="badge" style="align-items:center">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
         <div>
-          <div style="font-size:13px; color:#666;">4.91</div>
-          <div style="font-size:13px; color:#999;">★★★★★ &nbsp; 22 Reviews</div>
+          <div class="text-xs text-gray-500">4.91</div>
+          <div class="text-xs text-gray-400">★★★★★ &nbsp; 22 Reviews</div>
         </div>
       </div>
     </div>
 
-    <div class="feature-list">
-      <div class="feature-item">
-        <div class="icon">💬</div>
+    <!-- Feature List -->
+    <div class="space-y-4 mt-4">
+      <div class="flex gap-3 items-start">
+        <div class="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-lg text-lg">💬</div>
         <div>
-          <p><strong>Exceptional Host communication</strong></p>
-          <small>Recent guests gave Shivdas a 5-star rating for communication.</small>
+          <p class="font-semibold">Exceptional Host communication</p>
+          <small class="text-gray-500 text-sm">Recent guests gave Shivdas a 5-star rating for communication.</small>
         </div>
       </div>
-      <div class="feature-item">
-        <div class="icon">🐾</div>
+      <div class="flex gap-3 items-start">
+        <div class="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-lg text-lg">🐾</div>
         <div>
-          <p><strong>Furry friends welcome</strong></p>
-          <small>Bring your pets along for the stay.</small>
+          <p class="font-semibold">Furry friends welcome</p>
+          <small class="text-gray-500 text-sm">Bring your pets along for the stay.</small>
         </div>
       </div>
-      <div class="feature-item">
-        <div class="icon">🔁</div>
+      <div class="flex gap-3 items-start">
+        <div class="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-lg text-lg">🔁</div>
         <div>
-          <p><strong>Free cancellation before 23 Oct</strong></p>
-          <small>Get a full refund if you change your mind.</small>
+          <p class="font-semibold">Free cancellation before 23 Oct</p>
+          <small class="text-gray-500 text-sm">Get a full refund if you change your mind.</small>
         </div>
       </div>
     </div>
 
-    <div class="listing-desc">
-      <div class="education-field">
-        <h3>🧑🏻‍🏫 Education:</h3>
+    <!-- Description / Details -->
+    <div class="space-y-4 mt-6 text-gray-700 text-sm">
+      <div class="bg-gray-50 p-4 rounded-md border-l-4 border-blue-500">
+        <h3 class="font-semibold">🧑🏻‍🏫 Education:</h3>
         <p><%= person.Education %></p>
       </div>
-      <div class="work-field">
-        <h3>💼 Work:</h3>
+      <div class="bg-gray-50 p-4 rounded-md border-l-4 border-green-500">
+        <h3 class="font-semibold">💼 Work:</h3>
         <p><%= person.work %></p>
       </div>
-      <div class="address-field">
-        <h3>📇 Address:</h3>
+      <div class="bg-gray-50 p-4 rounded-md border-l-4 border-pink-500">
+        <h3 class="font-semibold">📇 Address:</h3>
         <p><%= person.address %></p>
       </div>
       <p>Enjoy a memorable visit when you stay in this unique place...</p>
@@ -64,35 +68,33 @@
     </div>
   </div>
 
-  <aside class="listing-aside">
-    <div class="aside-outer">
-      <div class="aside-badge">💎 Rare find! You have the great choice</div>
-      <div class="booking-card" role="region" aria-label="Booking card">
-        <button class="reserve-btn" id="reserveBtn">Talk</button>
-        <div class="reserve-note">You won't be charged yet</div>
+  <!-- Right Column / Aside -->
+  <aside class="w-full lg:w-80 flex-shrink-0">
+    <div class="sticky top-6 space-y-4">
+      <div class="bg-pink-50 text-pink-700 font-semibold px-4 py-2 rounded-lg shadow">💎 Rare find! You have the great choice</div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow space-y-4">
+        <button id="reserveBtn" class="w-full py-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white font-bold rounded-full hover:from-pink-600 hover:to-pink-500 transition">
+          Talk
+        </button>
+        <div class="text-center text-gray-500 text-xs">You won't be charged yet</div>
 
         <% if (!user || !user.isSubscribed) { %>
-        <div class="subscription-plans">
-          <h3>Choose a Plan</h3>
-          <div class="plan">
-            <strong>Basic</strong>
-            <p>₹499/month — Chat access + limited support</p>
-            <button class="plan-btn">Subscribe</button>
+        <div class="subscription-plans space-y-3 mt-4">
+          <h3 class="font-semibold text-gray-700">Choose a Plan</h3>
+          <% ['Basic','Standard','Premium'].forEach((plan, idx) => { %>
+          <div class="border rounded-lg p-3 bg-gray-50 space-y-1">
+            <strong class="block text-gray-800"><%= plan %></strong>
+            <p class="text-xs text-gray-600">
+              <%= plan === 'Basic' ? '₹499/month — Chat access + limited support' : plan === 'Standard' ? '₹999/month — Priority chat + exclusive offers' : '₹2,999/month — Unlimited chat + premium perks' %>
+            </p>
+            <button class="plan-btn w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Subscribe</button>
           </div>
-          <div class="plan">
-            <strong>Standard</strong>
-            <p>₹999/month — Priority chat + exclusive offers</p>
-            <button class="plan-btn">Subscribe</button>
-          </div>
-          <div class="plan">
-            <strong>Premium</strong>
-            <p>₹2,999/month — Unlimited chat + premium perks</p>
-            <button class="plan-btn">Subscribe</button>
-          </div>
+          <% }) %>
         </div>
         <% } %>
 
-        <a class="report-link" href="#" id="reportLink">🏳️ Report this listing</a>
+        <a href="#" id="reportLink" class="text-gray-500 text-xs flex items-center gap-1 hover:underline mt-2">🏳️ Report this listing</a>
       </div>
     </div>
   </aside>
@@ -102,8 +104,8 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-let isSubscribed = <%= user && user.isSubscribed ? 'true' : 'false' %>;
-// let isSubscribed = true;
+// let isSubscribed = <%= user && user.isSubscribed ? 'true' : 'false' %>;
+let isSubscribed ='true' %>;
 
 document.getElementById("reserveBtn").addEventListener("click", () => {
   if (!<%= user ? true : false %>) {

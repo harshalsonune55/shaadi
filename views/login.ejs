@@ -1,30 +1,43 @@
 <%- layout("layouts/navbar.ejs") %>
-<link rel="stylesheet" href="/login.css">
 
-
-  <!-- Centered login form -->
-  <div class="main-container">
-    <% if (typeof error !== "undefined" && error) { %>
-        <div class="error-message"><%= error %></div>
-    <% } %>
-      
-    <div class="login-container">
-      <h2>Login</h2>
-      <form action="/login_user" method="post">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Enter your email" required>
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" required>
-        </div>
-        <button type="submit" class="login-btn">Login</button>
-      </form>
-      <div class="extra-links">
-        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
-        <p><a href="#">Forgot Password?</a></p>
-      </div>
-    </div>
+<% if (typeof error !== "undefined" && error) { %>
+  <div class="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-md w-80 mx-auto mt-6 text-center">
+    <%= error %>
   </div>
+<% } %>
 
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-cyan-400 to-cyan-700 px-4">
+  <div class="bg-white p-10 rounded-xl shadow-lg w-full max-w-md">
+    
+    <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Login</h2>
+    
+    <form action="/login_user" method="post" class="space-y-4">
+      
+      <div>
+        <label for="email" class="block text-gray-600 text-sm mb-1">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
+      </div>
+      
+      <div>
+        <label for="password" class="block text-gray-600 text-sm mb-1">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
+      </div>
+      
+      <button type="submit" 
+        class="w-full bg-cyan-500 text-white font-semibold py-3 rounded-lg hover:bg-cyan-600 transform hover:-translate-y-1 transition">
+        Login
+      </button>
+    </form>
+
+    <div class="text-center mt-4 text-gray-600 text-sm space-y-1">
+      <p>Don't have an account? 
+        <a href="/signup" class="text-cyan-500 font-medium hover:underline">Sign Up</a>
+      </p>
+      <p><a href="#" class="text-cyan-500 font-medium hover:underline">Forgot Password?</a></p>
+    </div>
+
+  </div>
+</div>
+<%- include("layouts/footer.ejs") %>

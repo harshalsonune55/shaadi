@@ -1,97 +1,353 @@
 import express from 'express';
 const app = express();
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import { configDotenv } from 'dotenv';
 configDotenv();
 const PORT = process.env.PORT || 3000;
 import ejsmate from 'ejs-mate';
 import mongoose from 'mongoose';
-import User from './model/user.js';
-import { v4 as uuidv4 } from 'uuid';
-import { setUser, getUser } from './service/auth.js';
-import cookieParser from 'cookie-parser';
 import session from "express-session";
+import passport from 'passport';
+import LocalStrategy from 'passport-local';
+
+// Models
+import User from './model/user.js';
 import UserProfile from './model/user.profile.js';
-import Razorpay from "razorpay";
-import crypto from "crypto";
-app.use(cookieParser());
-import { restricttologinuser } from './middleware/auth.js';
 import Chat from './model/chat.js';
 
+// Middleware
+import { isLoggedIn } from './middleware/auth.js'; 
+
+// Other imports
+import Razorpay from "razorpay";
+import crypto from "crypto";
+
+const server = createServer(app);
+const io = new Server(server);
+
+// --- DATABASE CONNECTION ---
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => {
-    console.log("Connected to MongoDB");
-}).catch(err => {
-    console.error("Error connecting to MongoDB:", err);
-}); 
+}).then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.error("Error connecting to MongoDB:", err));
 
-
-
-app.use(session({
-    secret: "your-secret-key",   // change to a secure random string
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false }    // set secure: true if using https
-  }));
-
+// --- APP CONFIGURATION ---
 app.engine('ejs', ejsmate);
-app.use(async (req, res, next) => {
-  try {
-    if (req.session.user) {
-      const profile = await UserProfile.findOne({ userId: req.session.user._id });
-      res.locals.userProfile = profile || null;
-    } else {
-      res.locals.userProfile = null;
+app.set('view engine', 'ejs');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+// --- SESSION AND AUTHENTICATION SETUP ---
+const sessionConfig = {
+    secret: process.env.SESSION_SECRET || "thisisnotagoodsecret",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        // secure: true, // Enable this in production with HTTPS
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
     }
-    next();
-  } catch (err) {
-    console.error("Error loading user profile:", err);
-    res.locals.userProfile = null;
-    next();
+};
+
+app.use(session(sessionConfig));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Configure Passport to use the LocalStrategy with 'email' as the username field
+passport.use(new LocalStrategy({ usernameField: 'email' }, User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Middleware to make user info available in all templates
+app.use(async (req, res, next) => {
+  res.locals.user = req.user || null;
+  
+  // If a user is logged in, find their detailed profile
+  if (req.user) {
+      // We find the profile by matching the email from the authenticated user
+      res.locals.userProfile = await UserProfile.findOne({ email: req.user.email });
+  } else {
+      res.locals.userProfile = null;
+  }
+  next();
+});
+
+// --- SOCKET.IO ---
+// --- SOCKET.IO ---
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  // User joins a specific chat room
+  socket.on('join room', (room) => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined room: ${room}`);
+  });
+
+  // Listen for a message and broadcast it to the correct room
+  socket.on('chat message', (data) => {
+    // 'data' will contain { room, message, senderId }
+    socket.to(data.room).emit('chat message', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+
+// --- ROUTES ---
+
+// ... (keep all routes before this)
+
+// Updated /chat/send route
+app.post("/chat/send", isLoggedIn, async (req, res) => {
+    const { receiverId, message } = req.body;
+    const senderId = req.user?._id;
+
+    if (!senderId) {
+        return res.status(401).json({ error: "Not logged in" });
+    }
+
+    // Save the message to the database
+    const chatMsg = new Chat({ senderId, receiverId, message });
+    await chatMsg.save();
+
+    // The message is now sent via the socket connection from the client,
+    // so we don't need to emit it from the server here.
+    // We just confirm the message was saved.
+    res.status(200).json({ success: true, message: "Message saved." });
+});
+
+
+// ... (keep all routes after this)
+
+
+// --- ROUTES ---
+
+// Home Route
+app.get('/', (req, res) => {
+    res.render('home.ejs');
+});
+
+// Signup Routes
+app.get("/signup", (req, res) => {
+    res.render("signup.ejs");
+});
+
+app.post("/signup_user", async (req, res, next) => {
+  try {
+      const { fullname, email, password, confirm_password } = req.body;
+      if (password !== confirm_password) {
+          return res.render("signup", { error: "Passwords do not match" });
+      }
+      const user = new User({ email, fullname });
+      const registeredUser = await User.register(user, password);
+      req.login(registeredUser, err => {
+          if (err) return next(err);
+          res.redirect("/");
+      });
+  } catch (e) {
+      console.error("Error during signup:", e.message);
+      res.render("signup", { error: e.message });
   }
 });
 
-app.use(express.json());   
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
-    next();
-  });
-  const razorpay = new Razorpay({
+// Login Routes
+app.get("/login", (req, res) => {
+    res.render("login.ejs");
+});
+
+// Use passport.authenticate() middleware for login
+app.post("/login_user", passport.authenticate("local", {
+  failureRedirect: "/login",
+}), (req, res) => {
+  const redirectUrl = req.session.returnTo || '/';
+  delete req.session.returnTo;
+  res.redirect(redirectUrl);
+});
+
+// Logout Route
+app.get("/logout", (req, res, next) => {
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        res.redirect('/');
+    });
+});
+
+// People & Profile Routes
+app.get("/people", isLoggedIn, async(req, res) => {
+    const people = await UserProfile.find({});
+    res.render("people", { people, query: req.query });
+});
+
+app.get("/people/:id", isLoggedIn, async (req, res) => {
+    const person = await UserProfile.findById(req.params.id);
+    if (!person) return res.status(404).send("Person not found");
+    res.render("profiledetail.ejs", { person, user: req.user });
+});
+
+app.get("/profile", isLoggedIn, async (req, res) => {
+  try {
+      const userProfile = await UserProfile.findOne({ email: req.user.email });
+
+      if (userProfile) {
+          // If profile exists, show it
+          res.render("profile.ejs", { user: req.user, userProfile: userProfile });
+      } else {
+          // If no profile, redirect to the create/edit form
+          res.redirect("/profile/edit");
+      }
+  } catch (err) {
+      console.error("Error at /profile route:", err);
+      res.status(500).send("An error occurred.");
+  }
+});
+
+// RENDER EDIT/CREATE FORM
+app.get("/profile/edit", isLoggedIn, async (req, res) => {
+  try {
+      const userProfile = await UserProfile.findOne({ email: req.user.email });
+      // Render the form, passing existing profile data (or null if it's a new user)
+      res.render("edit_profile.ejs", { user: req.user, userProfile: userProfile });
+  } catch (err) {
+      console.error("Error rendering edit profile page:", err);
+      res.status(500).send("An error occurred.");
+  }
+});
+
+// HANDLE FORM SUBMISSION (CREATE or UPDATE)
+app.post("/profile", isLoggedIn, async (req, res) => {
+  try {
+      const profileData = {
+          first_name: req.body.first_name,
+          last_name: req.body.last_name,
+          age: req.body.age,
+          gender: req.body.gender,
+          address: req.body.address,
+          work: req.body.work,
+          Education: req.body.Education,
+          image: req.body.image,
+          email: req.user.email, // Always link to the logged-in user's email
+          username: req.user.username
+      };
+
+      // Find profile by email and update it, OR create it if it doesn't exist (upsert: true)
+      await UserProfile.findOneAndUpdate(
+          { email: req.user.email },
+          profileData,
+          { new: true, upsert: true, setDefaultsOnInsert: true }
+      );
+
+      res.redirect("/profile"); // Redirect back to the view profile page
+  } catch (err) {
+      console.error("Error saving profile:", err);
+      res.status(500).send("An error occurred while saving the profile.");
+  }
+});
+
+app.get("/inbox", isLoggedIn, async (req, res) => {
+  try {
+      const userId = req.user._id;
+
+      // 1. Find all messages involving the current user
+      const messages = await Chat.find({
+          $or: [{ senderId: userId }, { receiverId: userId }]
+      }).sort({ createdAt: -1 });
+
+      // 2. Group messages by conversation partner
+      const conversationsMap = new Map();
+      messages.forEach(msg => {
+          // Determine the "other person" in the chat
+          const otherUserId = msg.senderId.toString() === userId.toString() ? msg.receiverId.toString() : msg.senderId.toString();
+          
+          // If we haven't seen this conversation yet, add it with the latest message
+          if (!conversationsMap.has(otherUserId)) {
+              conversationsMap.set(otherUserId, msg);
+          }
+      });
+
+      // 3. Fetch profile details and format the data for the template
+      const conversations = [];
+      for (const [otherUserId, lastMessage] of conversationsMap.entries()) {
+          const participantProfile = await UserProfile.findById(otherUserId);
+          if (participantProfile) {
+              conversations.push({
+                  participant: participantProfile,
+                  lastMessage: lastMessage
+              });
+          }
+      }
+      
+      // Sort conversations to show the most recent ones first
+      conversations.sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt);
+
+      res.render("inbox", { conversations });
+  } catch (err) {
+      console.error("Error fetching inbox:", err);
+      res.status(500).send("Error loading your inbox.");
+  }
+});
+
+// Chat Routes (Protected by isLoggedIn middleware)
+app.get("/chat/:personId", isLoggedIn, async (req, res) => {
+    try {
+        const { personId } = req.params;
+        const person = await UserProfile.findById(personId);
+        if (!person) return res.status(404).send("Person not found");
+        res.render("chat_room.ejs", { person, currentUser: req.user });
+    } catch (error) {
+        console.error("Error loading chat room:", error);
+        res.status(500).send("Error loading chat room");
+    }
+});
+
+app.get("/api/chat/:personId", isLoggedIn, async (req, res) => {
+    const userId = req.user?._id;
+    const { personId } = req.params;
+    const messages = await Chat.find({
+      $or: [
+        { senderId: userId, receiverId: personId },
+        { senderId: personId, receiverId: userId },
+      ]
+    }).sort({ createdAt: 1 });
+    res.json(messages);
+});
+
+app.post("/chat/send", isLoggedIn, async (req, res) => {
+  const { receiverId, message } = req.body;
+  const senderId = req.user?._id;
+
+  if (!senderId) {
+      return res.status(401).json({ error: "Not logged in" });
+  }
+
+  // Save the message to the database
+  const chatMsg = new Chat({ senderId, receiverId, message });
+  await chatMsg.save();
+
+  // The message is now sent via the socket connection from the client,
+  // so we don't need to emit it from the server here.
+  // We just confirm the message was saved.
+  res.status(200).json({ success: true, message: "Message saved." });
+});
+
+// Pricing and Payment Routes
+app.get("/pricing", (req, res) => {
+    res.render("pricing.ejs");
+});
+
+const razorpay = new Razorpay({
     key_id: process.env.Razor_key_id,
     key_secret: process.env.Razor_key_secret,
-  });
-
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-app.post("/login_user",(req,res)=>{
-    const {email,password} = req.body;
-    User.find({ email, password }).then(user=>{
-        if(user){
-            
-            const sessionId = uuidv4();
-            setUser(sessionId, user._id);
-            req.session.user = user;
-            res.cookie("sessionId", sessionId, { httpOnly: true });
-            return res.redirect("/");
-
-        } else {
-            return res.render("login", { error: "Passwords do not match" });
-        }
-    }).catch(err=>{
-        console.error("Error during login:", err);
-        return res.render("login", { error: "Error during login. Please try again." });
-    });
-
-});
-
-app.post("/create-order", async (req, res) => {
+app.post("/create-order", isLoggedIn, async (req, res) => {
     try {
       const { amount } = req.body;
       const order = await razorpay.orders.create({
@@ -105,213 +361,9 @@ app.post("/create-order", async (req, res) => {
       console.error(err);
       res.status(500).send("Error creating order");
     }
-  });
-
-app.post("/signup_user",(req,res)=>{
-    const {fullname,email,password,username,confirm_password} = req.body;
-    if(password !== confirm_password){
-        return res.render("signup", { error: "Passwords do not match" });
-    }
-    console.log(req.body);
-    const newUser = new User({
-        username,
-        email,
-        password,
-        fullname
-    });
-    newUser.save().then(()=>{
-        res.redirect("/");
-    }).catch(err=>{
-        console.error("Error saving user:", err);
-        res.render("signup", { error: "Error creating account. Please try again." });
-    });
 });
 
-
-app.get("/login",(req,res)=>{
-    res.render("login.ejs");
-});
-
-
-app.get("/people", async(req, res) => {
-    try {
-        const { name, address, minAge, maxAge, gender, interest } = req.query;
-    
-        let filter = {};
-   
-        if (name) {
-          filter.$or = [
-            { first_name: new RegExp(name, "i") },
-            { last_name: new RegExp(name, "i") }
-          ];
-        }
-    
-
-        if (address) {
-          filter.address = new RegExp(address, "i");
-        }
-    
-        // Age filter
-        if (minAge || maxAge) {
-          filter.age = {};
-          if (minAge) filter.age.$gte = Number(minAge);
-          if (maxAge) filter.age.$lte = Number(maxAge);
-        }
-    
-        // Gender filter
-        if (gender) {
-          filter.gender = gender;
-        }
-    
-        // Interests filter (assuming array of interests in DB)
-        if (interest) {
-          filter.interests = { $in: [new RegExp(interest, "i")] };
-        }
-    
-        const people = await UserProfile.find(filter);
-        res.render("people", { people, query: req.query });
-      } catch (err) {
-        console.error("Error fetching people:", err);
-        res.status(500).send("Internal Server Error");
-      }
-  });
-  
-app.get("/profile/:id",async(req,res)=>{
-  try {
-    const user = await UserProfile.findById(req.params.id);
-
-    if (!user) {
-      return res.send("User not found");
-    }
-
-    res.render("profile", {
-      user: {
-        id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        gender: user.gender,
-        age: user.age,
-        location: user.location,
-        education: user.education,
-        roles: user.roles || [],
-        title: user.title,
-        profile_pic: user.profile_pic || "/default.png"
-      }
-    });
-  } catch (err) {
-    console.error("Error loading profile:", err);
-    res.send("Error loading profile");
-
-  };
-});
-
-
-app.get("/profile/edit/:id",async(req,res)=>{
-    try {
-      const user = await UserProfile.findById(req.params.id);
-  
-      if (!user) {
-        return res.send("User not found");
-      }
-  
-      res.render("edit_profile", { user });
-    } catch (err) {
-      console.error("Error loading profile for edit:", err);
-      res.send("Error loading profile for edit");
-    }
-  });
-  
-  app.post("/profile/edit/:id",async(req,res)=>{
-    try {
-      const { first_name, last_name, email  } = req.body;       
-      const user = await UserProfile.findByIdAndUpdate(req.params.id, {
-        first_name,
-        last_name,
-        email
-      }, { new: true });
-  
-      if (!user) {
-        return res.send("User not found");
-      }
-  
-      res.redirect(`/profile/${user._id}`);
-    } catch (err) {
-      console.error("Error updating profile:", err);
-      res.send("Error updating profile");
-    }
-  }); 
-
-app.get("/pricing",(req,res)=>{
-    res.render("pricing.ejs");
-});
-
-app.get("/signup",(req,res)=>{
-    res.render("signup.ejs");
-});
-
-app.get("/people/:id", async (req, res) => {
-    try {
-      const person = await UserProfile.findById(req.params.id);
-      if (!person) return res.status(404).send("Person not found");
-      res.render("profiledetail.ejs", { person, user: req.session.user });
-    } catch (err) {
-      console.error("Error fetching person:", err);
-      res.status(500).send("Internal Server Error");
-    }
-  });
-  
-
-
-  app.get('/', async (req, res) => {
-    try {
-      // Get the logged-in user if available
-      const loggedInUser = req.session?.user || req.user || null;
-  
-      let userProfile = null;
-  
-      // If user is logged in, fetch their profile
-      if (loggedInUser) {
-        userProfile = await UserProfile.findOne({ userId: loggedInUser._id });
-      }
-  
-      // ✅ Always render home.ejs, whether logged in or not
-      res.render('home.ejs', {
-        user: loggedInUser,
-        profile: userProfile
-      });
-    } catch (err) {
-      console.error('Error fetching user profile:', err);
-      res.status(500).send('Server error');
-    }
-  });
-  
-
-app.get("/chat/:personId", async (req, res) => {
-    const userId = req.session.user?._id;
-    const { personId } = req.params;
-  
-    const messages = await Chat.find({
-      $or: [
-        { senderId: userId, receiverId: personId },
-        { senderId: personId, receiverId: userId },
-      ]
-    }).sort({ createdAt: 1 });
-  
-    res.json(messages);
-  });
-
-
-  app.post("/chat/send", async (req, res) => {
-    const { receiverId, message } = req.body;
-    const senderId = req.session.user?._id;
-    if (!senderId) return res.status(401).json({ error: "Not logged in" });
-  
-    const chatMsg = new Chat({ senderId, receiverId, message });
-    await chatMsg.save();
-    res.json(chatMsg);
-  });
-
-app.post("/verify-payment", (req, res) => {
+app.post("/verify-payment", isLoggedIn, (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   
     const hmac = crypto.createHmac("sha256", process.env.Razor_key_secret);
@@ -319,66 +371,15 @@ app.post("/verify-payment", (req, res) => {
     const generated_signature = hmac.digest("hex");
   
     if (generated_signature === razorpay_signature) {
-      // ✅ Payment verified
       console.log("Payment verified:", razorpay_payment_id);
       res.json({ success: true });
     } else {
-      // ❌ Payment failed
       res.status(400).json({ success: false, message: "Invalid signature" });
     }
-  });
+});
 
 
-
-
-app.get("/chat/:personId",restricttologinuser, async (req, res) => {
-    const { personId } = req.params;
-    const person = await UserProfile.findById(personId);
-    if (!person) return res.status(404).send("Person not found");
-    res.render("chat_room.ejs", { person });
-  });
-
-app.get("/logout",(req,res)=>{
-    const sessionId = req.cookies.sessionId;
-    if (sessionId) {
-        req.session.destroy(err => {
-            if (err) {
-                console.error("Error destroying session:", err);
-            }
-        });
-        res.clearCookie("sessionId");
-        res.redirect("/");
-    } else {
-        res.redirect("/");
-    }
-}); 
-
- 
-
-  //video calling function
-
-//   import { google } from 'googleapis';
-
-// const auth = new google.auth.GoogleAuth({
-//   keyFile: "path-to-service-account.json",
-//   scopes: ["https://www.googleapis.com/auth/calendar"]
-// });
-
-// const calendar = google.calendar({ version: "v3", auth });
-
-// async function createMeet() {
-//   const event = {
-//     summary: "Chat with Candidate",
-//     start: { dateTime: new Date().toISOString() },
-//     end: { dateTime: new Date(Date.now() + 30 * 60 * 1000).toISOString() }, // 30 min
-//     conferenceData: { createRequest: { requestId: `${Date.now()}` } }
-//   };
-
-//   const response = await calendar.events.insert({
-//     calendarId: "primary",
-//     requestBody: event,
-//     conferenceDataVersion: 1
-//   });
-
-//   return response.data.hangoutLink; // Google Meet link
-// }
+// --- SERVER LISTEN ---
+server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});

@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 
 const userProfileSchema = new mongoose.Schema({
-    id:{
-        type: Number, unique: true  
-    },
+    // The old 'id' field has been completely removed.
+    
     username:{
         type:String,
     },
@@ -17,7 +16,8 @@ const userProfileSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        default: "" 
+        default: "",
+        unique: true // It's good practice to ensure email is unique here too
     },
     gender:{
         type: String,
@@ -35,8 +35,8 @@ const userProfileSchema = new mongoose.Schema({
         default: ""
     },
     work: {
-        type: [String],
-        default: []
+        type: String, // Changed to String to match your form
+        default: ""
     },
     image: {
         type: String,
