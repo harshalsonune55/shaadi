@@ -6,20 +6,27 @@
       <h1 class="text-2xl font-bold text-gray-800">Your Conversations</h1>
     </div>
 
-    <div class="divide-y divide-gray-200">
+    <%# ---- Add id="conversation-list" ---- %>
+    <div id="conversation-list" class="divide-y divide-gray-200">
       <% if (conversations.length === 0) { %>
-        <p class="p-6 text-gray-500">You have no messages yet. Start a conversation from a user's profile!</p>
+        <%# ---- Add id="no-messages" ---- %>
+        <p id="no-messages" class="p-6 text-gray-500">You have no messages yet. Start a conversation from a user's profile!</p>
       <% } else { %>
         <% conversations.forEach(convo => { %>
-          <a href="/chat/<%= convo.participant._id %>" class="flex items-center p-4 hover:bg-gray-50 transition-colors">
-            <img src="<%= convo.participant.image %>" alt="<%= convo.participant.first_name %>" class="w-14 h-14 rounded-full object-cover">
-            
+          <%# ---- Add class="conversation-item" and data-participant-id ---- %>
+          <a href="/chat/<%= convo.participant._id %>" class="conversation-item flex items-center p-4 hover:bg-gray-50 transition-colors" data-participant-id="<%= convo.participant._id %>">
+            <%# ---- Add class="participant-image" ---- %>
+            <img src="<%= convo.participant.image %>" alt="<%= convo.participant.first_name %>" class="participant-image w-14 h-14 rounded-full object-cover">
+
             <div class="flex-1 ml-4">
               <div class="flex justify-between items-center">
-                <h3 class="font-semibold text-lg text-gray-800"><%= convo.participant.first_name %> <%= convo.participant.last_name %></h3>
-                <span class="text-xs text-gray-500"><%= new Date(convo.lastMessage.createdAt).toLocaleString() %></span>
+                <%# ---- Add class="participant-name" ---- %>
+                <h3 class="participant-name font-semibold text-lg text-gray-800"><%= convo.participant.first_name %> <%= convo.participant.last_name %></h3>
+                <%# ---- Add class="message-timestamp" ---- %>
+                <span class="message-timestamp text-xs text-gray-500"><%= new Date(convo.lastMessage.createdAt).toLocaleString() %></span>
               </div>
-              <p class="text-gray-600 text-sm truncate">
+              <%# ---- Add class="last-message" ---- %>
+              <p class="last-message text-gray-600 text-sm truncate">
                 <%= convo.lastMessage.message %>
               </p>
             </div>
@@ -29,3 +36,94 @@
     </div>
   </div>
 </div>
+
+<%# ---- ADD THIS SCRIPT BLOCK ---- %>
+<script src="/socket.io/socket.io.js"></script>
+ <script>
+   document.addEventListener('DOMContentLoaded', () => {
+     const socket = io();
+     const currentUserId = "<%= user ? user._id.toString() : '' %>";
+     const conversationList = document.getElementById('conversation-list');
+     const noMessagesP = document.getElementById('no-messages');
+
+     // Helper function to create/update conversation item HTML
+     function createOrUpdateItem(data) {
+         const participantId = data.participant._id.toString();
+         const newMessageText = data.lastMessage.message || '[Empty Message]'; // Fallback
+         const newTimestamp = new Date(data.lastMessage.createdAt || Date.now()).toLocaleString([], { // Fallback timestamp
+            year: 'numeric', month: 'numeric', day: 'numeric',
+            hour: 'numeric', minute: '2-digit'
+         });
+         const participantName = `${data.participant.first_name || ''} ${data.participant.last_name || ''}`.trim() || 'Unknown User';
+         const participantImage = data.participant.image || 'https://ui-avatars.com/api/?name=?';
+
+         let convoItem = conversationList.querySelector(`.conversation-item[data-participant-id="${participantId}"]`);
+
+         if (convoItem) {
+             // --- Update existing item ---
+             console.log("Updating existing conversation for:", participantId);
+             convoItem.querySelector('.participant-name').textContent = participantName; // Update name just in case
+             convoItem.querySelector('.participant-image').src = participantImage;     // Update image just in case
+             convoItem.querySelector('.last-message').textContent = newMessageText;
+             convoItem.querySelector('.message-timestamp').textContent = newTimestamp;
+             // Move to top
+             conversationList.prepend(convoItem);
+         } else {
+             // --- Create new item ---
+             console.log("Creating new conversation entry for:", participantId);
+             const newConvoItem = document.createElement('a');
+             newConvoItem.href = `/chat/${participantId}`;
+             newConvoItem.className = 'conversation-item flex items-center p-4 hover:bg-gray-50 transition-colors';
+             newConvoItem.dataset.participantId = participantId;
+             newConvoItem.innerHTML = `
+                 <img src="${participantImage}" alt="${participantName}" class="participant-image w-14 h-14 rounded-full object-cover">
+                 <div class="flex-1 ml-4">
+                   <div class="flex justify-between items-center">
+                     <h3 class="participant-name font-semibold text-lg text-gray-800">${participantName}</h3>
+                     <span class="message-timestamp text-xs text-gray-500">${newTimestamp}</span>
+                   </div>
+                   <p class="last-message text-gray-600 text-sm truncate">
+                     ${newMessageText}
+                   </p>
+                 </div>`;
+             // Add the new item to the top
+             conversationList.prepend(newConvoItem);
+         }
+
+         // Ensure "no messages" is hidden
+         if (noMessagesP && conversationList.children.length > 0) {
+             noMessagesP.style.display = 'none';
+         }
+     }
+
+     // Join user room
+     if (currentUserId) {
+         console.log("Inbox: Joining user room", currentUserId);
+         socket.emit('join user room', currentUserId);
+     } else {
+         console.error("Inbox: Current user ID not available.");
+         return;
+     }
+
+     // Listen for updates
+     socket.on('update inbox', (data) => {
+       console.log('Inbox received update:', data);
+
+       // Basic validation of incoming data
+       if (!data || !data.participant || !data.participant._id || !data.lastMessage) {
+           console.warn("Received invalid inbox update data structure:", data);
+           return;
+       }
+       // Process the update
+       createOrUpdateItem(data);
+     });
+
+     socket.on('connect_error', (err) => {
+       console.error("Inbox socket connection error:", err.message);
+     });
+
+   });
+ </script>
+<%# ---- END SCRIPT BLOCK ---- %>
+
+<%- include("layouts/footer.ejs") %>

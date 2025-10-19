@@ -79,54 +79,34 @@ app.use(async (req, res, next) => {
 });
 
 // --- SOCKET.IO ---
-// --- SOCKET.IO ---
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  // User joins a specific chat room
+  // User joins a specific chat room (for sending/receiving in chat room)
   socket.on('join room', (room) => {
     socket.join(room);
-    console.log(`User ${socket.id} joined room: ${room}`);
+    console.log(`User ${socket.id} joined chat room: ${room}`);
   });
 
-  // Listen for a message and broadcast it to the correct room
+  // User joins their own personal room (for inbox updates)
+  socket.on('join user room', (userId) => {
+    if (userId) {
+       socket.join(userId.toString());
+       console.log(`User ${socket.id} joined personal room: ${userId}`);
+    }
+  });
+
+  // This listener is not strictly needed if the POST route handles everything,
+  // but it's good to keep for potential future features.
   socket.on('chat message', (data) => {
-    // 'data' will contain { room, message, senderId }
-    socket.to(data.room).emit('chat message', data);
+    // console.log("Broadcasting message to room:", data.room);
+    // socket.to(data.room).emit('chat message', data);
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
 });
-
-
-// --- ROUTES ---
-
-// ... (keep all routes before this)
-
-// Updated /chat/send route
-app.post("/chat/send", isLoggedIn, async (req, res) => {
-    const { receiverId, message } = req.body;
-    const senderId = req.user?._id;
-
-    if (!senderId) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-
-    // Save the message to the database
-    const chatMsg = new Chat({ senderId, receiverId, message });
-    await chatMsg.save();
-
-    // The message is now sent via the socket connection from the client,
-    // so we don't need to emit it from the server here.
-    // We just confirm the message was saved.
-    res.status(200).json({ success: true, message: "Message saved." });
-});
-
-
-// ... (keep all routes after this)
-
 
 // --- ROUTES ---
 
@@ -251,6 +231,7 @@ app.post("/profile", isLoggedIn, async (req, res) => {
   }
 });
 
+// INBOX ROUTE
 app.get("/inbox", isLoggedIn, async (req, res) => {
   try {
       const userId = req.user._id;
@@ -294,7 +275,7 @@ app.get("/inbox", isLoggedIn, async (req, res) => {
   }
 });
 
-// Chat Routes (Protected by isLoggedIn middleware)
+// CHAT ROOM ROUTE (Renders the page)
 app.get("/chat/:personId", isLoggedIn, async (req, res) => {
     try {
         const { personId } = req.params;
@@ -307,12 +288,12 @@ app.get("/chat/:personId", isLoggedIn, async (req, res) => {
     }
 });
 
+// CHAT HISTORY API ROUTE (Fetches message data)
 app.get("/api/chat/:personId", isLoggedIn, async (req, res) => {
-    try { // Wrap in try...catch for better error handling
+    try { 
         const userId = req.user?._id;
-        const personId = req.params.personId; // Get the ID from the URL parameter
+        const personId = req.params.personId; 
 
-        // --- Start Debugging ---
         console.log("--- Fetching Chat History ---");
         console.log("Current User ID (userId):", userId, `(Type: ${typeof userId})`);
         console.log("Other Person ID (personId):", personId, `(Type: ${typeof personId})`);
@@ -322,13 +303,11 @@ app.get("/api/chat/:personId", isLoggedIn, async (req, res) => {
             return res.status(400).json({ error: "Invalid user IDs provided" });
         }
 
-        // Ensure IDs are strings for the query, matching the Chat schema
         const userIdString = userId.toString();
         const personIdString = personId.toString();
         console.log("Querying with User ID:", userIdString);
         console.log("Querying with Person ID:", personIdString);
-        // --- End Debugging ---
-
+        
         const messages = await Chat.find({
             $or: [
                 { senderId: userIdString, receiverId: personIdString },
@@ -336,33 +315,112 @@ app.get("/api/chat/:personId", isLoggedIn, async (req, res) => {
             ]
         }).sort({ createdAt: 1 });
 
-        console.log(`Found ${messages.length} messages between ${userIdString} and ${personIdString}`); // Log count
+        console.log(`Found ${messages.length} messages between ${userIdString} and ${personIdString}`); 
 
         res.json(messages);
 
-    } catch (error) { // Add error handling
+    } catch (error) { 
         console.error("Error in /api/chat/:personId:", error);
         res.status(500).json({ error: "Failed to fetch chat history due to server error" });
     }
 });
 
+// SEND MESSAGE ROUTE (Handles saving and emitting)
+// This is the correct, complex route you intended to use.
 app.post("/chat/send", isLoggedIn, async (req, res) => {
   const { receiverId, message } = req.body;
   const senderId = req.user?._id;
 
-  if (!senderId) {
-      return res.status(401).json({ error: "Not logged in" });
+  if (!senderId || !receiverId || !message) {
+      console.error("Missing senderId, receiverId, or message in /chat/send");
+      return res.status(400).json({ error: "Missing required fields" });
   }
 
-  // Save the message to the database
-  const chatMsg = new Chat({ senderId, receiverId, message });
-  await chatMsg.save();
+  try {
+      // Save the message
+      const chatMsg = new Chat({ senderId, receiverId, message });
+      await chatMsg.save();
+      console.log("Message saved:", chatMsg._id);
 
-  // The message is now sent via the socket connection from the client,
-  // so we don't need to emit it from the server here.
-  // We just confirm the message was saved.
-  res.status(200).json({ success: true, message: "Message saved." });
+      // --- Function to get participant data (handles missing profiles) ---
+      async function getParticipantData(userId) {
+          const userProfile = await UserProfile.findById(userId).lean(); // Use .lean() for plain JS object
+          if (userProfile) {
+              return {
+                  _id: userProfile._id,
+                  first_name: userProfile.first_name || 'User',
+                  last_name: userProfile.last_name || '',
+                  image: userProfile.image || `https://ui-avatars.com/api/?name=${userProfile.first_name || 'U'}`
+              };
+          }
+          // Fallback to basic User data
+          const basicUser = await User.findById(userId).lean();
+          if (basicUser) {
+               console.warn(`UserProfile not found for ID: ${userId}, using basic User data for inbox update.`);
+              return {
+                  _id: basicUser._id,
+                  first_name: basicUser.fullname?.split(' ')[0] || 'User',
+                  last_name: basicUser.fullname?.split(' ').slice(1).join(' ') || '',
+                  image: `https://ui-avatars.com/api/?name=${basicUser.fullname || 'U'}`
+              };
+          }
+          // Final fallback
+          console.error(`Could not find any user data for ID: ${userId} during inbox update emission.`);
+          return {
+              _id: userId, // Still need the ID
+              first_name: 'Unknown',
+              last_name: 'User',
+              image: 'https://ui-avatars.com/api/?name=?'
+          };
+      }
+      // --- End function ---
+
+      // Get data for both participants
+      const senderData = await getParticipantData(senderId);
+      const receiverData = await getParticipantData(receiverId);
+
+      // Prepare data structure for the event (matches structure from /inbox route)
+      const lastMessageData = {
+           message: chatMsg.message,
+           createdAt: chatMsg.createdAt // Ensure timestamp is included
+      };
+
+      const updateDataForReceiver = {
+          participant: senderData,       // Receiver sees the sender as participant
+          lastMessage: lastMessageData
+      };
+      const updateDataForSender = {
+          participant: receiverData,      // Sender sees the receiver as participant
+          lastMessage: lastMessageData
+      };
+
+      // Emit 'update inbox' event
+      io.to(receiverId.toString()).emit('update inbox', updateDataForReceiver);
+      console.log(`Emitted 'update inbox' to room ${receiverId.toString()} with data:`, JSON.stringify(updateDataForReceiver));
+
+      io.to(senderId.toString()).emit('update inbox', updateDataForSender);
+      console.log(`Emitted 'update inbox' to room ${senderId.toString()} with data:`, JSON.stringify(updateDataForSender));
+
+     // Also emit the message to the specific chat room for live chat updates
+     const roomId = [senderId.toString(), receiverId.toString()].sort().join('-');
+      io.to(roomId).emit('chat message', {
+          room: roomId,
+          message: chatMsg.message,
+          senderId: chatMsg.senderId.toString(), // Ensure IDs are strings here too
+          createdAt: chatMsg.createdAt
+      });
+      console.log(`Emitted 'chat message' to room ${roomId}`);
+
+      // Respond to the POST request
+      res.status(200).json({ success: true, message: "Message saved and emitted." });
+
+  } catch (error) {
+       console.error("Error sending chat message:", error);
+       res.status(500).json({ success: false, message: "Failed to send message." });
+  }
 });
+
+// *** THE DUPLICATE ROUTE WAS HERE AND HAS BEEN DELETED ***
 
 // Pricing and Payment Routes
 app.get("/pricing", (req, res) => {

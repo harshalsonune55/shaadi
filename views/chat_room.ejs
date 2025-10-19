@@ -70,26 +70,42 @@ function initializeChat() {
         console.log("Other User ID:", otherUser.id);
 
         const roomId = [currentUser.id, otherUser.id].sort().join('-');
+        
+        // 1. Join the specific chat room
         socket.emit('join room', roomId);
-        console.log("Joined room:", roomId);
+        console.log("Joined chat room:", roomId);
+        
+        // 2. Join this user's personal room (for inbox updates)
+        socket.emit('join user room', currentUser.id);
+        console.log("Joined personal user room:", currentUser.id);
+
 
         // --- Event Handlers ---
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             if (input.value) {
                 const messageData = {
-                    room: roomId,
+                    receiverId: otherUser.id,
                     message: input.value,
-                    senderId: currentUser.id,
-                    receiverId: otherUser.id
                 };
-                socket.emit('chat message', messageData);
+
+                // **FIX:** Use fetch to send the message to the server's POST route.
+                // The server will then save it and emit it to all clients (including this one).
+                await fetch('/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(messageData),
+                });
+                
+                // Instantly add *your* message to the UI for a fast feel.
                 addMessage(input.value, true);
                 input.value = '';
             }
         });
 
+        // Listen for incoming messages that the *server* broadcasts
         socket.on('chat message', function(data) {
+            // Only display if the message is from the *other* user
             if (data.senderId.toString() === otherUser.id.toString()) {
                 addMessage(data.message, false);
             }
@@ -124,9 +140,8 @@ function initializeChat() {
         }
         
         async function loadHistory() {
-            console.log("Attempting to load chat history for otherUser ID:", otherUser.id); // Added logging for the ID itself
+            console.log("Attempting to load chat history for otherUser ID:", otherUser.id);
             try {
-                // Corrected URL construction using string concatenation
                 const response = await fetch('/api/chat/' + otherUser.id);
                 console.log("Fetch response status:", response.status);
 
@@ -138,7 +153,7 @@ function initializeChat() {
                 }
 
                 const history = await response.json();
-                console.log("Received history:", history); // Log received data
+                console.log("Received history:", history);
 
                 if (!Array.isArray(history)) {
                     console.error("Received history is not an array:", history);
@@ -152,11 +167,12 @@ function initializeChat() {
                 history.forEach(msg => {
                      if (!msg || typeof msg.senderId === 'undefined' || typeof msg.message === 'undefined') {
                         console.warn("Skipping invalid message object:", msg);
-                        return; // Skip if message structure is wrong
+                        return;
                      }
                     const isSender = msg.senderId.toString() === currentUser.id.toString();
                     addMessage(msg.message, isSender);
                 });
+                
                 // Scroll to bottom after loading history
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
