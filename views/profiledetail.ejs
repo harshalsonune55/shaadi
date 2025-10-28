@@ -1,163 +1,225 @@
 <%- layout("/layouts/navbar.ejs") %>
 
-<div class="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-8">
-  <!-- Left Column -->
-  <div class="flex-1 space-y-4">
-    <img src="<%= person.image %>" alt="Profile photo" class="w-full h-72 object-cover rounded-xl" />
-    <h1 class="text-2xl font-bold text-gray-800"><%= person.first_name %> <%= person.last_name %></h1>
-    <div class="text-gray-500 text-sm">Best of the chosen candidate</div>
+<div class="bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
 
-    <!-- Badge Row -->
-    <div class="flex gap-4">
-      <div class="flex items-start gap-2 bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-        <span>🌿</span>
-        <div>
-          <div class="text-xs text-gray-500">Guest favourite</div>
-          <div class="font-semibold text-lg">One of the most loved homes</div>
-        </div>
+    <div class="flex-1 space-y-6">
+      <div class="relative w-full">
+        <img src="<%= person.image %>" alt="Profile photo" class="w-full h-80 object-cover rounded-xl shadow-lg" />
+        <img
+          src="<%= userProfile ? userProfile.image : (user ? (user.fullname ? 'https://ui-avatars.com/api/?name=' + user.fullname.split(' ').join('+') : 'https://ui-avatars.com/api/?name=U') : 'https://ui-avatars.com/api/?name=?') %>"
+          alt="Current User Profile"
+          class="absolute bottom-4 right-4 w-20 h-20 object-cover rounded-full border-4 border-white shadow-md"
+        />
       </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-        <div>
-          <div class="text-xs text-gray-500">4.91</div>
-          <div class="text-xs text-gray-400">★★★★★ &nbsp; 22 Reviews</div>
-        </div>
-      </div>
-    </div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= person.first_name %> <%= person.last_name %></h1>
+      <div class="text-gray-600 text-sm"><%= person.address || 'Location not specified' %> • Best of the chosen candidate</div>
 
-    <!-- Feature List -->
-    <div class="space-y-4 mt-4">
-      <div class="flex gap-3 items-start">
-        <div class="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-lg text-lg">💬</div>
-        <div>
-          <p class="font-semibold">Exceptional Host communication</p>
-          <small class="text-gray-500 text-sm">Recent guests gave Shivdas a 5-star rating for communication.</small>
-        </div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <div class="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-lg text-lg">🐾</div>
-        <div>
-          <p class="font-semibold">Furry friends welcome</p>
-          <small class="text-gray-500 text-sm">Bring your pets along for the stay.</small>
-        </div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <div class="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-lg text-lg">🔁</div>
-        <div>
-          <p class="font-semibold">Free cancellation before 23 Oct</p>
-          <small class="text-gray-500 text-sm">Get a full refund if you change your mind.</small>
-        </div>
-      </div>
-    </div>
+      <hr class="my-6 border-gray-200">
 
-    <!-- Description / Details -->
-    <div class="space-y-4 mt-6 text-gray-700 text-sm">
-      <div class="bg-gray-50 p-4 rounded-md border-l-4 border-blue-500">
-        <h3 class="font-semibold">🧑🏻‍🏫 Education:</h3>
-        <p><%= person.Education %></p>
-      </div>
-      <div class="bg-gray-50 p-4 rounded-md border-l-4 border-green-500">
-        <h3 class="font-semibold">💼 Work:</h3>
-        <p><%= person.work %></p>
-      </div>
-      <div class="bg-gray-50 p-4 rounded-md border-l-4 border-pink-500">
-        <h3 class="font-semibold">📇 Address:</h3>
-        <p><%= person.address %></p>
-      </div>
-      <p>Enjoy a memorable visit when you stay in this unique place...</p>
-      <p>Self check-in facility is available here. The unit is well-suited for short stays and business travelers.</p>
-    </div>
-  </div>
-
-  <!-- Right Column / Aside -->
-  <aside class="w-full lg:w-80 flex-shrink-0">
-    <div class="sticky top-6 space-y-4">
-      <div class="bg-pink-50 text-pink-700 font-semibold px-4 py-2 rounded-lg shadow">💎 Rare find! You have the great choice</div>
-
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow space-y-4">
-        <button id="reserveBtn" class="w-full py-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white font-bold rounded-full hover:from-pink-600 hover:to-pink-500 transition">
-          Talk
-        </button>
-        <div class="text-center text-gray-500 text-xs">You won't be charged yet</div>
-
-        <% if (!user || !user.isSubscribed) { %>
-        <div class="subscription-plans space-y-3 mt-4">
-          <h3 class="font-semibold text-gray-700">Choose a Plan</h3>
-          <% ['Basic','Standard','Premium'].forEach((plan, idx) => { %>
-          <div class="border rounded-lg p-3 bg-gray-50 space-y-1">
-            <strong class="block text-gray-800"><%= plan %></strong>
-            <p class="text-xs text-gray-600">
-              <%= plan === 'Basic' ? '₹499/month — Chat access + limited support' : plan === 'Standard' ? '₹999/month — Priority chat + exclusive offers' : '₹2,999/month — Unlimited chat + premium perks' %>
-            </p>
-            <button class="plan-btn w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Subscribe</button>
+      <div class="flex flex-wrap gap-4">
+        <div class="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex-1 min-w-[200px]">
+          <span class="text-2xl mt-1">⭐</span>
+          <div>
+            <div class="font-semibold text-gray-800">Guest favourite</div>
+            <div class="text-sm text-gray-500">One of the most loved profiles on Shaadiwali.</div>
           </div>
-          <% }) %>
         </div>
-        <% } %>
+        <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-sm min-w-[150px]">
+          <div>
+            <div class="font-bold text-lg text-gray-800">4.91</div>
+            <div class="text-sm text-gray-500">★★★★★ <span class="underline">22 Reviews</span></div>
+          </div>
+        </div>
+      </div>
 
-        <a href="#" id="reportLink" class="text-gray-500 text-xs flex items-center gap-1 hover:underline mt-2">🏳️ Report this listing</a>
+      <hr class="my-6 border-gray-200">
+
+      <div class="space-y-5">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Highlights</h2>
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl flex-shrink-0">💬</div>
+          <div>
+            <p class="font-semibold text-gray-800">Exceptional communication</p>
+            <small class="text-gray-500 text-sm">Rated highly for responsiveness and clarity.</small>
+          </div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl flex-shrink-0">💖</div>
+          <div>
+            <p class="font-semibold text-gray-800">Highly Recommended</p>
+            <small class="text-gray-500 text-sm">95% of recent users recommend this profile.</small>
+          </div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl flex-shrink-0">✅</div>
+          <div>
+            <p class="font-semibold text-gray-800">Verified Profile</p>
+            <small class="text-gray-500 text-sm">Identity and details have been verified.</small>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-6 border-gray-200">
+
+      <div class="space-y-5">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">About <%= person.first_name %></h2>
+        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+          <h3 class="font-semibold text-blue-800 flex items-center gap-2"><span class="text-lg">🧑🏻‍🏫</span> Education:</h3>
+          <p class="text-gray-700 mt-1"><%= person.Education || 'Not specified' %></p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+          <h3 class="font-semibold text-green-800 flex items-center gap-2"><span class="text-lg">💼</span> Work:</h3>
+          <p class="text-gray-700 mt-1"><%= person.work || 'Not specified' %></p>
+        </div>
+        <div class="bg-pink-50 p-4 rounded-lg border-l-4 border-pink-500">
+          <h3 class="font-semibold text-pink-800 flex items-center gap-2"><span class="text-lg">🏠</span> Address:</h3>
+          <p class="text-gray-700 mt-1"><%= person.address || 'Not specified' %></p>
+        </div>
+
+        <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+          <h3 class="font-semibold text-purple-800 flex items-center gap-2"><span class="text-lg">📱</span> Phone:</h3>
+          <p class="text-gray-700 mt-1"><%= person.phone ? ('+' + person.phone) : 'Not specified' %></p> 
+        </div>
+
+        <p class="text-gray-700 leading-relaxed pt-2">Enjoy a memorable visit when you stay in this unique place... Self check-in facility is available here. The unit is well-suited for short stays and business travelers.</p>
       </div>
     </div>
-  </aside>
+
+
+    <aside class="w-full lg:w-96 flex-shrink-0">
+      <div class="sticky top-8 space-y-6">
+        <div class="bg-gradient-to-r from-pink-50 to-red-50 text-red-700 font-semibold px-5 py-3 rounded-xl shadow-md border border-pink-100">💎 Rare find! You have the great choice</div>
+
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-lg space-y-4">
+
+          <% if (person.phone) { %>
+            <a href="https://wa.me/<%= person.phone %>"
+               target="_blank"  {/* Opens in new tab */}
+               class="block w-full text-center py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-lg text-lg hover:shadow-xl hover:from-green-600 hover:to-emerald-600 transition duration-300 transform hover:-translate-y-0.5">
+               Chat on WhatsApp
+            </a>
+          <% } else { %>
+            <button
+               disabled
+               class="block w-full text-center py-3 bg-gray-300 text-gray-500 font-bold rounded-lg text-lg cursor-not-allowed">
+               WhatsApp Not Available
+            </button>
+          <% } %>
+   
+
+          <div class="text-center text-gray-500 text-xs">You won't be charged yet</div>
+
+          <% if (!userProfile || !userProfile.isSubscribed) { %>
+          <div class="subscription-plans space-y-4 pt-4 border-t border-gray-100">
+            <h3 class="font-semibold text-gray-800 text-center">Unlock Premium Features</h3>
+            <% ['Basic','Standard','Premium'].forEach((plan) => { %>
+            <div class="border rounded-lg p-4 bg-gray-50 space-y-2 hover:bg-gray-100 transition">
+              <strong class="block text-gray-800 font-medium"><%= plan %></strong>
+              <p class="text-xs text-gray-600">
+                <%= plan === 'Basic' ? '₹499/month — Feature A' : plan === 'Standard' ? '₹999/month — Feature A + B' : '₹2,999/month — All Features' %>
+              </p>
+              <button class="plan-btn w-full py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700 transition">Subscribe</button>
+            </div>
+            <% }) %>
+          </div>
+          <% } %>
+
+
+
+          <a href="#" id="reportLink" class="text-center block text-gray-500 text-xs hover:underline pt-4">🏳️ Report this profile</a>
+        </div>
+      </div>
+    </aside>
+  </div>
 </div>
 
 <%-include("layouts/footer.ejs") %>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
-// let isSubscribed = <%= user && user.isSubscribed ? 'true' : 'false' %>;
-let isSubscribed ='true' %>;
+    // --- REMOVED old 'startChatLink' event listener ---
 
-document.getElementById("reserveBtn").addEventListener("click", () => {
-  if (!<%= user ? true : false %>) {
-    alert("Please login to subscribe or start chatting.");
-    return;
-  }
+    // Keep the payment button logic ONLY if you still need the subscription plans
+    document.querySelectorAll(".plan-btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        // Check login using the 'user' variable passed from the server
+        if (!<%= user ? true : false %>) {
+          alert("Please login first to subscribe!");
+          window.location.href = '/login'; // Redirect to login
+          return;
+        }
 
-  if (!isSubscribed) {
-    alert("You need an active subscription to start chatting.");
-    document.querySelector(".subscription-plans").scrollIntoView({ behavior: "smooth" });
-    return;
-  }
+        const plan = e.target.parentElement.querySelector("strong").textContent;
+        let amount = plan === "Standard" ? 999 : plan === "Premium" ? 2999 : 499;
 
-  alert("Opening chat room... 🚀");
-  window.location.href = "/chat/<%= person._id %>";
-});
+        try {
+          const res = await fetch("/create-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount }),
+          });
 
-document.querySelectorAll(".plan-btn").forEach(btn => {
-  btn.addEventListener("click", async (e) => {
-    if (!<%= user ? true : false %>) {
-      alert("Please login first!");
-      return;
-    }
+          if (!res.ok) { throw new Error(`HTTP error! status: ${res.status}`); }
+          const data = await res.json();
 
-    const plan = e.target.parentElement.querySelector("strong").textContent;
-    let amount = plan === "Standard" ? 999 : plan === "Premium" ? 2999 : 499;
+          const options = {
+            key: "<%= process.env.Razor_key_id %>", // Make sure this is available
+            amount: amount * 100,
+            currency: "INR",
+            name: "Shaadiwali Premium Subscription", // Updated name
+            description: `${plan} Plan`,
+            order_id: data.orderId,
+            handler: async function (response) { // Make handler async for verification
+              // **Important:** Verify payment on server before confirming subscription
+              try {
+                  const verifyRes = await fetch('/verify-payment', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                          razorpay_order_id: response.razorpay_order_id,
+                          razorpay_payment_id: response.razorpay_payment_id,
+                          razorpay_signature: response.razorpay_signature
+                      })
+                  });
+                  const verifyData = await verifyRes.json();
+                  if (verifyData.success) {
+                      alert(`🎉 Payment successful for ${plan} plan! Premium features unlocked.`);
+                      // Optionally hide subscription plans after successful payment
+                      const plansDiv = document.querySelector('.subscription-plans');
+                      if (plansDiv) plansDiv.style.display = 'none';
+                      // Reload page to reflect subscription status change
+                      window.location.reload();
+                  } else {
+                      alert(`Payment verification failed: ${verifyData.message || 'Unknown error'}`);
+                  }
+              } catch (verifyError) {
+                   console.error("Error verifying payment:", verifyError);
+                   alert("Payment succeeded but verification failed. Please contact support.");
+              }
+            },
+            prefill: {
+              // Use logged-in user's details for prefill if available
+              name: "<%= user ? user.fullname : (person.first_name + ' ' + person.last_name) %>",
+              email: "<%= user ? user.email : person.email %>",
+               // Use user's phone if available, otherwise profile owner's (optional)
+              contact: "<%= user && user.phone ? user.phone.replace('+','') : (person.phone ? person.phone.replace('+','') : '') %>"
+            },
+            theme: { color: "#E11D48" },
+          };
+          const rzp1 = new Razorpay(options);
+          rzp1.on('payment.failed', function (response){
+                alert("Payment Failed: " + response.error.description);
+                console.error('Payment Failed:', response.error);
+          });
+          rzp1.open();
 
-    const res = await fetch("/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount }),
+        } catch (error) {
+            console.error("Error during subscription process:", error);
+            alert("An error occurred during the subscription process. Please try again.");
+        }
+      });
     });
-    const data = await res.json();
-
-    const options = {
-      key: "<%= process.env.Razor_key_id %>",
-      amount: amount * 100,
-      currency: "INR",
-      name: "Chat Subscription",
-      description: `${plan} Plan`,
-      order_id: data.orderId,
-      handler: function () {
-        isSubscribed = true;
-        alert(`🎉 Payment successful for ${plan} plan! You can now start chatting.`);
-      },
-      prefill: {
-        name: "<%= person.first_name %> <%= person.last_name %>",
-        email: "<%= person.email %>",
-      },
-      theme: { color: "#3399cc" },
-    };
-    new Razorpay(options).open();
-  });
-});
 </script>
+

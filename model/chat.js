@@ -1,11 +1,25 @@
-import mongoose from "mongoose";
+// ./model/chat.js
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-const chatSchema = new mongoose.Schema({
-  roomId: String,
-  senderId: String,
-  receiverId: String,
-  message: String,
-  createdAt: { type: Date, default: Date.now },
+const chatSchema = new Schema({
+    message: {
+        type: String,
+        required: true
+    },
+    senderId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User', // Or 'UserProfile', depending on your structure
+        required: true
+    },
+    receiverId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User', // Or 'UserProfile'
+        required: true
+    }
+}, {
+    timestamps: true // Automatically adds createdAt and updatedAt
 });
 
-export default mongoose.model("Chat", chatSchema);
+const Chat = mongoose.model('Chat', chatSchema);
+export default Chat;

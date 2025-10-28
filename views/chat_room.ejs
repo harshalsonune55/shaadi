@@ -1,193 +1,128 @@
 <%- layout("/layouts/navbar.ejs") %>
 
-<div class="flex items-center justify-center w-full h-screen bg-gray-100">
+<script src="/socket.io/socket.io.js"></script>
 
-  <div class="flex flex-col w-full max-w-md h-[70vh] antialiased text-gray-800">
-    <div class="flex flex-row h-full w-full overflow-hidden">
-      <div class="flex flex-col flex-auto h-full p-6">
-        <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-white shadow-xl h-full p-4">
-          <div class="flex items-center mb-4">
-              <img src="<%= person.image %>" alt="<%= person.first_name %>" class="w-10 h-10 rounded-full mr-3">
-              <h2 class="text-xl font-bold">Chat with <%= person.first_name %> <%= person.last_name %></h2>
-          </div>
-
-          <div class="flex flex-col h-full overflow-x-auto mb-4">
-            <div class="flex flex-col h-full">
-              <div id="messages" class="grid grid-cols-12 gap-y-2">
-                </div>
-            </div>
-          </div>
-
-          <form id="form" class="flex flex-row items-center h-16 rounded-xl bg-gray-100 w-full px-4">
-            <div class="flex-grow">
-              <div class="relative w-full">
-                <input id="input" type="text" autocomplete="off" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" placeholder="Type your message..." />
-              </div>
-            </div>
-            <div class="ml-4">
-              <button class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-2 flex-shrink-0">
-                <span>Send</span>
-                <span class="ml-2">
-                  <svg class="w-4 h-4 transform rotate-45 -mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                  </svg>
-                </span>
-              </button>
-            </div>
-          </form>
+<div class="flex items-center justify-center w-full h-[calc(100vh-100px)] bg-gray-100 p-4"> 
+    <div class="w-full max-w-2xl h-full shadow-xl rounded-lg overflow-hidden bg-white border border-gray-200 flex flex-col">
+        <div class="p-4 border-b bg-gray-50">
+            <h2 class="font-semibold text-gray-800">Chat with <%= person.first_name %> <%= person.last_name %></h2>
         </div>
-      </div>
-    </div>
-  </div>
 
+        <div id="message-list" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <p id="loading-msg" class="text-gray-500">Loading chat history...</p>
+            {/* Messages will be added here */}
+        </div>
+      
+        <div class="p-4 border-t bg-gray-50">
+            <form id="message-form" class="flex gap-2">
+                <input type="text" id="message-input" placeholder="Type your message..." class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off" required>
+                <button type="submit" class="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition">Send</button>
+            </form>
+        </div>
+    </div>
 </div>
 
-
-<script src="/socket.io/socket.io.js"></script>
 <script>
-// Wrap all logic in a function to ensure everything is defined before running
-function initializeChat() {
-        const socket = io();
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        const messagesContainer = document.getElementById('messages');
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. Connect to Socket.IO ---
+        const socket = io(); // Connects to the server
 
-        console.log("Chat script initialized.");
-
-        // --- User and Room Setup ---
-        const currentUser = {
-            id: "<%= currentUser._id %>",
-            name: "<%= currentUser.fullname %>"
-        };
-
-        const otherUser = {
-            id: "<%= person._id %>",
-            name: "<%= person.first_name %>",
-            avatar: "<%= person.image %>"
-        };
+        // --- 2. Get Variables from EJS ---
+        // 'currentUser' and 'person' are passed from your route
+        const currentUserId = "<%= currentUser._id %>";
+        const otherUserId = "<%= person._id %>";
         
-        console.log("Current User ID:", currentUser.id);
-        console.log("Other User ID:", otherUser.id);
+        // --- 3. Define Room ID (must match backend logic) ---
+        const roomId = [currentUserId, otherUserId].sort().join('-');
 
-        const roomId = [currentUser.id, otherUser.id].sort().join('-');
-        
-        // 1. Join the specific chat room
+        // --- 4. Get DOM Elements ---
+        const messageListDiv = document.getElementById('message-list');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const loadingMsg = document.getElementById('loading-msg');
+
+        // --- 5. Join the Chat Room ---
         socket.emit('join room', roomId);
-        console.log("Joined chat room:", roomId);
-        
-        // 2. Join this user's personal room (for inbox updates)
-        socket.emit('join user room', currentUser.id);
-        console.log("Joined personal user room:", currentUser.id);
+        console.log(`Joined room: ${roomId}`);
 
-
-        // --- Event Handlers ---
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (input.value) {
-                const messageData = {
-                    receiverId: otherUser.id,
-                    message: input.value,
-                };
-
-                // **FIX:** Use fetch to send the message to the server's POST route.
-                // The server will then save it and emit it to all clients (including this one).
-                await fetch('/chat/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(messageData),
-                });
-                
-                // Instantly add *your* message to the UI for a fast feel.
-                addMessage(input.value, true);
-                input.value = '';
-            }
-        });
-
-        // Listen for incoming messages that the *server* broadcasts
-        socket.on('chat message', function(data) {
-            // Only display if the message is from the *other* user
-            if (data.senderId.toString() === otherUser.id.toString()) {
-                addMessage(data.message, false);
-            }
-        });
-
-        // --- Helper Functions ---
-        function addMessage(msg, isSender) {
-            const messageElement = document.createElement('div');
-            const avatarInitial = isSender ? currentUser.name.charAt(0).toUpperCase() : otherUser.name.charAt(0).toUpperCase();
-
-            if (isSender) {
-                messageElement.className = 'col-start-6 col-end-13 p-3 rounded-lg';
-                messageElement.innerHTML = `
-                    <div class="flex items-center justify-start flex-row-reverse">
-                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 text-white font-bold flex-shrink-0">${avatarInitial}</div>
-                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                            <div>${msg}</div>
-                        </div>
-                    </div>`;
-            } else {
-                messageElement.className = 'col-start-1 col-end-8 p-3 rounded-lg';
-                messageElement.innerHTML = `
-                    <div class="flex flex-row items-center">
-                        <img src="${otherUser.avatar}" alt="${otherUser.name}" class="w-10 h-10 rounded-full">
-                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                            <div>${msg}</div>
-                        </div>
-                    </div>`;
-            }
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-        
-        async function loadHistory() {
-            console.log("Attempting to load chat history for otherUser ID:", otherUser.id);
+        // --- 6. Fetch Chat History ---
+        async function fetchHistory() {
             try {
-                const response = await fetch('/api/chat/' + otherUser.id);
-                console.log("Fetch response status:", response.status);
-
-                 if (!response.ok) {
-                    console.error("Failed to fetch history. Status:", response.status, response.statusText);
-                    const errorText = await response.text();
-                    console.error("Error response body:", errorText);
-                    return;
-                }
-
-                const history = await response.json();
-                console.log("Received history:", history);
-
-                if (!Array.isArray(history)) {
-                    console.error("Received history is not an array:", history);
-                    return;
-                }
-
-                if (history.length === 0) {
-                    console.log("No chat history found with this user.");
-                }
-
-                history.forEach(msg => {
-                     if (!msg || typeof msg.senderId === 'undefined' || typeof msg.message === 'undefined') {
-                        console.warn("Skipping invalid message object:", msg);
-                        return;
-                     }
-                    const isSender = msg.senderId.toString() === currentUser.id.toString();
-                    addMessage(msg.message, isSender);
-                });
+                const response = await fetch(`/api/chat/${otherUserId}`);
+                if (!response.ok) throw new Error('Failed to fetch history');
                 
-                // Scroll to bottom after loading history
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            } catch (error) {
-                console.error("An error occurred while loading chat history:", error);
+                const messages = await response.json();
+                loadingMsg.style.display = 'none';
+                messageListDiv.innerHTML = ''; // Clear loading message
+                
+                messages.forEach(displayMessage);
+                scrollToBottom();
+            } catch (err) {
+                console.error(err);
+                loadingMsg.textContent = 'Error loading messages.';
             }
         }
 
-        // Load history right away
-        loadHistory();
-    }
+        // --- 7. Listen for New Messages ---
+        socket.on('chat message', (msg) => {
+            // 'msg' is the object sent from the server
+            // { senderId, message, createdAt }
+            console.log('New message received:', msg);
+            displayMessage(msg);
+            scrollToBottom();
+        });
 
-    // Ensure the DOM is fully loaded before initializing the chat script
-    document.addEventListener('DOMContentLoaded', initializeChat);
+        // --- 8. Handle Sending a Message (Form Submit) ---
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageText = messageInput.value.trim();
+
+            if (messageText) {
+                try {
+                    // Send the message to your POST /chat/send route
+                    const response = await fetch('/chat/send', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            receiverId: otherUserId,
+                            message: messageText
+                        })
+                    });
+
+                    if (response.ok) {
+                        messageInput.value = ''; // Clear input
+                    } else {
+                        alert('Failed to send message.');
+                    }
+                } catch (err) {
+                    console.error('Error sending message:', err);
+                    alert('Error sending message.');
+                }
+            }
+        });
+
+        // --- Helper function to display a message ---
+        function displayMessage(message) {
+            const msgDiv = document.createElement('div');
+            // 'message.senderId' will exist on both history and new messages
+            const isMine = message.senderId === currentUserId;
+            
+            msgDiv.className = `p-2 rounded-lg max-w-[70%] ${isMine ? 'bg-blue-500 text-white self-end ml-auto' : 'bg-gray-200 text-gray-800 self-start mr-auto'}`;
+            msgDiv.textContent = message.message; // Use 'message.message'
+            
+            messageListDiv.appendChild(msgDiv);
+        }
+        
+        // --- Helper function to scroll to bottom ---
+        function scrollToBottom() {
+             messageListDiv.scrollTop = messageListDiv.scrollHeight;
+        }
+
+        // Start by fetching history
+        fetchHistory();
+    });
 </script>
-
 
 <%- include("layouts/footer.ejs") %>
