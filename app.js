@@ -469,434 +469,346 @@
 //     console.log(`Server is running on http://localhost:${PORT}`);
 // });
 
-import express from 'express';
-const app = express();
-import { createServer } from 'http';
-import { configDotenv } from 'dotenv';
-configDotenv();
-const PORT = process.env.PORT || 3000;
-import ejsmate from 'ejs-mate';
-import mongoose from 'mongoose';
+import express from "express";
+import { createServer } from "http";
+import mongoose from "mongoose";
 import session from "express-session";
-import passport from 'passport';
-import LocalStrategy from 'passport-local';
-import GoogleStrategy from 'passport-google-oauth20';
-import cors from 'cors';
-
-// --- Import Twilio ---
-import twilio from 'twilio';
-
-// --- Import Models ---
-import User from './model/user.js';
-import UserProfile from './model/user.profile.js';
-// We no longer need the Chat model
-
-// Middleware
-import { isLoggedIn } from './middleware/auth.js';
-
-// Other imports
-import Razorpay from "razorpay";
+import passport from "passport";
+import ejsmate from "ejs-mate";
 import crypto from "crypto";
+import Razorpay from "razorpay";
+import https from "https";
+import { configDotenv } from "dotenv";
 
-// --- Initialize Twilio Client ---
-const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
-const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
-let twilioClient;
+import User from "./model/user.js";
+import UserProfile from "./model/user.profile.js";
+import { isLoggedIn } from "./middleware/auth.js";
+import { isAdmin } from "./middleware/isAdmin.js";
 
-if (twilioAccountSid && twilioAuthToken && twilioPhoneNumber) {
-    twilioClient = twilio(twilioAccountSid, twilioAuthToken);
-    console.log("Twilio client initialized.");
-} else {
-    console.error("Twilio credentials (SID, TOKEN, or PHONE_NUMBER) missing in .env! OTP login will not function.");
-}
-
-
+configDotenv();
+const app = express();
 const server = createServer(app);
+const PORT = process.env.PORT || 3000;
 
-// --- DATABASE CONNECTION ---
-// Removed deprecated options for new Mongoose versions
+/* ===================== DB ===================== */
 mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("Error connecting to MongoDB:", err));
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error(err));
 
-// --- APP CONFIGURATION ---
-app.engine('ejs', ejsmate);
-app.set('view engine', 'ejs');
-
-app.use(cors({
-    origin: 'http://localhost:5173', // Adjust this
-    credentials: true
-}));
-
+/* ===================== APP CONFIG ===================== */
+app.engine("ejs", ejsmate);
+app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-// --- SESSION AND AUTHENTICATION SETUP ---
-const sessionConfig = {
-    secret: process.env.SESSION_SECRET || "fallback-secret-key",
-    resave: false,
-    saveUninitialized: true, // Save session even if not modified (needed for storing OTP temporarily)
-    cookie: {
+/* ===================== SESSION ===================== */
+app.use(
+    session({
+      name: "shaadi.sid",
+      secret: process.env.SESSION_SECRET || "shaadi-super-secret-key",
+      resave: false,
+      saveUninitialized: true,   // ✅ MUST BE TRUE FOR OTP
+      cookie: {
         httpOnly: true,
-        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
-    }
-};
+      }
+    })
+  );
 
-app.use(session(sessionConfig)); // Session must be before Passport
+/* ===================== PASSPORT ===================== */
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --- PASSPORT STRATEGIES ---
-passport.use(new LocalStrategy({ usernameField: 'email' }, User.authenticate()));
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    try {
-        let user = await User.findOne({ googleId: profile.id });
-        if (user) { return done(null, user); }
-
-        user = await User.findOne({ email: profile.emails[0].value });
-        if (user) {
-            user.googleId = profile.id;
-            await user.save();
-            return done(null, user);
-        }
-
-        const newUser = new User({
-            email: profile.emails[0].value,
-            fullname: profile.displayName,
-            googleId: profile.id
-            // phone will be null
-        });
-        await newUser.save();
-        return done(null, newUser);
-
-    } catch (err) {
-        return done(err, false);
-    }
-  }
-));
-
-// --- PASSPORT SERIALIZE/DESERIALIZE ---
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
+passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await User.findById(id);
-        done(null, user);
-    } catch (err) {
-        done(err, null);
-    }
+  const user = await User.findById(id);
+  done(null, user);
 });
 
-// --- GLOBAL MIDDLEWARE (res.locals) ---
+/* ===================== GLOBAL LOCALS ===================== */
 app.use(async (req, res, next) => {
-    // No PubNub keys needed
     res.locals.user = req.user || null;
-    if (req.user) {
-        res.locals.userProfile = await UserProfile.findOne({ email: req.user.email }).lean();
+  
+    if (req.user?.phone) {
+      res.locals.userProfile = await UserProfile.findOne({
+        phone: req.user.phone
+      });
     } else {
-        res.locals.userProfile = null;
+      res.locals.userProfile = null;
     }
+    res.locals.isAdmin = req.user?.isAdmin === true;
+  
     next();
   });
+  
 
 
-// --- ROUTES ---
 
-// Home Route
-app.get('/', (req, res) => {
-    res.render('home.ejs');
-});
 
-// --- AUTH ROUTES ---
 
-// Signup Routes
-app.get("/signup", (req, res) => {
-    res.render("signup.ejs");
-});
 
-// --- NEW SIGNUP OTP ROUTES ---
+/* ===================== MSG91 OTP FUNCTION ===================== */
 
-// 1. Send OTP for Signup
-app.post("/signup-send-otp", async (req, res) => {
-    const { fullname, email, phone, password } = req.body; // Expecting phone with +91
 
-    if (!twilioClient) {
-        return res.status(500).json({ error: "OTP service is not configured." });
-    }
+function sendMSG91OTP(phone) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method: "POST",
+      hostname: "control.msg91.com",
+      path: `/api/v5/otp?mobile=91${phone}&authkey=${process.env.MSG91_AUTH_KEY}&template_id=${process.env.MSG91_TEMPLATE_ID}`,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    };
 
-    try {
-        // --- Check if email or phone already exist ---
-        const phoneDigits = phone.replace('+91', '');
-        const existingUser = await User.findOne({ $or: [{ email: email }, { phone: phoneDigits }] });
-        if (existingUser) {
-            return res.status(409).json({ error: "An account with that email or phone number already exists." });
+    const req = https.request(options, res => {
+      let data = "";
+      res.on("data", chunk => (data += chunk));
+      res.on("end", () => resolve(data));
+    });
+
+    req.on("error", reject);
+    req.write(JSON.stringify({}));
+    req.end();
+  });
+}
+
+export function verifyOTP(mobile, otp) {
+    return new Promise((resolve, reject) => {
+      const options = {
+        method: "GET",
+        hostname: "control.msg91.com",
+        path: `/api/v5/otp/verify?otp=${otp}&mobile=${mobile}`,
+        headers: {
+          authkey: process.env.MSG91_AUTH_KEY
         }
+      };
+  
+      const req = https.request(options, res => {
+        let data = "";
+        res.on("data", chunk => data += chunk);
+        res.on("end", () => resolve(JSON.parse(data)));
+      });
+  
+      req.on("error", reject);
+      req.end();
+    });
+  }
 
-        // --- Generate OTP ---
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expires = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
-
-        // --- Store temporary signup data in session ---
-        req.session.signupData = { fullname, email, phone: phoneDigits, password }; // Store 10 digit phone
-        req.session.signupOtp = otp;
-        req.session.signupOtpExpires = expires;
-        req.session.signupPhone = phone; // Store full +91 number for display/verification
-
-        // --- Send OTP via Twilio ---
-        await twilioClient.messages.create({
-            body: `Your Wanderlust signup OTP is: ${otp}`,
-            from: twilioPhoneNumber,
-            to: phone
-        });
-
-        res.status(200).json({ success: true, message: "OTP sent successfully." });
-
+  //admin Routes 
+  app.get("/", (req, res) => res.render("home.ejs"));
+  app.get("/admin", isAdmin, async (req, res) => {
+    try {
+      const totalProfiles = await UserProfile.countDocuments();
+  
+      const incompleteProfiles = await UserProfile.countDocuments({
+        $or: [
+          { about: { $in: [null, ""] } },
+          { expertise: { $size: 0 } },
+          { interests: { $size: 0 } }
+        ]
+      });
+  
+      const activeMembers = await UserProfile.countDocuments({
+        isSubscribed: true
+      });
+  
+      const inactiveMembers = await UserProfile.countDocuments({
+        isSubscribed: false
+      });
+  
+      res.render("admin/dashboard.ejs", {
+        totalProfiles,
+        incompleteProfiles,
+        activeMembers,
+        inactiveMembers
+      });
+  
     } catch (err) {
-        console.error("Error sending signup OTP:", err);
-        if (err.code === 21211) { // Twilio error for invalid number
-            return res.status(400).json({ error: "Invalid phone number format." });
-        }
-        res.status(500).json({ error: "Failed to send OTP." });
+      console.error("Admin dashboard error:", err);
+      res.status(500).send("Admin dashboard error");
     }
-});
+  });
+  
 
-// 2. Verify OTP and Create User
-app.post("/signup-verify-otp", async (req, res) => {
-    const { otp } = req.body;
-
-    // --- Validate session data ---
-    if (
-        !req.session.signupData ||
-        !req.session.signupOtp ||
-        !req.session.signupOtpExpires ||
-        req.session.signupOtp !== otp
-    ) {
-        return res.status(400).json({ error: "Invalid or incorrect OTP." });
-    }
-
-    // --- Check expiry ---
-    if (Date.now() > req.session.signupOtpExpires) {
-        // Clear temporary data
-        req.session.signupData = null;
-        req.session.signupOtp = null;
-        req.session.signupOtpExpires = null;
-        req.session.signupPhone = null;
-        return res.status(400).json({ error: "OTP has expired. Please start signup again." });
-    }
-
-    // --- OTP is valid! Create the user ---
-    try {
-        const { fullname, email, phone, password } = req.session.signupData;
-        const user = new User({ email, fullname, phone });
-
-        const registeredUser = await User.register(user, password);
-
-        // Clear temporary session data *after* successful registration
-        req.session.signupData = null;
-        req.session.signupOtp = null;
-        req.session.signupOtpExpires = null;
-        req.session.signupPhone = null;
-
-        // --- Log the new user in ---
-        req.login(registeredUser, (err) => {
-            if (err) {
-                console.error("Error logging in user after signup OTP verification:", err);
-                // User was created but login failed - maybe redirect to login page?
-                return res.status(500).json({ error: "Account created, but auto-login failed. Please log in manually." });
-            }
-            // Send success response (frontend will redirect)
-            res.status(200).json({ success: true, message: "Account created successfully." });
-        });
-
-    } catch (e) {
-        console.error("Error registering user after OTP verification:", e.message);
-        // Handle potential errors during User.register (though existence check was done before)
-         if (e.name === 'UserExistsError' || (e.code === 11000)) {
-             return res.status(409).json({ error: "An account with that email or phone number already exists." });
-        }
-        res.status(500).json({ error: "Failed to create account." });
-    }
-});
-
-
-// --- OLD SIGNUP ROUTE (No longer needed, comment out or delete) ---
-/*
-app.post("/signup_user", async (req, res, next) => {
-  // ... old code ...
-});
-*/
-
-// --- LOGIN ROUTES ---
-
-// Original Login Page
-app.get("/login", (req, res) => {
-    res.render("login.ejs");
-});
-
-// Original Login Post Route (Email/Password)
-app.post("/login_user", passport.authenticate("local", {
-  failureRedirect: "/login",
-}), (req, res) => {
-  const redirectUrl = req.session.returnTo || '/';
-  delete req.session.returnTo;
-  res.redirect(redirectUrl);
-});
-
-// Google Auth Routes
-app.get('/auth/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email']
-  }));
-
-app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  async (req, res) => {
-    const redirectUrl = req.session.returnTo || '/';
-    delete req.session.returnTo;
-    res.redirect(redirectUrl);
+  app.get("/profiles", isAdmin, async (req, res) => {
+    const profiles = await UserProfile.find()
+      .select("first_name last_name email about expertise interests isSubscribed")
+      .lean();
+  
+    res.render("admin/profiles.ejs", { profiles });
   });
 
-// Logout Route
+  app.get("/admin/profile/:id", isAdmin, async (req, res) => {
+    try {
+      const profile = await UserProfile.findById(req.params.id).lean();
+      if (!profile) {
+        return res.status(404).send("Profile not found");
+      }
+  
+      // 🔥 Fetch phone from USERS collection
+      const user = await User.findOne({ phone: profile.phone }).lean();
+
+res.render("admin/profile_detail.ejs", {
+  profile,
+  phone: user?.phone || "Not available"
+});
+
+  
+    } catch (err) {
+      console.error("Admin profile detail error:", err);
+      res.status(500).send("Error loading profile");
+    }
+  });
+  
+  
+
+/* ===================== ROUTES ===================== */
+app.get("/", (req, res) => res.render("home.ejs"));
+
+/* ---------- AUTH PAGES ---------- */
+app.get("/login", (req, res) => res.render("login.ejs"));
+app.get("/signup", (req, res) => res.render("signup.ejs"));
 app.get("/logout", (req, res, next) => {
-    req.logout((err) => {
-        if (err) { return next(err); }
-        res.redirect('/');
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/');
     });
-});
-
-
-// --- OTP LOGIN ROUTES ---
-
-// 1. Render the OTP login page
-app.get("/login-otp", (req, res) => {
-    res.render("login-otp.ejs");
-});
+  });
 
 // 2. Send the OTP for Login
 app.post("/send-otp", async (req, res) => {
-    const { phone } = req.body; // Expecting phone with country code, e.g., +919876543210
-
-    if (!twilioClient) {
-        return res.status(500).json({ error: "OTP service is not configured." });
+    const { phone } = req.body;
+  
+    if (!phone) {
+      return res.status(400).json({ error: "Phone required" });
     }
-
-    // Check if user with this phone exists
+  
     try {
-        const phoneDigits = phone.replace('+91', '');
-
-        const user = await User.findOne({ phone: phoneDigits });
-        if (!user) {
-            return res.status(404).json({ error: "No user found with this phone number." });
-        }
-
-        // Generate a 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        // Set expiry time (e.g., 5 minutes)
-        const expires = Date.now() + 5 * 60 * 1000;
-
-        // Store OTP and phone in session FOR LOGIN
-        req.session.loginOtp = otp; // Use different session key names
-        req.session.loginOtpExpires = expires;
-        req.session.loginPhone = phone; // Store the full +91 number
-
-        // Send the OTP via Twilio
-        await twilioClient.messages.create({
-            body: `Your Wanderlust login OTP is: ${otp}`,
-            from: twilioPhoneNumber,
-            to: phone
-        });
-
-        res.status(200).json({ success: true, message: "OTP sent successfully." });
-
+      await sendMSG91OTP(phone);
+  
+      // ✅ STORE PHONE IN SESSION
+      req.session.otpPhone = phone;
+      req.session.otpVerified = false;
+  
+      console.log("OTP sent, session phone:", req.session.otpPhone);
+  
+      res.json({ success: true });
     } catch (err) {
-        console.error("Error sending login OTP:", err);
-        // Twilio errors might be specific
-        if (err.code === 21211) {
-            return res.status(400).json({ error: "Invalid phone number." });
-        }
-        res.status(500).json({ error: "Failed to send OTP." });
+      console.error(err);
+      res.status(500).json({ error: "OTP failed" });
     }
-});
-
+  });
 // 3. Verify the OTP and log in
 app.post("/verify-otp", async (req, res) => {
-    const { phone, otp } = req.body;
-
-    // Check if LOGIN session data exists and matches
-    if (
-        !req.session.loginOtp ||
-        !req.session.loginOtpExpires ||
-        req.session.loginPhone !== phone ||
-        req.session.loginOtp !== otp
-    ) {
-        return res.status(400).json({ error: "Invalid or incorrect OTP." });
+    const { otp } = req.body;
+  
+    // ✅ READ SAME KEY
+    const phone = req.session.otpPhone;
+  
+    console.log("Verifying OTP for:", phone);
+  
+    if (!phone) {
+      return res.status(400).json({ error: "Session expired. Please resend OTP." });
     }
-
-    // Check if OTP is expired
-    if (Date.now() > req.session.loginOtpExpires) {
-        // Clear LOGIN session
-        req.session.loginOtp = null;
-        req.session.loginOtpExpires = null;
-        req.session.loginPhone = null;
-        return res.status(400).json({ error: "OTP has expired. Please try again." });
-    }
-
-    // OTP is correct and valid!
-    // Find the user
+  
     try {
-        const phoneDigits = phone.replace('+91', '');
-        const user = await User.findOne({ phone: phoneDigits });
-
-        if (!user) {
-            // Should not happen if send-otp worked, but check anyway
-            return res.status(404).json({ error: "User not found." });
+      const result = await verifyOTP(`91${phone}`, otp);
+  
+      if (result.type !== "success") {
+        return res.status(400).json({ error: "Invalid OTP" });
+      }
+  
+      let user = await User.findOne({ phone });
+  
+      // ✅ AUTO CREATE USER IF NOT EXISTS (LOGIN + SIGNUP FLOW)
+      if (!user) {
+        user = await User.create({ phone });
+      }
+  
+      req.login(user, err => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Login failed" });
         }
-
-        // Clear LOGIN OTP from session
-        req.session.loginOtp = null;
-        req.session.loginOtpExpires = null;
-        req.session.loginPhone = null;
-
-        // --- Manually log the user in ---
-        req.login(user, (err) => {
-            if (err) {
-                console.error("Error logging in user after OTP:", err);
-                return res.status(500).json({ error: "Login failed." });
-            }
-            // Send success response
-            res.status(200).json({ success: true, message: "Login successful." });
-        });
-
+  
+        // ✅ CLEAR OTP SESSION
+        req.session.otpPhone = null;
+        req.session.otpVerified = true;
+  
+        res.json({ success: true });
+      });
+  
     } catch (err) {
-        console.error("Error finding user during OTP verification:", err);
-        res.status(500).json({ error: "An error occurred." });
+      console.error(err);
+      res.status(500).json({ error: "OTP verification failed" });
     }
-});
+  });
+
+
+  
+ 
 
 
 // --- PROTECTED ROUTES ---
 
 // People & Profile Routes
-app.get("/people", isLoggedIn, async(req, res) => {
+app.get("/people", isLoggedIn, async (req, res) => {
     try {
-        // Don't show your own profile in the 'people' list
-        const people = await UserProfile.find({ email: { $ne: req.user.email } });
-        res.render("people", { people, query: req.query });
+        const { name, address, minAge, maxAge, gender, interest } = req.query;
+
+        // Base filter: exclude logged-in user
+        let filter = {
+            phone: { $ne: req.user.phone }
+          };
+          
+
+        // 🔍 Name filter (first or last name)
+        if (name) {
+            filter.$or = [
+                { first_name: { $regex: name, $options: "i" } },
+                { last_name: { $regex: name, $options: "i" } }
+            ];
+        }
+
+        // 📍 Address filter
+        if (address) {
+            filter.address = { $regex: address, $options: "i" };
+        }
+
+        // ⚧ Gender filter
+        if (gender) {
+            filter.gender = gender;
+        }
+
+        // 🎂 Age range filter
+        if (minAge || maxAge) {
+            filter.age = {};
+            if (minAge) filter.age.$gte = Number(minAge);
+            if (maxAge) filter.age.$lte = Number(maxAge);
+        }
+
+        // 🎯 Interest filter (array-safe)
+        if (interest) {
+            filter.interests = { $in: [new RegExp(interest, "i")] };
+        }
+
+        // 🔎 Query database
+        const people = await UserProfile.find(filter).lean();
+
+        // Render page
+        res.render("people", {
+            people,
+            query: req.query
+        });
+
     } catch (err) {
-        console.error("Error fetching people:", err);
+        console.error("Error fetching filtered people:", err);
         res.status(500).send("Error loading people list.");
     }
 });
+
 
 app.get("/people/:id", isLoggedIn, async (req, res) => {
     try {
@@ -910,19 +822,20 @@ app.get("/people/:id", isLoggedIn, async (req, res) => {
 });
 
 // Profile Routes
-app.get("/profile", isLoggedIn, (req, res) => {
-  try {
-      const userProfile = res.locals.userProfile;
-      if (userProfile) {
-          res.render("profile.ejs", { user: req.user, userProfile: userProfile });
-      } else {
-          res.redirect("/profile/edit");
-      }
-  } catch (err) {
-      console.error("Error at /profile route:", err);
-      res.status(500).send("An error occurred viewing profile.");
-  }
-});
+app.get("/profile", isLoggedIn, async (req, res) => {
+    const userProfile = await UserProfile.findOne({
+      phone: req.user.phone
+    }).lean();
+  
+    if (!userProfile) {
+      return res.redirect("/profile/edit");
+    }
+  
+    res.render("profile.ejs", { userProfile });
+  });
+  
+  
+  
 
 app.get("/profile/edit", isLoggedIn, (req, res) => {
   try {
@@ -936,53 +849,40 @@ app.get("/profile/edit", isLoggedIn, (req, res) => {
 });
 
 app.post("/profile", isLoggedIn, async (req, res) => {
-  try {
-      const profileData = {
-          first_name: req.body.first_name,
-          last_name: req.body.last_name,
-          age: req.body.age || null,
-          gender: req.body.gender,
-          address: req.body.address,
-          work: req.body.work,
-          Education: req.body.Education,
-          image: req.body.image,
-          email: req.user.email, // This links the profile
-          isSubscribed: req.body.isSubscribed === 'on' || res.locals.userProfile?.isSubscribed || false,
-
-          // Add phone if it's being updated here
-          phone: req.body.phone // Expecting 10 digits
-      };
-
-      // We also need to update the base User model's phone
-      if (req.body.phone) {
-          await User.findOneAndUpdate(
-              { email: req.user.email }, // Find by email
-              { phone: req.body.phone } // Update phone
-          );
-      }
-
-      await UserProfile.findOneAndUpdate(
-          { email: req.user.email },
-          profileData,
-          { new: true, upsert: true, setDefaultsOnInsert: true }
-      );
-      res.redirect("/profile");
-
-  } catch (err) {
-      console.error("Error saving profile:", err);
-       if (err.code === 11000 && err.keyPattern.phone) {
-           // Provide feedback to the user on the edit page
-           // This requires rendering the edit page again with an error
-           const userProfile = await UserProfile.findOne({ email: req.user.email }).lean();
-           return res.render("edit_profile.ejs", {
-               user: req.user,
-               userProfile: userProfile,
-               error: "That phone number is already in use by another account."
-           });
-       }
-      res.status(500).send("An error occurred while saving the profile.");
-  }
-});
+    const profileData = {
+      phone: req.user.phone,
+  
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      age: req.body.age || null,
+      gender: req.body.gender,
+      address: req.body.address,
+      work: req.body.work,
+      Education: req.body.Education,
+  
+      about: req.body.about,
+  
+      expertise: req.body.expertise
+        ? req.body.expertise.split(',').map(e => e.trim())
+        : [],
+  
+      interests: req.body.interests
+        ? req.body.interests.split(',').map(i => i.trim())
+        : [],
+  
+      image: req.body.image,
+      coverImage: req.body.coverImage
+    };
+  
+    await UserProfile.findOneAndUpdate(
+      { phone: req.user.phone },
+      profileData,
+      { upsert: true }
+    );
+  
+    res.redirect("/profile");
+  });
+  
 
 
 // --- Payment Routes (Unchanged) ---

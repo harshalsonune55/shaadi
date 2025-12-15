@@ -1,157 +1,155 @@
 <%- layout("/layouts/navbar.ejs") %>
 
-<div class="min-h-screen bg-gradient-to-br from-red-500 to-red-800 py-10 px-4">
+<!-- PAGE WRAPPER -->
+<div id="page" class="min-h-screen bg-gradient-to-br from-red-500 to-red-800 py-16 px-4 opacity-0">
+
   <div class="max-w-7xl mx-auto">
 
-    <!-- Page Header -->
-    <div class="text-center mb-12 animate-fadeInDown">
-      <h1 class="text-white text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">Find Your Perfect Match</h1>
-      <p class="text-white/90 text-lg md:text-xl font-light">Choose the plan that's right for you and start your journey today</p>
+    <!-- HEADER -->
+    <div class="text-center mb-12 animate-fade-up">
+      <h1 class="text-white text-4xl md:text-5xl font-bold mb-3">
+        Choose your right plan!
+      </h1>
+      <p class="text-white/90 text-lg max-w-2xl mx-auto">
+        Select from best plans, ensuring a perfect match.
+        Need more or less? Customize your subscription seamlessly.
+      </p>
     </div>
 
-    <!-- Plans Container -->
-    <div class="grid gap-8 md:grid-cols-3 mb-12">
-
-      <!-- Basic Plan -->
-      <div class="bg-white rounded-2xl p-8 shadow-2xl transform transition-all hover:-translate-y-2 hover:scale-105 animate-fadeInUp">
-        <div class="text-center border-b border-pink-100 pb-6 mb-6">
-          <span class="text-5xl block mb-4">🌟</span>
-          <h2 class="text-2xl font-bold text-red-700 mb-2">Basic</h2>
-          <p class="text-gray-600 text-sm mb-4">Perfect for getting started</p>
-          <div class="flex items-baseline justify-center gap-1">
-            <span class="text-xl font-semibold text-gray-800">₹</span>
-            <span class="text-4xl font-bold text-red-700">499</span>
-            <span class="text-sm text-gray-600">/month</span>
-          </div>
-        </div>
-        <ul class="mb-6 space-y-2">
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>View up to 50 profiles</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Send 10 interests per day</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Basic profile visibility</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Chat with matches</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Email support</li>
-          <li class="flex items-start gap-2 text-gray-400 line-through"><span class="bg-gray-200 text-gray-400 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✗</span>Priority customer support</li>
-          <li class="flex items-start gap-2 text-gray-400 line-through"><span class="bg-gray-200 text-gray-400 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✗</span>Profile highlighting</li>
-          <li class="flex items-start gap-2 text-gray-400 line-through"><span class="bg-gray-200 text-gray-400 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✗</span>Advanced search filters</li>
-        </ul>
-        <button onclick="subscribe('Basic', 499)" class="w-full py-3 bg-gradient-to-br from-red-500 to-red-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all">Get Started</button>
-      </div>
-
-      <!-- Premium Plan (Popular) -->
-      <div class="relative bg-white rounded-2xl p-8 shadow-2xl transform scale-105 hover:scale-110 transition-all animate-fadeInUp">
-        <div class="absolute top-4 right-[-3rem] bg-gradient-to-br from-yellow-400 to-yellow-300 text-red-700 px-12 py-1 font-bold text-xs rotate-45 shadow-lg">MOST POPULAR</div>
-        <div class="text-center border-b border-pink-100 pb-6 mb-6">
-          <span class="text-5xl block mb-4">👑</span>
-          <h2 class="text-2xl font-bold text-red-700 mb-2">Premium</h2>
-          <p class="text-gray-600 text-sm mb-4">Best value for serious seekers</p>
-          <div class="flex items-baseline justify-center gap-1">
-            <span class="text-xl font-semibold text-gray-800">₹</span>
-            <span class="text-4xl font-bold text-red-700">999</span>
-            <span class="text-sm text-gray-600">/month</span>
-          </div>
-        </div>
-        <ul class="mb-6 space-y-2">
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>View unlimited profiles</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Send unlimited interests</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Enhanced profile visibility</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Unlimited chat with matches</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Priority email & phone support</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Profile highlighting (3x per week)</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Advanced search filters</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>See who viewed your profile</li>
-        </ul>
-        <button onclick="subscribe('Premium', 999)" class="w-full py-3 bg-gradient-to-br from-yellow-400 to-yellow-300 text-red-700 font-bold rounded-full shadow-lg hover:shadow-xl transition-all">Choose Premium</button>
-      </div>
-
-      <!-- Elite Plan -->
-      <div class="bg-white rounded-2xl p-8 shadow-2xl transform transition-all hover:-translate-y-2 hover:scale-105 animate-fadeInUp">
-        <div class="text-center border-b border-pink-100 pb-6 mb-6">
-          <span class="text-5xl block mb-4">💎</span>
-          <h2 class="text-2xl font-bold text-red-700 mb-2">Elite</h2>
-          <p class="text-gray-600 text-sm mb-4">Complete matrimonial solution</p>
-          <div class="flex items-baseline justify-center gap-1">
-            <span class="text-xl font-semibold text-gray-800">₹</span>
-            <span class="text-4xl font-bold text-red-700">2999</span>
-            <span class="text-sm text-gray-600">/month</span>
-          </div>
-        </div>
-        <ul class="mb-6 space-y-2">
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Everything in Premium</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Featured profile placement</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Dedicated relationship manager</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Personalized match recommendations</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Profile verification badge</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Background verification assistance</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>Exclusive matchmaking events</li>
-          <li class="flex items-start gap-2 text-gray-800"><span class="text-white bg-gradient-to-br from-red-500 to-red-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">✓</span>24/7 priority support</li>
-        </ul>
-        <button onclick="subscribe('Elite', 2999)" class="w-full py-3 bg-gradient-to-br from-red-500 to-red-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all">Go Elite</button>
+    <!-- TOGGLE -->
+    <div class="flex justify-center mb-14 animate-fade-up delay-100">
+      <div class="bg-white/20 backdrop-blur rounded-full flex p-1 w-80">
+        <button class="flex-1 py-2 rounded-full bg-white text-red-700 font-semibold shadow">
+          Monthly
+        </button>
+        <button class="flex-1 py-2 rounded-full text-white/80">
+          Quarterly (save 10%)
+        </button>
       </div>
     </div>
 
-    <!-- Guarantee Section -->
-    <div class="bg-white rounded-2xl p-10 text-center shadow-xl animate-fadeIn">
-      <h2 class="text-red-700 text-3xl font-bold mb-4">🛡️ Why Choose Us?</h2>
-      <p class="text-gray-600 text-lg max-w-3xl mx-auto mb-8">We are committed to helping you find your perfect life partner. Our platform has successfully united thousands of couples. With verified profiles, advanced privacy settings, and dedicated support, we ensure a safe and meaningful matchmaking experience.</p>
+    <!-- PLANS -->
+    <div class="grid gap-8 md:grid-cols-3">
 
-      <div class="grid gap-6 md:grid-cols-4">
-        <div class="bg-red-50 p-5 rounded-lg border-l-4 border-red-500">
-          <h3 class="text-red-700 font-semibold flex items-center gap-2">✓ Verified Profiles</h3>
-          <p class="text-gray-600 text-sm mt-1">All profiles are manually verified for authenticity and safety</p>
-        </div>
-        <div class="bg-red-50 p-5 rounded-lg border-l-4 border-red-500">
-          <h3 class="text-red-700 font-semibold flex items-center gap-2">🔒 100% Privacy</h3>
-          <p class="text-gray-600 text-sm mt-1">Your information is secure with advanced encryption</p>
-        </div>
-        <div class="bg-red-50 p-5 rounded-lg border-l-4 border-red-500">
-          <h3 class="text-red-700 font-semibold flex items-center gap-2">💝 Success Stories</h3>
-          <p class="text-gray-600 text-sm mt-1">Over 10,000+ happy couples found their match</p>
-        </div>
-        <div class="bg-red-50 p-5 rounded-lg border-l-4 border-red-500">
-          <h3 class="text-red-700 font-semibold flex items-center gap-2">🎯 Smart Matching</h3>
-          <p class="text-gray-600 text-sm mt-1">AI-powered algorithm for better compatibility</p>
-        </div>
+      <!-- BASIC -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col animate-fade-up delay-200">
+        <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          Basic
+        </span>
+
+        <p class="text-gray-600 mb-6">Perfect for getting started</p>
+
+        <h2 class="text-4xl font-bold text-gray-900">₹499</h2>
+        <p class="text-gray-500 mb-6">/month</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ View up to 50 profiles</li>
+          <li>✓ Send 10 interests per day</li>
+          <li>✓ Basic profile visibility</li>
+          <li>✓ Chat with matches</li>
+          <li>✓ Email support</li>
+          <li class="line-through text-gray-400">Priority customer support</li>
+          <li class="line-through text-gray-400">Profile highlighting</li>
+          <li class="line-through text-gray-400">Advanced search filters</li>
+        </ul>
+
+        <button onclick="subscribe('Basic',499)"
+          class="mt-8 w-full py-3 rounded-full border border-red-600 text-red-600 font-semibold hover:bg-red-50 transition">
+          Get started
+        </button>
       </div>
+
+      <!-- PREMIUM -->
+      <div class="relative bg-white rounded-2xl p-8 shadow-2xl scale-105 border-2 border-red-500 flex flex-col animate-fade-up delay-300">
+        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-bold px-4 py-1 rounded-full">
+          MOST POPULAR
+        </span>
+
+        <span class="bg-red-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          Premium
+        </span>
+
+        <p class="text-gray-600 mb-6">Best value for serious seekers</p>
+
+        <h2 class="text-4xl font-bold text-gray-900">₹999</h2>
+        <p class="text-gray-500 mb-6">/month</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ View unlimited profiles</li>
+          <li>✓ Send unlimited interests</li>
+          <li>✓ Enhanced profile visibility</li>
+          <li>✓ Unlimited chat with matches</li>
+          <li>✓ Priority email & phone support</li>
+          <li>✓ Profile highlighting (3x per week)</li>
+          <li>✓ Advanced search filters</li>
+          <li>✓ See who viewed your profile</li>
+        </ul>
+
+        <button onclick="subscribe('Premium',999)"
+          class="mt-8 w-full py-3 rounded-full bg-red-600 text-white font-bold hover:bg-red-700 transition">
+          Choose Premium
+        </button>
+      </div>
+
+      <!-- ELITE -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col animate-fade-up delay-400">
+        <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          Elite
+        </span>
+
+        <p class="text-gray-600 mb-6">Complete matrimonial solution</p>
+
+        <h2 class="text-4xl font-bold text-gray-900">₹2999</h2>
+        <p class="text-gray-500 mb-6">/month</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ Everything in Premium</li>
+          <li>✓ Featured profile placement</li>
+          <li>✓ Dedicated relationship manager</li>
+          <li>✓ Personalized match recommendations</li>
+          <li>✓ Profile verification badge</li>
+          <li>✓ Background verification assistance</li>
+          <li>✓ Exclusive matchmaking events</li>
+          <li>✓ 24/7 priority support</li>
+        </ul>
+
+        <button onclick="subscribe('Elite',2999)"
+          class="mt-8 w-full py-3 rounded-full bg-red-600 text-white font-bold hover:bg-red-700 transition">
+          Go Elite
+        </button>
+      </div>
+
     </div>
 
-    <!-- Testimonials Section -->
-    <div class="bg-white rounded-2xl p-10 mt-12 shadow-xl">
-      <h2 class="text-red-700 text-3xl font-bold text-center mb-8">❤️ Success Stories</h2>
-      <div class="grid gap-6 md:grid-cols-3">
-        <!-- Testimonial 1 -->
-        <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
-          <p class="text-gray-700 italic mb-4">"Found my soulmate within 3 months! The Premium plan was totally worth it. Thank you for making our journey so special."</p>
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-bold">RS</div>
-            <div>
-              <h4 class="text-red-700 font-semibold">Rahul & Sneha</h4>
-              <p class="text-gray-400 text-sm">Married in 2024</p>
-            </div>
-          </div>
+    <!-- TESTIMONIALS -->
+    <div class="mt-24 bg-white rounded-3xl p-12 shadow-xl animate-fade-up delay-500">
+      <h2 class="text-3xl font-bold text-red-700 text-center mb-10">
+        ❤️ Success Stories
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
+          <p class="italic text-gray-700 mb-4">
+            "Found my soulmate within 3 months! Premium was totally worth it."
+          </p>
+          <p class="font-semibold text-red-700">Rahul & Sneha</p>
+          <p class="text-sm text-gray-500">Married in 2024</p>
         </div>
 
-        <!-- Testimonial 2 -->
-        <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
-          <p class="text-gray-700 italic mb-4">"The Elite plan's personalized service helped us find compatible matches. We're now happily married and expecting our first child!"</p>
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-bold">AP</div>
-            <div>
-              <h4 class="text-red-700 font-semibold">Amit & Priya</h4>
-              <p class="text-gray-400 text-sm">Married in 2023</p>
-            </div>
-          </div>
+        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
+          <p class="italic text-gray-700 mb-4">
+            "Elite plan gave us personal guidance. Best decision ever!"
+          </p>
+          <p class="font-semibold text-red-700">Amit & Priya</p>
+          <p class="text-sm text-gray-500">Married in 2023</p>
         </div>
 
-        <!-- Testimonial 3 -->
-        <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
-          <p class="text-gray-700 italic mb-4">"Best decision ever! The advanced filters helped me find someone with similar values. Couldn't be happier with my choice."</p>
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-bold">VK</div>
-            <div>
-              <h4 class="text-red-700 font-semibold">Vikram & Kavya</h4>
-              <p class="text-gray-400 text-sm">Married in 2024</p>
-            </div>
-          </div>
+        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
+          <p class="italic text-gray-700 mb-4">
+            "Advanced filters helped me find someone with shared values."
+          </p>
+          <p class="font-semibold text-red-700">Vikram & Kavya</p>
+          <p class="text-sm text-gray-500">Married in 2024</p>
         </div>
       </div>
     </div>
@@ -159,14 +157,32 @@
   </div>
 </div>
 
+<!-- ANIMATION + LOADER SCRIPT -->
+<style>
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 0.8s ease forwards;
+}
+.delay-100 { animation-delay: .1s }
+.delay-200 { animation-delay: .2s }
+.delay-300 { animation-delay: .3s }
+.delay-400 { animation-delay: .4s }
+.delay-500 { animation-delay: .5s }
+</style>
+
 <script>
-    function subscribe(planName, price) {
-        const confirmation = confirm(`Subscribe to ${planName} plan for ₹${price}/month?\n\nThis will redirect you to the payment page.`);
-        if (confirmation) {
-            alert(`🎉 Thank you for choosing the ${planName} plan!\n\nYou will be redirected to the secure payment page.`);
-            console.log('Redirecting to payment gateway...', planName, price);
-        }
+  window.addEventListener("load", () => {
+    document.getElementById("page").classList.remove("opacity-0");
+  });
+
+  function subscribe(plan, price) {
+    if (confirm(`Subscribe to ${plan} plan for ₹${price}/month?`)) {
+      alert(`🎉 Thank you for choosing ${plan}!`);
     }
+  }
 </script>
 
 <%- include("layouts/footer.ejs") %>

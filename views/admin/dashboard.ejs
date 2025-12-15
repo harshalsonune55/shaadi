@@ -1,0 +1,39 @@
+<%- layout("layouts/navbar.ejs") %>
+
+<div class="max-w-6xl mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p class="text-gray-500 mb-1">Total Profiles</p>
+      <p class="text-4xl font-bold text-blue-600"><%= totalProfiles %></p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p class="text-gray-500 mb-1">Incomplete Profiles</p>
+      <p class="text-4xl font-bold text-red-600"><%= incompleteProfiles %></p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p class="text-gray-500 mb-1">Active Memberships</p>
+      <p class="text-4xl font-bold text-green-600"><%= activeMembers %></p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow">
+      <p class="text-gray-500 mb-1">Inactive Memberships</p>
+      <p class="text-4xl font-bold text-gray-600"><%= inactiveMembers %></p>
+    </div>
+
+  </div>
+
+  <!-- 👉 VIEW PROFILES BUTTON -->
+  <div class="mt-10 text-right">
+    <a
+      href="/profiles"
+      class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+    >
+      View All Profiles →
+    </a>
+  </div>
+</div>

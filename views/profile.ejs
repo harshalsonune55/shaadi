@@ -1,89 +1,137 @@
 <%- layout("/layouts/navbar.ejs") %>
 
-<div class="min-h-screen bg-gradient-to-br from-red-400 to-red-800 py-10 px-4">
-  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
-    
-    <div class="relative bg-gradient-to-br from-red-400 to-red-700 text-center py-12 px-6">
-      <div class="absolute top-4 left-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow">
-        <span>✓</span>
-        <span>Verified Profile</span>
-      </div>
+<div class="min-h-screen bg-gray-100">
 
-      <img src="<%= userProfile.image || 'https://ui-avatars.com/api/?name=' + user.fullname %>" 
-           alt="Profile Picture" 
-           class="w-36 h-36 mx-auto rounded-full border-4 border-white shadow-lg transform transition-transform hover:scale-105 mb-4">
+  <!-- LIMITED COVER BACKGROUND -->
 
-      <h2 class="text-3xl font-bold text-white mb-1"><%= userProfile.first_name %> <%= userProfile.last_name %></h2>
-      <p class="text-white/90 text-lg mb-4" id="displayTitle"><%= userProfile.work || 'Aspiring Partner' %></p>
+<div class="pt-6">
+  <div class="max-w-6xl mx-auto relative px-4">
 
-      <div class="flex justify-center gap-10 border-t border-white/30 pt-4 mt-4">
-        <div class="text-white text-center">
-          <span class="block text-xl font-bold"><%= userProfile.age || 'N/A' %></span>
-          <span class="text-sm opacity-90">Years Old</span>
-        </div>
-        <div class="text-white text-center">
-          <span class="block text-xl font-bold"><%= userProfile.gender || 'N/A' %></span>
-          <span class="text-sm opacity-90">Gender</span>
-        </div>
-        <div class="text-white text-center">
-          <span class="block text-xl font-bold"><%= userProfile.address || 'N/A' %></span>
-          <span class="text-sm opacity-90">Location</span>
-        </div>
-      </div>
+    <div class="h-56 rounded-2xl overflow-hidden bg-gray-200">
+      <img
+        src="<%= userProfile.coverImage || 'https://images.unsplash.com/photo-1503264116251-35a269479413' %>"
+        alt="Cover Photo"
+        class="w-full h-full object-cover"
+      />
     </div>
 
-    <div class="px-6 py-8 space-y-6">
-      
-      <div class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hover:shadow-lg transition">
-        <h3 class="text-red-700 text-2xl font-bold mb-4">Personal Information</h3>
-        <ul class="space-y-3 text-gray-700 text-base">
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Full Name:</strong>
-            <span class="display-text"><%= user.fullname %></span>
-          </li>
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Email:</strong>
-            <span class="display-text"><%= user.email %></span>
-          </li>
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Gender:</strong>
-            <span class="display-text"><%= userProfile.gender || 'Not specified' %></span>
-          </li>
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Age:</strong>
-            <span class="display-text"><%= userProfile.age ? userProfile.age + ' years old' : 'Not specified' %></span>
-          </li>
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Location:</strong>
-            <span class="display-text"><%= userProfile.address || 'Not specified' %></span>
-          </li>
-        </ul>
+  </div>
+</div>
+
+
+  <!-- PROFILE CARD -->
+  <div class="max-w-6xl mx-auto px-4 -mt-24">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+
+      <!-- TOP SECTION -->
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-6 p-6">
+
+        <!-- PROFILE IMAGE -->
+        <div class="relative z-0">
+          <img
+            src="<%= userProfile.image || 'https://ui-avatars.com/api/?name=' + user.fullname %>"
+            alt="Profile"
+            class="w-40 h-40 rounded-full border-4 border-white shadow-lg"
+          />
+
+          <!-- VERIFIED BADGE -->
+          <span class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow">
+            ✓ Verified
+          </span>
+        </div>
+
+        <!-- BASIC INFO -->
+        <div class="flex-1 text-center md:text-left mt-4 md:mt-0 relative z-10">
+          <h1 class="text-3xl font-bold text-gray-900" style="margin-top:81px">
+            <%= userProfile.first_name %> <%= userProfile.last_name %>
+          </h1>
+
+          <p class="text-lg text-gray-600 mt-1">
+            <%= userProfile.work || "Industry Professional" %>
+          </p>
+
+          <p class="text-sm text-gray-500 mt-1">
+            📍 <%= userProfile.address || "Location not specified" %>
+          </p>
+
+          <!-- ACTION BUTTONS -->
+          <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+
+            <a
+              href="/profile/edit"
+              class="border border-gray-300 text-gray-700 px-5 py-2 rounded-full hover:bg-gray-100 transition"
+            >
+              ✏️ Edit Profile
+            </a>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="flex gap-6 text-center mt-4 md:mt-0">
+          <div>
+            <p class="text-xl font-bold text-gray-900">12.5k</p>
+            <p class="text-sm text-gray-500">Followers</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-gray-900">52</p>
+            <p class="text-sm text-gray-500">Experts</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-gray-900">18</p>
+            <p class="text-sm text-gray-500">Advice</p>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hover:shadow-lg transition">
-        <h3 class="text-red-700 text-2xl font-bold mb-4">Professional Background</h3>
-        <ul class="space-y-3 text-gray-700 text-base">
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Education:</strong>
-            <span class="display-text"><%= userProfile.Education || 'Not specified' %></span>
-          </li>
-          <li class="flex justify-between md:justify-start md:gap-4">
-            <strong class="md:w-40">Occupation:</strong>
-            <span class="display-text"><%= userProfile.work || 'Not specified' %></span>
-          </li>
-        </ul>
+      <!-- ABOUT -->
+      <div class="border-t px-6 py-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">About</h2>
+        <p class="text-gray-700 leading-relaxed">
+          <%= userProfile.about ||
+          "Experienced professional with a strong background in leadership, strategy, and business growth. Passionate about mentoring, advising, and creating impact-driven solutions." %>
+        </p>
       </div>
 
-      <div class="bg-red-50 rounded-xl p-6 border-l-4 border-red-500 hover:shadow-lg transition">
-        <h3 class="text-red-700 text-2xl font-bold mb-4">About Me</h3>
-        <p class="display-text text-gray-700">I am a warm, caring, and ambitious professional looking for a life partner who values family, education, and personal growth. I enjoy reading, cooking, and traveling. Looking for someone respectful and understanding.</p>
+      <!-- EXPERTISE & INTERESTS -->
+      <div class="grid md:grid-cols-2 gap-6 px-6 py-6 bg-gray-50">
+
+        <!-- EXPERTISE -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Expertise</h3>
+          <div class="flex flex-wrap gap-2">
+            <% (userProfile.expertise || ['Leadership','Branding','Advertising']).forEach(tag => { %>
+              <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                #<%= tag %>
+              </span>
+            <% }) %>
+          </div>
+          <p class="text-sm text-green-600 mt-2">Open to networking: Yes</p>
+        </div>
+
+        <!-- INTERESTS -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Interests</h3>
+          <div class="flex flex-wrap gap-2">
+            <% (userProfile.interests || ['Performance Marketing','Events','CRM']).forEach(tag => { %>
+              <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                #<%= tag %>
+              </span>
+            <% }) %>
+          </div>
+          <p class="text-sm text-green-600 mt-2">Open to advising: Yes</p>
+        </div>
       </div>
-      <div class="mt-6">
-        <a href="/profile/edit" 
-           class="inline-block bg-white text-red-700 font-semibold px-6 py-2 rounded-full shadow hover:bg-red-50 transition">
-           ✏️ Edit Profile
-        </a>
-    </div>
+
+      <!-- PERSONAL INFO -->
+      <div class="px-6 py-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-gray-700">
+          <p><strong>Email:</strong> <%= user.email %></p>
+          <p><strong>Gender:</strong> <%= userProfile.gender || "Not specified" %></p>
+          <p><strong>Age:</strong> <%= userProfile.age || "N/A" %></p>
+          <p><strong>Education:</strong> <%= userProfile.Education || "Not specified" %></p>
+        </div>
+      </div>
 
     </div>
   </div>
