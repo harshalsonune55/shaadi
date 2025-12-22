@@ -20,7 +20,9 @@
        crossorigin="anonymous"
        referrerpolicy="no-referrer"
      />
-     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
+     
+
+
    </head>
    <body class="bg-gray-50">
  
@@ -57,6 +59,11 @@
               <i class="fa-solid fa-user-group text-xl mb-1"></i>
               People
             </a>
+            <a href="/inbox" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-comments text-xl mb-1"></i>
+              Inbox
+            </a>
+            
           
             <a href="/pricing" class="flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-tag text-xl mb-1"></i>
@@ -78,9 +85,7 @@
             </a>
            <% } %>
  
-           <div class="hidden md:block">
-             <img src="/images/Logo2.jpeg" alt="Logo" class="w-10 h-10 rounded-full" />
-           </div>
+           
          </nav>
        </div>
  
@@ -134,6 +139,33 @@
          mobileMenu.classList.toggle('hidden');
        });
      </script>
+     <script src="/socket.io/socket.io.js"></script>
+     <script>
+      // Initialize Socket.io
+      window.socket = io();
+    
+      window.socket.on("connect", () => {
+        console.log("🟢 Socket Connected! ID:", window.socket.id);
+    
+        <% if (user && user.phone) { %>
+          // Use the phone number from the user session to join the room
+          window.socket.emit("join user room", "<%= user.phone %>");
+          
+        <% } %>
+      });
+    
+      window.socket.on("disconnect", () => {
+        console.log("🔴 Socket Disconnected");
+      });
+    
+      window.socket.on("connect_error", (err) => {
+        console.error("❌ Socket Connection Error:", err);
+      });
+    </script>
+    
+     
+
+     
    </body>
  </html>
  

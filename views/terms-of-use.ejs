@@ -1,0 +1,171 @@
+<%- layout("layouts/navbar.ejs") %>
+
+<div class="bg-gray-100 py-10 px-4">
+  <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+      Terms of Use
+    </h1>
+
+    <p class="text-sm text-gray-500 text-center mb-8">
+      Last updated: <%= new Date().toLocaleDateString() %>
+    </p>
+
+    <!-- INTRO -->
+    <section class="space-y-4 text-gray-700 leading-relaxed">
+      <p>
+        Welcome to <strong>Shaadiwali.com</strong>, your personal matchmaking
+        advertising platform. These Terms of Use (“Agreement”) govern your
+        access to and use of our website, mobile site, applications, and related
+        services.
+      </p>
+
+      <p>
+        By accessing or using Shaadiwali.com, you agree to be bound by these
+        Terms of Use. If you do not agree, please refrain from using our
+        services.
+      </p>
+    </section>
+
+    <!-- ELIGIBILITY -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Eligibility
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        Registration on Shaadiwali.com is strictly for individuals of legal
+        marriageable age as per Indian law:
+      </p>
+      <ul class="list-disc list-inside text-gray-700 mt-2">
+        <li>18 years or above for females</li>
+        <li>21 years or above for males</li>
+      </ul>
+      <p class="text-gray-700 mt-2">
+        The platform is intended solely for lawful matrimonial purposes and not
+        for casual dating or commercial use.
+      </p>
+    </section>
+
+    <!-- ACCOUNT SECURITY -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Account Security
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        You are responsible for maintaining the confidentiality of your login
+        credentials. Any activity conducted through your account is your sole
+        responsibility. Please notify us immediately of any unauthorized use.
+      </p>
+    </section>
+
+    <!-- MEMBER OBLIGATIONS -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Member Obligations
+      </h2>
+      <ul class="list-disc list-inside text-gray-700 space-y-2">
+        <li>Only one profile per individual is permitted</li>
+        <li>All information provided must be accurate and truthful</li>
+        <li>Impersonation or misrepresentation is prohibited</li>
+        <li>Commercial usage of the platform is not allowed</li>
+        <li>No sharing of contact details in public profiles</li>
+      </ul>
+    </section>
+
+    <!-- CONTENT POLICY -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Content Policy
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        Shaadiwali.com reserves the right to remove any content that is illegal,
+        offensive, misleading, abusive, obscene, or violates these Terms.
+      </p>
+      <p class="text-gray-700 mt-2">
+        You grant Shaadiwali.com a non-exclusive license to use content you
+        submit for matchmaking and promotional purposes.
+      </p>
+    </section>
+
+    <!-- CHILD SAFETY -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Child Safety Policy
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        Shaadiwali.com maintains a zero-tolerance policy toward child sexual
+        abuse and exploitation (CSAE).
+      </p>
+      <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+        <li>Underage users are strictly prohibited</li>
+        <li>Accounts violating age rules will be terminated immediately</li>
+        <li>Illegal content will be reported to law enforcement</li>
+        <li>Users are encouraged to report suspicious behavior</li>
+      </ul>
+    </section>
+
+    <!-- PRIVACY -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Privacy
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        Your use of Shaadiwali.com is also governed by our
+        <a href="/privacy-policy" class="text-cyan-600 font-medium hover:underline">
+          Privacy Policy
+        </a>.
+      </p>
+    </section>
+
+    <!-- LIMITATION OF LIABILITY -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Limitation of Liability
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        Shaadiwali.com shall not be liable for any indirect, incidental, or
+        consequential damages arising from your use of the platform. Any
+        liability shall be limited to the amount paid by you, if any.
+      </p>
+    </section>
+
+    <!-- JURISDICTION -->
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Jurisdiction
+      </h2>
+      <p class="text-gray-700 leading-relaxed">
+        These Terms are governed by the laws of India. Any disputes shall be
+        subject to the exclusive jurisdiction of courts in Jaipur, Rajasthan.
+      </p>
+    </section>
+
+    <!-- GRIEVANCE -->
+    <section class="mt-8 border-t pt-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">
+        Grievance Officer
+      </h2>
+      <p class="text-gray-700">
+        <strong>Akhilesh Sharma</strong><br />
+        Shaadiwali.com<br />
+        267/500, Pratap Nagar<br />
+        Jaipur – 302033<br />
+        Email:
+        <a href="mailto:care@shaadiwali.com" class="text-cyan-600 hover:underline">
+          care@shaadiwali.com
+        </a>
+      </p>
+    </section>
+
+    <!-- ACCEPTANCE -->
+    <section class="mt-8 text-gray-700 leading-relaxed">
+      <p>
+        By using Shaadiwali.com, you acknowledge that you have read,
+        understood, and agreed to these Terms of Use.
+      </p>
+    </section>
+
+  </div>
+</div>
+
+<%- include("layouts/footer.ejs") %>

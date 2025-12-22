@@ -77,10 +77,10 @@
           <p class="text-gray-700 mt-1"><%= person.address || 'Not specified' %></p>
         </div>
 
-        <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+        <!-- <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
           <h3 class="font-semibold text-purple-800 flex items-center gap-2"><span class="text-lg">📱</span> Phone:</h3>
           <p class="text-gray-700 mt-1"><%= person.phone ? ('+' + person.phone) : 'Not specified' %></p> 
-        </div>
+        </div> -->
 
         <p class="text-gray-700 leading-relaxed pt-2">Enjoy a memorable visit when you stay in this unique place... Self check-in facility is available here. The unit is well-suited for short stays and business travelers.</p>
       </div>
@@ -93,19 +93,24 @@
 
         <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-lg space-y-4">
 
-          <% if (person.phone) { %>
-            <a href="https://wa.me/<%= person.phone %>"
-               target="_blank"  
-               class="block w-full text-center py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-lg text-lg hover:shadow-xl hover:from-green-600 hover:to-emerald-600 transition duration-300 transform hover:-translate-y-0.5">
-               Chat on WhatsApp
+          <% if (user && user._id.toString() !== person._id.toString()) { %>
+            <a
+              href="/chat/<%= person._id %>"
+              class="block w-full text-center py-3 bg-gradient-to-r from-pink-500 to-red-500 
+                     text-white font-bold rounded-lg text-lg hover:shadow-xl transition"
+            >
+              💬 Chat Now
             </a>
           <% } else { %>
             <button
-               disabled
-               class="block w-full text-center py-3 bg-gray-300 text-gray-500 font-bold rounded-lg text-lg cursor-not-allowed">
-               WhatsApp Not Available
+              disabled
+              class="block w-full text-center py-3 bg-gray-300 text-gray-500 
+                     font-bold rounded-lg text-lg cursor-not-allowed"
+            >
+              This is you
             </button>
           <% } %>
+          
    
 
           <div class="text-center text-gray-500 text-xs">You won't be charged yet</div>

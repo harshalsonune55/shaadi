@@ -1,0 +1,110 @@
+<%- layout("layouts/navbar") %>
+
+<div class="max-w-3xl mx-auto p-4">
+  <h2 class="text-xl font-semibold mb-4">
+    Chat with <%= receiverProfile.first_name %> <%= receiverProfile.last_name %>
+  </h2>
+
+  <div id="messages" class="h-96 overflow-y-auto border rounded p-3 mb-3 bg-white">
+    <% messages.forEach(msg => { %>
+      <div class="<%= msg.senderPhone === user.phone ? 'text-right' : 'text-left' %> mb-2">
+        <span class="inline-block px-3 py-2 rounded-lg 
+          <%= msg.senderPhone === user.phone ? 'bg-pink-500 text-white' : 'bg-gray-200' %>">
+          <%= msg.message %>
+        </span>
+      </div>
+    <% }) %>
+  </div>
+
+  <form id="chatForm" class="flex gap-2">
+    <input type="hidden" id="receiverId" value="<%= receiverProfile._id %>">
+    <input id="msgInput" class="flex-1 border rounded px-3 py-2" placeholder="Type a message..." autocomplete="off" />
+    <button type="submit" class="bg-pink-600 text-white px-4 rounded hover:bg-pink-700 transition">Send</button>
+  </form>
+</div>
+
+<script>
+  const messagesDiv = document.getElementById("messages");
+  const chatForm = document.getElementById("chatForm");
+  const msgInput = document.getElementById("msgInput");
+  const receiverId = "<%= receiverProfile._id %>"; // Ensure this is correctly rendered
+  const receiverPhone = "<%= receiverPhone %>";
+  const myPhone = "<%= user.phone %>"; // Added your own phone to re-join room
+
+  const scrollToBottom = () => {
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  };
+  scrollToBottom();
+
+  // Helper function to add bubbles to the UI
+  function appendMessage(text, side) {
+    const div = document.createElement("div");
+    div.className = side === 'right' ? "text-right mb-2" : "text-left mb-2";
+    const color = side === 'right' ? "bg-pink-500 text-white" : "bg-gray-200";
+    
+    div.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${color}">${text}</span>`;
+    messagesDiv.appendChild(div);
+    scrollToBottom();
+  }
+
+  // logic for setting up the socket listener
+  function setupSocket() {
+    console.log("🟢 Setting up chat listener...");
+
+    // 1. Ensure we are in our own room to receive messages
+    window.socket.emit("join user room", myPhone);
+
+    // 2. Remove old listeners and set up new one
+    window.socket.off("receive message");
+    window.socket.on("receive message", (data) => {
+      
+      
+      // Use == to ignore string/number differences
+      if (data.senderPhone == receiverPhone) {
+        appendMessage(data.message, 'left');
+      } else {
+        console.log("Ignoring message from another user:", data.senderPhone);
+      }
+    });
+  }
+
+  // Wait for the global socket to be ready
+  if (window.socket && window.socket.connected) {
+    setupSocket();
+  } else {
+    console.log("⏳ Socket not ready, waiting for connection...");
+    // If the socket connects later, trigger setup
+    document.addEventListener("DOMContentLoaded", () => {
+       let checkInterval = setInterval(() => {
+         if (window.socket && window.socket.id) {
+           setupSocket();
+           clearInterval(checkInterval);
+         }
+       }, 500);
+    });
+  }
+
+  // HANDLE SENDING
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = msgInput.value.trim();
+    if (!message) return;
+
+    msgInput.value = ""; 
+
+    try {
+      const response = await fetch("/api/messages/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiverId, message })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        appendMessage(message, 'right');
+      }
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    }
+  });
+</script>
