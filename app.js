@@ -452,14 +452,19 @@ app.get("/inbox", isLoggedIn, async (req, res) => {
 // --- PROTECTED ROUTES ---
 
 // People & Profile Routes
-app.get("/people", isLoggedIn, async (req, res) => {
+app.get("/people", async (req, res) => {
     try {
         const { name, address, minAge, maxAge, gender, interest } = req.query;
 
-        // Base filter: exclude logged-in user
-        let filter = {
-            phone: { $ne: req.user.phone }
-          };
+      
+        // Base filter
+let filter = {};
+
+// Exclude logged-in user ONLY if logged in
+if (req.user?.phone) {
+    filter.phone = { $ne: req.user.phone };
+}
+
           
 
         // 🔍 Name filter (first or last name)
@@ -477,7 +482,7 @@ app.get("/people", isLoggedIn, async (req, res) => {
 
         // ⚧ Gender filter
         if (gender) {
-            filter.gender = gender;
+          filter.gender = { $regex: `^${gender}$`, $options: "i" };
         }
 
         // 🎂 Age range filter
@@ -508,11 +513,11 @@ app.get("/people", isLoggedIn, async (req, res) => {
 });
 
 
-app.get("/people/:id", isLoggedIn, async (req, res) => {
+app.get("/people/:id", async (req, res) => {
     try {
         const person = await UserProfile.findById(req.params.id).lean(); // Use lean
         if (!person) return res.status(404).send("Person not found");
-        res.render("profiledetail.ejs", { person, user: req.user, userProfile: res.locals.userProfile });
+        res.render("profiledetail.ejs", { person, user: req.user || null, userProfile: res.locals.userProfile ||null });
     } catch (err) {
         console.error("Error fetching person details:", err);
         res.status(500).send("Error loading profile details");
@@ -532,7 +537,9 @@ app.get("/profile", isLoggedIn, async (req, res) => {
     res.render("profile.ejs", { userProfile });
   });
   
-  
+  app.get("/about-us", (req, res) => {
+    res.render("about.ejs");
+  });
   
 
 app.get("/profile/edit", isLoggedIn, (req, res) => {

@@ -39,9 +39,33 @@
         </div>
         <div>
           <label for="gender" class="block text-gray-700 font-medium mb-1">Gender</label>
-          <input type="text" id="gender" name="gender" value="<%= userProfile ? userProfile.gender : '' %>"
-            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+        
+          <select
+            id="gender"
+            name="gender"
+            required
+            class="w-full px-4 py-2 border rounded-lg bg-white
+                   focus:outline-none focus:ring-2 focus:ring-pink-500"
+          >
+            <option value="">Select Gender</option>
+        
+            <option value="Male"
+              <%= userProfile?.gender === "Male" ? "selected" : "" %>>
+              Male
+            </option>
+        
+            <option value="Female"
+              <%= userProfile?.gender === "Female" ? "selected" : "" %>>
+              Female
+            </option>
+        
+            <option value="Other"
+              <%= userProfile?.gender === "Other" ? "selected" : "" %>>
+              Other
+            </option>
+          </select>
         </div>
+        
       </div>
       
       <div>
