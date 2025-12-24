@@ -12,8 +12,7 @@
     </h2>
     
     <form 
-    action="/profile" 
-    method="POST" 
+    
     enctype="multipart/form-data"
     class="space-y-5"
   >
@@ -156,57 +155,52 @@
           />
         <% } %>
       </div>
-      <div id="uploadStatus" class="hidden mt-4 text-center">
-        <p id="uploadText" class="text-sm text-gray-600">Uploading...</p>
-        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-          <div id="progressBar" class="bg-pink-600 h-2 rounded-full" style="width: 0%"></div>
-        </div>
-      </div>
+      
       
 
-      <button type="submit" 
-        class="w-full bg-pink-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-pink-700 transition-colors">
-        Save Profile
-      </button>
-    </form>
-
-  </div>
+      <button
+    id="saveBtn"
+    type="submit"
+    class="w-full bg-pink-600 text-white font-bold py-3 px-4 rounded-lg
+           hover:bg-pink-700 transition-colors
+           disabled:opacity-50 disabled:cursor-not-allowed">
+    Save Profile
+  </button>
+</form>
+</div>
 </div>
 <script>
   const form = document.querySelector("form");
-  const uploadStatus = document.getElementById("uploadStatus");
-  const progressBar = document.getElementById("progressBar");
-  const uploadText = document.getElementById("uploadText");
+  const saveBtn = document.getElementById("saveBtn");
 
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    saveBtn.disabled = true;
+    saveBtn.innerText = "Uploading...";
+
     const formData = new FormData(form);
-    const xhr = new XMLHttpRequest();
 
-    uploadStatus.classList.remove("hidden");
-    uploadText.innerText = "Uploading images...";
+    try {
+      const response = await fetch("/profile", { method: "POST", body: formData });
+      const result = await response.json();
 
-    xhr.upload.onprogress = function (e) {
-      if (e.lengthComputable) {
-        const percent = Math.round((e.loaded / e.total) * 100);
-        progressBar.style.width = percent + "%";
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Save failed");
       }
-    };
 
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        uploadText.innerText = "Upload complete ✅";
-        window.location.href = "/profile";
-      } else {
-        uploadText.innerText = "Upload failed ❌";
-      }
-    };
-
-    xhr.open("POST", "/profile");
-    xhr.send(formData);
+      saveBtn.innerText = "Saved ✅";
+      window.location.href = "/profile";
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+      saveBtn.disabled = false;
+      saveBtn.innerText = "Save Profile";
+    }
   });
 </script>
+
+
 
 
 <%- include("layouts/footer.ejs") %>

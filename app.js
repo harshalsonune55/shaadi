@@ -15,13 +15,33 @@ import User from "./model/user.js";
 import UserProfile from "./model/user.profile.js";
 import { isLoggedIn } from "./middleware/auth.js";
 import { isAdmin } from "./middleware/isAdmin.js";
-import { upload } from "./utils/upload.js";
+
 import Chat from "./model/chat.js";
 import { Server } from "socket.io";
-
-
+import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 configDotenv();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "shaadiwali_profiles",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"]
+  }
+});
+
+const upload = multer({ storage });
+
+
+
+
+
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 3000;
@@ -148,7 +168,7 @@ export function verifyOTP(mobile, otp) {
   }
 
   //admin Routes 
-  app.get("/", (req, res) => res.render("home.ejs"));
+
   app.get("/admin", isAdmin, async (req, res) => {
     try {
       const totalProfiles = await UserProfile.countDocuments();
@@ -527,50 +547,59 @@ app.get("/profile/edit", isLoggedIn, (req, res) => {
 });
 
 app.post(
-    "/profile",
-    isLoggedIn,
-    upload.fields([
-      { name: "image", maxCount: 1 },
-      { name: "coverImage", maxCount: 1 }
-    ]),
-    async (req, res) => {
-      try {
-        const profileData = {
-          first_name: req.body.first_name,
-          last_name: req.body.last_name,
-          age: req.body.age || null,
-          gender: req.body.gender,
-          address: req.body.address,
-          work: req.body.work,
-          Education: req.body.Education,
-          about: req.body.about,
-          expertise: req.body.expertise ? req.body.expertise.split(",").map(e => e.trim()) : [],
-          interests: req.body.interests ? req.body.interests.split(",").map(i => i.trim()) : [],
-          phone: req.user.phone,
-        };
-  
-        // Cloudinary gives secure_url (best)
-        if (req.files?.image?.[0]) {
-          profileData.image = req.files.image[0].path; // cloudinary URL
-        }
-  
-        if (req.files?.coverImage?.[0]) {
-          profileData.coverImage = req.files.coverImage[0].path; // cloudinary URL
-        }
-  
-        await UserProfile.findOneAndUpdate(
-          { phone: req.user.phone },
-          profileData,
-          { upsert: true, new: true }
-        );
-  
-        res.redirect("/profile");
-      } catch (err) {
-        console.error("Profile update failed:", err);
-        res.status(500).send("Profile update failed");
+  "/profile",
+  isLoggedIn,
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "coverImage", maxCount: 1 }
+  ]),
+  async (req, res) => {
+    try {
+      const profileData = {
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        age: req.body.age || null,
+        gender: req.body.gender,
+        address: req.body.address,
+        work: req.body.work,
+        Education: req.body.Education,
+        about: req.body.about,
+        expertise: req.body.expertise
+          ? req.body.expertise.split(",").map(e => e.trim())
+          : [],
+        interests: req.body.interests
+          ? req.body.interests.split(",").map(i => i.trim())
+          : [],
+        phone: req.user.phone
+      };
+
+      // ✅ ALWAYS USE .path (multer-cloudinary)
+      if (req.files?.image?.length) {
+        profileData.image = req.files.image[0].path;
       }
+
+      if (req.files?.coverImage?.length) {
+        profileData.coverImage = req.files.coverImage[0].path;
+      }
+
+      const updatedProfile = await UserProfile.findOneAndUpdate(
+        { phone: req.user.phone },
+        profileData,            // ❗ NO $set
+        { upsert: true, new: true }
+      );
+
+      console.log("✅ Profile saved:", updatedProfile);
+
+      res.status(200).json({ success: true });
+    } catch (err) {
+      console.error("❌ Profile save failed:", err);
+      res.status(500).json({ success: false, error: err.message });
     }
-  );
+  }
+);
+
+
+
   
   
   
