@@ -633,7 +633,9 @@ app.post(
   }
 );
 
-  
+app.get("/contact-us", (req, res) => {
+  res.render("contact");
+});
 
 
 // --- Payment Routes (Unchanged) ---
