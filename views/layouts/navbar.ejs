@@ -54,6 +54,15 @@
                <i class="fa-solid fa-right-to-bracket text-xl mb-1"></i>
                Login
              </a>
+             <a href="/login" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-user-plus text-xl mb-1"></i>
+              Create Account
+            </a>
+            <a href="/blogs" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-blog text-xl mb-1"></i>
+              Blogs
+            </a>
+
            <% } else { %>
             <a href="/people" class="flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-user-group text-xl mb-1"></i>
@@ -73,6 +82,11 @@
               <i class="fa-solid fa-circle-user text-xl mb-1"></i>
               Profile
             </a>
+           
+            <a href="/blogs" class="flex flex-col items-center hover:text-pink-600">
+              <i class="fa-solid fa-blog text-xl mb-1"></i>
+              Blogs
+            </a>
             <% if (isAdmin) { %>
               <a href="/admin" class="flex flex-col items-center text-red-600 hover:text-red-700">
                 <i class="fa-solid fa-user-shield text-xl mb-1"></i>
@@ -90,41 +104,82 @@
        </div>
  
        <!-- Mobile Menu -->
-       <div id="mobile-menu" class="hidden flex flex-col items-center space-y-4 pb-4 bg-white md:hidden">
-         <a href="/" class="flex flex-col items-center hover:text-pink-600">
-           <i class="fa-solid fa-house text-xl mb-1"></i> Home
-         </a>
- 
-         <% if (!user) { %>
-           <a href="/signup" class="flex flex-col items-center hover:text-pink-600">
-             <i class="fa-solid fa-user-plus text-xl mb-1"></i> Signup
-           </a>
-           <a href="/login" class="flex flex-col items-center hover:text-pink-600">
-             <i class="fa-solid fa-right-to-bracket text-xl mb-1"></i> Login
-           </a>
-         <% } else { %>
-           <a href="/people" class="flex flex-col items-center hover:text-pink-600">
-             <i class="fa-solid fa-user-group text-xl mb-1"></i> People
-           </a>
-           <a href="/pricing" class="flex flex-col items-center hover:text-pink-600">
-             <i class="fa-solid fa-tag text-xl mb-1"></i> Pricing
-           </a>
-           <a href="/profile"
-             class="flex flex-col items-center hover:text-pink-600">
-             <i class="fa-solid fa-circle-user text-xl mb-1"></i> Profile
-           </a>
-           <% if (isAdmin) { %>
-            <a href="/admin" class="flex flex-col items-center text-red-600 hover:text-red-700">
-              <i class="fa-solid fa-user-shield text-xl mb-1"></i>
-              Admin
-            </a>
-          <% } %>
-          
-           <a href="/logout" class="flex flex-col items-center hover:text-pink-600">
-             <i class="fa-solid fa-right-from-bracket text-xl mb-1"></i> Logout
-           </a>
-         <% } %>
-       </div>
+       <!-- Mobile Menu -->
+<div
+id="mobile-menu"
+class="hidden md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50"
+>
+<div class="grid grid-cols-2 gap-4 p-4 text-gray-700">
+
+  <a href="/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+    <i class="fa-solid fa-house text-pink-600"></i>
+    <span>Home</span>
+  </a>
+
+  <% if (!user) { %>
+
+    <a href="/login" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-right-to-bracket text-pink-600"></i>
+      <span>Login</span>
+    </a>
+
+    <a href="/login"
+      class="col-span-2 text-center bg-pink-600 text-white py-3 rounded-lg font-semibold">
+      <i class="fa-solid fa-user-plus mr-2"></i>
+      Create Account
+    </a>
+    <a href="/blogs" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-blog text-pink-600"></i>
+      <span>Blogs</span>
+    </a>
+    
+
+  <% } else { %>
+
+    <a href="/people" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-user-group text-pink-600"></i>
+      <span>People</span>
+    </a>
+
+    <a href="/inbox" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-comments text-pink-600"></i>
+      <span>Inbox</span>
+    </a>
+
+    <a href="/pricing" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-tag text-pink-600"></i>
+      <span>Pricing</span>
+    </a>
+
+    <a href="/profile" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-circle-user text-pink-600"></i>
+      <span>Profile</span>
+    </a>
+    <a href="/blogs" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+      <i class="fa-solid fa-blog text-pink-600"></i>
+      <span>Blogs</span>
+    </a>
+    
+
+    <% if (isAdmin) { %>
+      <a href="/admin"
+        class="col-span-2 flex items-center justify-center gap-3 p-3 rounded-lg bg-red-50 text-red-600">
+        <i class="fa-solid fa-user-shield"></i>
+        Admin Panel
+      </a>
+    <% } %>
+
+    <a href="/logout"
+      class="col-span-2 text-center bg-gray-200 py-3 rounded-lg font-semibold">
+      <i class="fa-solid fa-right-from-bracket mr-2"></i>
+      Logout
+    </a>
+
+  <% } %>
+
+</div>
+</div>
+
      </header>
  
      <%- body %>
@@ -162,6 +217,21 @@
         console.error("❌ Socket Connection Error:", err);
       });
     </script>
+    <script>
+      const menuBtn = document.getElementById('menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+    
+      menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    
+      document.querySelectorAll('#mobile-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+        });
+      });
+    </script>
+    
     
      
 

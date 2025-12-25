@@ -200,24 +200,16 @@
 
         <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-lg space-y-4">
 
-          <% if (user && user._id.toString() !== person._id.toString()) { %>
-            <a
-              href="/chat/<%= person._id %>"
-              class="block w-full text-center py-3 sm:py-4 
-       bg-gradient-to-r from-pink-500 to-red-500 
-       text-white font-bold rounded-lg text-base sm:text-lg"
-            >
-              💬 Chat Now
-            </a>
-          <% } else { %>
-            <button
-              disabled
-              class="block w-full text-center py-3 bg-gray-300 text-gray-500 
-                     font-bold rounded-lg text-lg cursor-not-allowed"
-            >
-              This is you
-            </button>
-          <% } %>
+          <a
+  href="<%= user ? `/chat/${person._id}` : `/login?redirect=/chat/${person._id}` %>"
+  class="block w-full text-center py-3 sm:py-4
+         bg-gradient-to-r from-pink-500 to-red-500
+         text-white font-bold rounded-lg text-base sm:text-lg
+         hover:opacity-95 transition"
+>
+  💬 Chat Now
+</a>
+
           
    
 

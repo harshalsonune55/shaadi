@@ -1,0 +1,46 @@
+<%- layout("/layouts/navbar.ejs") %>
+
+<div class="bg-gray-50 min-h-screen">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+
+    <article class="bg-white rounded-xl shadow p-6">
+
+      <% if (blog.coverImage) { %>
+        <img
+          src="<%= blog.coverImage %>"
+          class="w-full h-72 object-cover rounded-lg mb-6"
+        />
+      <% } %>
+
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <%= blog.title %>
+      </h1>
+
+      <p class="text-gray-500 text-sm mb-6">
+        By shaadiwali• <%= blog.createdAt.toDateString() %>
+      </p>
+
+      <div class="prose max-w-none">
+        <%- blog.content %>
+      </div>
+
+      <% if (isAdmin) { %>
+        <form
+          action="/blogs/<%= blog._id %>?_method=DELETE"
+          method="POST"
+          class="mt-8"
+        >
+          <button
+            class="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition"
+            onclick="return confirm('Delete this blog?')"
+          >
+            🗑 Delete Blog
+          </button>
+        </form>
+      <% } %>
+
+    </article>
+  </div>
+</div>
+
+

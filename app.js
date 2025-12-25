@@ -21,6 +21,7 @@ import { Server } from "socket.io";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import Blog from "./model/Blog.js";
 
 configDotenv();
 cloudinary.config({
@@ -112,11 +113,13 @@ app.use(async (req, res, next) => {
     socket.on("join user room", (phone) => {
       if (phone) {
         socket.join(phone.toString());
-        console.log(`📥 Joined room: ${phone}`);
+        
       }
     });
   });
   
+
+
 
 
 /* ===================== MSG91 OTP FUNCTION ===================== */
@@ -258,7 +261,13 @@ app.get("/", (req, res) => res.render("home.ejs"));
 
 /* ---------- AUTH PAGES ---------- */
 app.get("/login", (req, res) => res.render("login.ejs"));
-app.get("/signup", (req, res) => res.render("signup.ejs"));
+app.get("/customer-support", (req, res) => {
+  res.render("customer-support", {
+    user: req.user || null,
+    isAdmin: req.user?.isAdmin || false,
+  });
+});
+
 app.get("/logout", (req, res, next) => {
     req.logout(function(err) {
       if (err) { return next(err); }
@@ -362,6 +371,7 @@ app.get("/chat/:userId", isLoggedIn, async (req, res) => {
 });
 
 
+
 app.get("/api/messages/:userId", isLoggedIn, async (req, res) => {
   const receiverId = req.params.userId;
   const senderId = req.user._id;
@@ -442,6 +452,86 @@ app.get("/inbox", isLoggedIn, async (req, res) => {
     }
   }
   res.render("inbox.ejs", { conversations });
+});
+
+
+app.get("/blogs", async (req, res) => {
+  try {
+    const blogs = await Blog.find().sort({ createdAt: -1 }).lean();
+    res.render("blogs/index.ejs", { blogs });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to load blogs");
+  }
+});
+
+// 📖 Single blog page (PUBLIC)
+app.get("/blogs/:id", async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id).lean();
+    if (!blog) return res.status(404).send("Blog not found");
+    res.render("blogs/show.ejs", { blog });
+  } catch (err) {
+    res.status(500).send("Error loading blog");
+  }
+});
+
+// ✍️ Admin – New Blog Form
+app.get("/admin/blogs/new", isAdmin, (req, res) => {
+  res.render("blogs/new.ejs");
+});
+
+
+// ✍️ Admin – Create Blog
+app.post("/admin/blogs", isAdmin, upload.single("coverImage"), async (req, res) => {
+  try {
+    const blogData = {
+      title: req.body.title,
+      content: req.body.content,
+      author: req.user?.phone || "Shaadiwali Team",
+    };
+
+    if (req.file) {
+      blogData.coverImage = req.file.path; // Cloudinary URL
+    }
+
+    await Blog.create(blogData);
+    res.redirect("/blogs");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to create blog");
+  }
+});
+// 🗑️ Admin – Delete Blog
+app.post("/admin/blogs/:id/delete", isAdmin, async (req, res) => {
+  try {
+    await Blog.findByIdAndDelete(req.params.id);
+    res.redirect("/blogs");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to delete blog");
+  }
+});
+
+// 🗑️ ADMIN – Delete Profile
+app.post("/admin/profile/:id/delete", isAdmin, async (req, res) => {
+  try {
+    const profile = await UserProfile.findById(req.params.id);
+
+    if (!profile) {
+      return res.status(404).send("Profile not found");
+    }
+
+    // Optional: delete linked user account too
+    await User.deleteOne({ phone: profile.phone });
+
+    await UserProfile.findByIdAndDelete(req.params.id);
+
+    res.redirect("/profiles");
+  } catch (err) {
+    console.error("Delete profile error:", err);
+    res.status(500).send("Failed to delete profile");
+  }
 });
 
 

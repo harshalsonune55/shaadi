@@ -1,0 +1,84 @@
+<%- layout("/layouts/navbar.ejs") %>
+
+<div class="bg-gray-50 min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 py-12">
+
+    <!-- Page Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-3xl md:text-4xl font-bold text-pink-600">
+        Customer Support
+      </h1>
+      <p class="text-gray-600 mt-2">
+        We’re here to help you. Reach out to us anytime.
+      </p>
+    </div>
+
+    <!-- Support Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Shaadiwali Support -->
+      <div class="bg-white rounded-xl shadow-md border p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          💖 Shaadiwali Support
+        </h2>
+
+        <div class="space-y-3 text-gray-700">
+          <p class="flex items-center gap-3">
+            📞 <span class="font-medium">Helpline:</span>
+            <a href="tel:+917297900990" class="text-pink-600 hover:underline">
+              +91-7297900990
+            </a>
+          </p>
+
+          <p class="flex items-center gap-3">
+            📧 <span class="font-medium">Email:</span>
+            <a href="mailto:care@shaadiwali.com" class="text-pink-600 hover:underline">
+              care@shaadiwali.com
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Cyber Crime Reporting -->
+      <div class="bg-white rounded-xl shadow-md border p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          🚨 Cyber Crime Reporting
+        </h2>
+
+        <div class="space-y-3 text-gray-700">
+          <p class="flex items-center gap-3">
+            🌐 <span class="font-medium">Portal:</span>
+            <a
+              href="https://www.cybercrime.gov.in"
+              target="_blank"
+              class="text-blue-600 hover:underline"
+            >
+              cybercrime.gov.in
+            </a>
+          </p>
+
+          <p class="flex items-center gap-3">
+            📞 <span class="font-medium">Cyber Crime Helpline:</span>
+            <span class="text-gray-800 font-semibold">1930</span>
+          </p>
+
+          <p class="flex items-center gap-3">
+            📞 <span class="font-medium">Women’s Helpline:</span>
+            <span class="text-gray-800 font-semibold">181</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="mt-12 bg-pink-50 border border-pink-200 rounded-xl p-6 text-center">
+      <p class="text-gray-700">
+        Your safety and experience matter to us.  
+        If you face any suspicious activity, please report it immediately.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<%- include("layouts/footer.ejs") %>

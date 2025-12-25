@@ -3,6 +3,7 @@
 <div class="max-w-6xl mx-auto p-6">
   <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
+  <!-- STATS GRID -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
     <div class="bg-white p-6 rounded-xl shadow">
@@ -25,15 +26,55 @@
       <p class="text-4xl font-bold text-gray-600"><%= inactiveMembers %></p>
     </div>
 
+    <!-- 📝 BLOG CARD -->
+    
+
   </div>
 
-  <!-- 👉 VIEW PROFILES BUTTON -->
-  <div class="mt-10 text-right">
+  <!-- ACTION BUTTONS -->
+  <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+
     <a
       href="/profiles"
-      class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+      class="text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
     >
-      View All Profiles →
+      👥 View All Profiles
     </a>
+
+    <a
+      href="/admin/blogs/new"
+      class="text-center bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-pink-700 transition"
+    >
+      ✍️ Add New Blog
+    </a>
+
+    <a
+      href="/blogs"
+      class="text-center bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-900 transition"
+    >
+      📚 View Blogs
+    </a>
+
   </div>
+  <br/>
+  <br/>
+  <!-- 🖼️ HOME PAGE IMAGE -->
+<div class="bg-white p-6 rounded-xl shadow flex flex-col justify-between">
+  <div>
+    <p class="text-gray-500 mb-1">Home Page Image</p>
+    <p class="text-lg font-semibold text-gray-800">
+      Main Hero Banner
+    </p>
+  </div>
+
+  <a
+    href="/admin/home-image"
+    class="mt-4 inline-block text-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
+  >
+    🖼️ Not yet complete
+  </a>
 </div>
+</div>
+
+
+

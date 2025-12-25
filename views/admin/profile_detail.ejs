@@ -88,6 +88,24 @@
       </p>
     </div>
 
+    <!-- DELETE PROFILE (ADMIN ONLY) -->
+<div class="mt-10 border-t pt-6">
+  <form
+    action="/admin/profile/<%= profile._id %>/delete"
+    method="POST"
+    onsubmit="return confirm('⚠️ Are you sure you want to permanently delete this profile? This action cannot be undone.')"
+  >
+    <button
+      type="submit"
+      class="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold
+             hover:bg-red-700 transition shadow"
+    >
+      🗑 Delete Profile
+    </button>
+  </form>
+</div>
+
+
     <!-- BACK LINK -->
     <div class="mt-8">
       <a
