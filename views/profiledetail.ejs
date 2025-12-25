@@ -100,33 +100,72 @@
 </div>
       <hr class="my-6 border-gray-200">
 
-      <div class="space-y-5">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 animate-fade-up delay-200">
-          Highlights
-        </h2>
-        
-        <div class="flex gap-4 items-start animate-fade-up delay-300">
-          <div class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg text-xl flex-shrink-0">💬</div>
-          <div>
-            <p class="font-semibold text-gray-800">Exceptional communication</p>
-            <small class="text-gray-500 text-sm">Rated highly for responsiveness and clarity.</small>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl flex-shrink-0">💖</div>
-          <div>
-            <p class="font-semibold text-gray-800">Highly Recommended</p>
-            <small class="text-gray-500 text-sm">95% of recent users recommend this profile.</small>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl flex-shrink-0">✅</div>
-          <div>
-            <p class="font-semibold text-gray-800">Verified Profile</p>
-            <small class="text-gray-500 text-sm">Identity and details have been verified.</small>
-          </div>
+      <% const hasExpertise = person.expertise && person.expertise.length > 0; %>
+<% const hasInterests = person.interests && person.interests.length > 0; %>
+
+<% if (hasExpertise || hasInterests) { %>
+  <!-- EXPERTISE & INTERESTS -->
+  <div class="space-y-6 animate-fade-up delay-200">
+    <h2 class="text-xl font-semibold text-gray-800">Expertise & Interests</h2>
+
+    <% if (hasExpertise) { %>
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-2">💼 Expertise</h3>
+        <div class="flex flex-wrap gap-2">
+          <% person.expertise.forEach(item => { %>
+            <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+              <%= item %>
+            </span>
+          <% }) %>
         </div>
       </div>
+    <% } %>
+
+    <% if (hasInterests) { %>
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-2">🎯 Interests</h3>
+        <div class="flex flex-wrap gap-2">
+          <% person.interests.forEach(item => { %>
+            <span class="px-3 py-1 text-sm rounded-full bg-pink-100 text-pink-700">
+              <%= item %>
+            </span>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+<% } else { %>
+  <!-- FALLBACK HIGHLIGHTS -->
+  <div class="space-y-5 animate-fade-up delay-200">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Highlights</h2>
+
+    <div class="flex gap-4 items-start">
+      <div class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg text-xl">💬</div>
+      <div>
+        <p class="font-semibold text-gray-800">Exceptional communication</p>
+        <small class="text-gray-500">Rated highly for responsiveness and clarity.</small>
+      </div>
+    </div>
+
+    <div class="flex gap-4 items-start">
+      <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl">💖</div>
+      <div>
+        <p class="font-semibold text-gray-800">Highly Recommended</p>
+        <small class="text-gray-500">95% of users recommend this profile.</small>
+      </div>
+    </div>
+
+    <div class="flex gap-4 items-start">
+      <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl">✅</div>
+      <div>
+        <p class="font-semibold text-gray-800">Verified Profile</p>
+        <small class="text-gray-500">Identity and details verified.</small>
+      </div>
+    </div>
+  </div>
+<% } %>
+
 
       <hr class="my-6 border-gray-200">
 
