@@ -137,8 +137,72 @@
           <p><strong>Education:</strong> <%= userProfile.Education || "Not specified" %></p>
         </div>
       </div>
+      <!-- PHOTO GALLERY -->
+<div class="border-t px-6 py-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold text-gray-900">Photos</h2>
+
+    <!-- Add Photos Button -->
+    <a
+      href="/profile/photos"
+      class="bg-pink-600 text-white text-sm px-4 py-2 rounded-full hover:bg-pink-700 transition"
+    >
+      ➕ Add More Photos
+    </a>
+  </div>
+
+  <% if (userProfile.photos && userProfile.photos.length > 0) { %>
+    <div class="relative">
+      <div
+        id="gallerySlider"
+        class="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide"
+      >
+        <% userProfile.photos.forEach(photo => { %>
+          <img
+            src="<%= photo %>"
+            class="w-48 h-48 object-cover rounded-xl shadow-md flex-shrink-0"
+            alt="Profile photo"
+          />
+        <% }) %>
+      </div>
+    </div>
+  <% } else { %>
+    <p class="text-gray-500 text-sm">
+      No additional photos uploaded yet.
+    </p>
+  <% } %>
+</div>
+
+
 
     </div>
   </div>
 </div>
 
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+</style>
+
+<script>
+  let galleryOffset = 0;
+
+  function slideGallery(direction) {
+    const slider = document.getElementById("gallerySlider");
+    const cardWidth = 280; // image width + gap
+    const maxOffset = -(slider.scrollWidth - slider.parentElement.clientWidth);
+
+    galleryOffset += direction * -cardWidth;
+
+    if (galleryOffset > 0) galleryOffset = 0;
+    if (galleryOffset < maxOffset) galleryOffset = maxOffset;
+
+    slider.style.transform = `translateX(${galleryOffset}px)`;
+  }
+</script>

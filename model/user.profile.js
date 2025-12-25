@@ -17,6 +17,7 @@ const userProfileSchema = new mongoose.Schema({
     age: Number,
     address: String,
     work: String,
+    photos: [{ type: String }],   
 
     image: { type: String, default: "" },       
     coverImage: { type: String, default: "" },  

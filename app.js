@@ -608,7 +608,31 @@ app.post(
 
 
   
-  
+app.get("/profile/photos", isLoggedIn, (req, res) => {
+  res.render("upload_photos.ejs");
+});
+app.post(
+  "/profile/photos",
+  isLoggedIn,
+  upload.array("photos", 6), // allow up to 6 photos at once
+  async (req, res) => {
+    try {
+      const photoUrls = req.files.map(file => file.path);
+
+      await UserProfile.findOneAndUpdate(
+        { phone: req.user.phone },
+        { $push: { photos: { $each: photoUrls } } },
+        { new: true }
+      );
+
+      res.redirect("/profile");
+    } catch (err) {
+      console.error("❌ Photo upload failed:", err);
+      res.status(500).send("Photo upload failed");
+    }
+  }
+);
+
   
 
 

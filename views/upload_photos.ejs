@@ -1,0 +1,42 @@
+<%- layout("/layouts/navbar.ejs") %>
+
+<div class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg">
+
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">
+      Upload More Photos
+    </h2>
+
+    <form
+      action="/profile/photos"
+      method="POST"
+      enctype="multipart/form-data"
+      class="space-y-4"
+    >
+
+      <input
+        type="file"
+        name="photos"
+        accept="image/*"
+        multiple
+        required
+        class="w-full border rounded-lg p-2"
+      />
+
+      <p class="text-sm text-gray-500">
+        You can upload up to 6 photos at a time.
+      </p>
+
+      <button
+        type="submit"
+        class="w-full bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700 transition"
+      >
+        Upload Photos
+      </button>
+
+    </form>
+
+  </div>
+</div>
+
+<%- include("layouts/footer.ejs") %>

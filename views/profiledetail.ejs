@@ -4,46 +4,109 @@
   <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
 
     <div class="flex-1 space-y-6">
-      <div class="relative w-full">
-        <img 
-          src="<%= person.image %>" 
-          alt="Profile photo"
-          class="w-full h-56 sm:h-64 md:h-80 object-cover rounded-xl shadow-lg"
-        />
+      <div class="w-full h-[50vh] sm:h-[55vh] md:h-[60vh] flex items-center justify-center bg-gray-100 rounded-xl">
+
+
+        
+          <img 
+            id="mainProfileImage"
+            src="<%= person.image %>" 
+            alt="Profile photo"
+            class="max-w-[95%] max-h-[95%] object-contain rounded-xl shadow-lg transition"
+
+
+          />
+   
+
       
-        <img
-          src="<%= userProfile ? userProfile.image : (user ? (user.fullname ? 'https://ui-avatars.com/api/?name=' + user.fullname.split(' ').join('+') : 'https://ui-avatars.com/api/?name=U') : 'https://ui-avatars.com/api/?name=?') %>"
-          alt="Current User Profile"
-          class="absolute -bottom-6 right-4 w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full border-4 border-white shadow-md"
-        />
+      
+       
       </div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-8"><%= person.first_name %> <%= person.last_name %></h1>
-      <div class="text-gray-600 text-sm"><%= person.address || 'Location not specified' %> • Best of the chosen candidate</div>
+      <!-- PHOTO GALLERY -->
+      <% if (person.photos && person.photos.length > 0) { %>
+        <div class="mt-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-3">More Photos</h2>
+      
+          <div
+            class="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide"
+          >
+            <% person.photos.forEach(photo => { %>
+              <img
+                src="<%= photo %>"
+                alt="Additional photo"
+                class="person-thumb w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-xl shadow-md flex-shrink-0 cursor-pointer hover:opacity-80 transition"
+              />
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+      
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-8 animate-fade-up delay-100">
+        <%= person.first_name %> <%= person.last_name %>
+      </h1>
+      
+      <div class="text-gray-600 text-sm animate-fade-up delay-200">
+        <%= person.address || 'Location not specified' %> • Best of the chosen candidate
+      </div>
+      
 
       <hr class="my-6 border-gray-200">
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex-1 min-w-[200px]">
-          <span class="text-2xl mt-1">⭐</span>
+        <div class="favourite-card flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex-1 min-w-[200px] cursor-pointer transition">
+          <span class="favourite-star text-2xl mt-1 transition">⭐</span>
           <div>
-            <div class="font-semibold text-gray-800">Guest favourite</div>
-            <div class="text-sm text-gray-500">One of the most loved profiles on Shaadiwali.</div>
+            <div class="favourite-title font-semibold text-gray-800 transition">
+              People favourite
+            </div>
+            <div class="favourite-desc text-sm text-gray-500 transition">
+              One of the most loved profiles on Shaadiwali.
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-sm min-w-[150px]">
-          <div>
-            <div class="font-bold text-lg text-gray-800">4.91</div>
-            <div class="text-sm text-gray-500">★★★★★ <span class="underline">22 Reviews</span></div>
-          </div>
+        
+        <div class="rating-card flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-4 shadow-sm min-w-[150px] cursor-pointer transition">
+          <div 
+  class="rating-score font-bold text-lg text-gray-800 transition"
+  data-rating="4.91"
+>
+  4.91
+</div>
+
+<div class="rating-stars text-sm text-gray-500 transition">
+  <!-- stars injected by JS -->
+</div>
+
         </div>
+        
       </div>
 
       <hr class="my-6 border-gray-200">
+      <!-- ABOUT BY PERSON -->
+<div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-fade-up delay-400">
+  <h3 class="font-semibold text-gray-900 flex items-center gap-2 mb-2">
+    <span class="text-lg">📝</span> About Me
+  </h3>
+
+  <% if (person.about && person.about.trim().length > 0) { %>
+    <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+      <%= person.about %>
+    </p>
+  <% } else { %>
+    <p class="text-gray-400 italic">
+      This person hasn’t added their personal description yet.
+    </p>
+  <% } %>
+</div>
+      <hr class="my-6 border-gray-200">
 
       <div class="space-y-5">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Highlights</h2>
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg text-xl flex-shrink-0">💬</div>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 animate-fade-up delay-200">
+          Highlights
+        </h2>
+        
+        <div class="flex gap-4 items-start animate-fade-up delay-300">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg text-xl flex-shrink-0">💬</div>
           <div>
             <p class="font-semibold text-gray-800">Exceptional communication</p>
             <small class="text-gray-500 text-sm">Rated highly for responsiveness and clarity.</small>
@@ -69,25 +132,25 @@
 
       <div class="space-y-5">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">About <%= person.first_name %></h2>
-        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 animate-fade-up delay-300">
+
           <h3 class="font-semibold text-blue-800 flex items-center gap-2"><span class="text-lg">🧑🏻‍🏫</span> Education:</h3>
           <p class="text-gray-700 mt-1"><%= person.Education || 'Not specified' %></p>
         </div>
-        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500 animate-fade-up delay-400">
+
           <h3 class="font-semibold text-green-800 flex items-center gap-2"><span class="text-lg">💼</span> Work:</h3>
           <p class="text-gray-700 mt-1"><%= person.work || 'Not specified' %></p>
         </div>
-        <div class="bg-pink-50 p-4 rounded-lg border-l-4 border-pink-500">
+        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 animate-fade-up delay-300">
+
           <h3 class="font-semibold text-pink-800 flex items-center gap-2"><span class="text-lg">🏠</span> Address:</h3>
           <p class="text-gray-700 mt-1"><%= person.address || 'Not specified' %></p>
         </div>
 
-        <!-- <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
-          <h3 class="font-semibold text-purple-800 flex items-center gap-2"><span class="text-lg">📱</span> Phone:</h3>
-          <p class="text-gray-700 mt-1"><%= person.phone ? ('+' + person.phone) : 'Not specified' %></p> 
-        </div> -->
+        
 
-        <p class="text-gray-700 leading-relaxed pt-2">Enjoy a memorable visit when you stay in this unique place... Self check-in facility is available here. The unit is well-suited for short stays and business travelers.</p>
+        
       </div>
     </div>
 
@@ -140,7 +203,7 @@
 
 
 
-          <a href="#" id="reportLink" class="text-center block text-gray-500 text-xs hover:underline pt-4">🏳️ Report this profile</a>
+          <a href="/about-us" id="reportLink" class="text-center block text-gray-500 text-xs hover:underline pt-4">🏳️ Report this profile</a>
         </div>
       </div>
     </aside>
@@ -236,3 +299,148 @@
     });
 </script>
 
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  </style>
+  
+  <script>
+    document.querySelectorAll(".person-thumb").forEach(img => {
+      img.addEventListener("click", () => {
+        const mainImg = document.getElementById("mainProfileImage");
+        mainImg.src = img.src;
+      });
+    });
+  </script>
+  
+  <style>
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  
+    .animate-fade-up {
+      animation: fadeUp 0.7s ease-out forwards;
+    }
+  
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+  </style>
+  <style>
+    /* Rating hover animation */
+    .rating-card:hover {
+      border-color: #f43f5e; /* pink-500 */
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.35);
+      transform: translateY(-2px) scale(1.02);
+    }
+  
+    .rating-card:hover .rating-score {
+      color: #4d4f06; /* red-600 */
+    }
+  
+    .rating-card:hover .rating-stars {
+      color: #f59e0b; /* amber-500 (gold stars) */
+      letter-spacing: 1px;
+    }
+  
+    .rating-card {
+      transition: all 0.35s ease;
+    }
+  
+    .rating-score,
+    .rating-stars {
+      transition: all 0.35s ease;
+    }
+  </style>
+  <style>
+    /* People favourite hover animation */
+    .favourite-card:hover {
+      border-color: #f59e0b; /* amber-500 */
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.35);
+      transform: translateY(-2px) scale(1.02);
+      background: linear-gradient(135deg, #fff7ed, #fffbeb);
+    }
+  
+    .favourite-card:hover .favourite-title {
+      color: #b45309; /* amber-700 */
+    }
+  
+    .favourite-card:hover .favourite-star {
+      color: #f59e0b;
+      transform: rotate(-10deg) scale(1.2);
+    }
+  
+    .favourite-card:hover .favourite-desc {
+      color: #92400e;
+    }
+  
+    .favourite-card,
+    .favourite-title,
+    .favourite-star,
+    .favourite-desc {
+      transition: all 0.35s ease;
+    }
+  </style>
+  <script>
+    function renderStars(rating, container) {
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.25 && rating % 1 < 0.75;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+  
+      let starsHTML = "";
+  
+      // Full stars
+      for (let i = 0; i < fullStars; i++) {
+        starsHTML += "★";
+      }
+  
+      // Half star (using gradient trick)
+      if (hasHalfStar) {
+        starsHTML += `<span class="half-star">★</span>`;
+      }
+  
+      // Empty stars
+      for (let i = 0; i < emptyStars; i++) {
+        starsHTML += "☆";
+      }
+  
+      container.innerHTML = starsHTML;
+    }
+  
+    document.querySelectorAll(".rating-score").forEach(scoreEl => {
+      const rating = parseFloat(scoreEl.dataset.rating);
+      const starsContainer = scoreEl.nextElementSibling;
+      renderStars(rating, starsContainer);
+    });
+  </script>
+<style>
+  /* Half star effect */
+  .half-star {
+    position: relative;
+    display: inline-block;
+    color: #f59e0b; /* gold */
+  }
+  
+  .half-star::after {
+    content: "☆";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    color: #d1d5db; /* gray-300 */
+    width: 50%;
+    overflow: hidden;
+  }
+</style>  
