@@ -63,7 +63,12 @@ app.engine("ejs", ejsmate);
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(
+  express.static("public", {
+    maxAge: "30d", // cache static files for 30 days
+    etag: true,
+  })
+);
 
 /* ===================== SESSION ===================== */
 app.use(
@@ -133,7 +138,8 @@ function sendMSG91OTP(phone) {
       path: `/api/v5/otp?mobile=91${phone}&authkey=${process.env.MSG91_AUTH_KEY}&template_id=${process.env.MSG91_TEMPLATE_ID}`,
       headers: {
         "Content-Type": "application/json"
-      }
+      },
+      timeout: 5000
     };
 
     const req = https.request(options, res => {
