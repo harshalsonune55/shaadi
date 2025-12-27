@@ -8,17 +8,35 @@
   <div id="messages" class="h-96 overflow-y-auto border rounded p-3 mb-3 bg-white">
     <% messages.forEach(msg => { %>
       <div class="<%= msg.senderPhone === user.phone ? 'text-right' : 'text-left' %> mb-2">
-        <span class="inline-block px-3 py-2 rounded-lg 
-          <%= msg.senderPhone === user.phone ? 'bg-pink-500 text-white' : 'bg-gray-200' %>">
-          <%= msg.message %>
-        </span>
+        <div class="inline-block max-w-[80%]">
+          <span class="block px-3 py-2 rounded-lg 
+            <%= msg.senderPhone === user.phone ? 'bg-pink-500 text-white' : 'bg-gray-200' %>">
+            <%= msg.message %>
+          </span>
+        
+          <span class="block text-[10px] mt-1 text-gray-400
+            <%= msg.senderPhone === user.phone ? 'text-right' : 'text-left' %>">
+            <%= new Date(msg.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit'
+            }) %>
+          </span>
+        </div>
+        
       </div>
     <% }) %>
   </div>
 
   <form id="chatForm" class="flex gap-2">
     <input type="hidden" id="receiverId" value="<%= receiverProfile._id %>">
-    <input id="msgInput" class="flex-1 border rounded px-3 py-2" placeholder="Type a message..." autocomplete="off" />
+    <input
+  id="msgInput"
+  class="flex-1 border rounded px-3 py-2"
+  placeholder="Type a message..."
+  autocomplete="off"
+  inputmode="text"
+/>
+
     <button type="submit" class="bg-pink-600 text-white px-4 rounded hover:bg-pink-700 transition">Send</button>
   </form>
 </div>
@@ -38,14 +56,35 @@
 
   // Helper function to add bubbles to the UI
   function appendMessage(text, side) {
-    const div = document.createElement("div");
-    div.className = side === 'right' ? "text-right mb-2" : "text-left mb-2";
-    const color = side === 'right' ? "bg-pink-500 text-white" : "bg-gray-200";
-    
-    div.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${color}">${text}</span>`;
-    messagesDiv.appendChild(div);
-    scrollToBottom();
-  }
+  const div = document.createElement("div");
+  div.className = side === 'right' ? "text-right mb-3" : "text-left mb-3";
+
+  const color = side === 'right'
+    ? "bg-pink-500 text-white"
+    : "bg-gray-200";
+
+  const time = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  div.innerHTML = `
+    <div class="inline-block max-w-[80%]">
+      <span class="block px-3 py-2 rounded-lg ${color}">
+        ${text}
+      </span>
+      <span class="block text-[10px] mt-1 text-gray-400 ${
+        side === 'right' ? 'text-right' : 'text-left'
+      }">
+        ${time}
+      </span>
+    </div>
+  `;
+
+  messagesDiv.appendChild(div);
+  scrollToBottom();
+}
+
 
   // logic for setting up the socket listener
   function setupSocket() {
@@ -108,3 +147,65 @@
     }
   });
 </script>
+<script>
+  // ❌ Block typing numbers, numpad, @
+  msgInput.addEventListener("keydown", (e) => {
+    // Allow control keys
+    const allowedKeys = [
+      "Backspace", "Delete", "ArrowLeft", "ArrowRight",
+      "ArrowUp", "ArrowDown", "Tab", "Enter", "Escape"
+    ];
+    if (allowedKeys.includes(e.key)) return;
+
+    // Block digits (top row)
+    if (e.key >= "0" && e.key <= "9") {
+      e.preventDefault();
+      return;
+    }
+
+    // Block numpad digits
+    if (e.code.startsWith("Numpad")) {
+      e.preventDefault();
+      return;
+    }
+
+    // Block @ symbol
+    if (e.key === "@") {
+      e.preventDefault();
+      return;
+    }
+  });
+
+  // ❌ Block paste if contains phone or email
+  msgInput.addEventListener("paste", (e) => {
+    const pastedText = (e.clipboardData || window.clipboardData)
+      .getData("text");
+
+    if (containsPhoneOrEmail(pastedText)) {
+      e.preventDefault();
+      alert("❌ Sharing phone numbers or email addresses is not allowed.");
+    }
+  });
+
+  // ❌ FINAL check before sending (MOST IMPORTANT)
+  chatForm.addEventListener("submit", (e) => {
+    const message = msgInput.value.trim();
+
+    if (containsPhoneOrEmail(message)) {
+      e.preventDefault();
+      alert("❌ Phone numbers and email addresses are not allowed.");
+      msgInput.value = "";
+      return false;
+    }
+  });
+
+  // 🔍 Detect phone numbers & emails
+  function containsPhoneOrEmail(text) {
+    const phoneRegex = /\b\d{6,}\b/; // blocks long digit sequences
+    const emailRegex =
+      /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
+
+    return phoneRegex.test(text) || emailRegex.test(text);
+  }
+</script>
+

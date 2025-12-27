@@ -354,6 +354,28 @@ app.post("/verify-otp", async (req, res) => {
   
  
 //message routes
+// app.get("/chat/:userId", isLoggedIn, async (req, res) => {
+//   try {
+//     const receiverProfile = await UserProfile.findById(req.params.userId).lean();
+//     if (!receiverProfile) return res.status(404).send("User not found");
+
+//     const messages = await Chat.find({
+//       $or: [
+//         { senderPhone: req.user.phone, receiverPhone: receiverProfile.phone },
+//         { senderPhone: receiverProfile.phone, receiverPhone: req.user.phone }
+//       ]
+//     }).sort({ createdAt: 1 }).lean();
+
+//     res.render("chat.ejs", {
+//       receiverProfile,
+//       receiverPhone: receiverProfile.phone, // Pass phone for socket matching
+//       messages
+//     });
+//   } catch (err) {
+//     res.status(500).send("Error");
+//   }
+// });
+
 app.get("/chat/:userId", isLoggedIn, async (req, res) => {
   try {
     const receiverProfile = await UserProfile.findById(req.params.userId).lean();
@@ -365,6 +387,24 @@ app.get("/chat/:userId", isLoggedIn, async (req, res) => {
         { senderPhone: receiverProfile.phone, receiverPhone: req.user.phone }
       ]
     }).sort({ createdAt: 1 }).lean();
+
+    await Chat.updateMany(
+      {
+        senderPhone: receiverProfile.phone,
+        receiverPhone: req.user.phone,
+        isRead: false
+      },
+      { $set: { isRead: true } }
+    );
+    
+    // update navbar count
+    const unreadCount = await Chat.countDocuments({
+      receiverPhone: req.user.phone,
+      isRead: false
+    });
+    
+    io.to(req.user.phone).emit("unread_count", unreadCount);
+    
 
     res.render("chat.ejs", {
       receiverProfile,
@@ -410,7 +450,8 @@ app.post("/api/messages/send", isLoggedIn, async (req, res) => {
     const chatMsg = await Chat.create({
       senderPhone,
       receiverPhone,
-      message
+      message,
+      isRead: false
     });
 
     // 3. BROADCAST via Socket
@@ -422,6 +463,12 @@ app.post("/api/messages/send", isLoggedIn, async (req, res) => {
       message: message,
       createdAt: chatMsg.createdAt
     });
+    const unreadCount = await Chat.countDocuments({
+      receiverPhone,
+      isRead: false
+    });
+
+    io.to(receiverPhone).emit("unread_count", unreadCount);
 
     // 4. Send success back to the person who sent it
     res.json({ success: true, message: chatMsg });
@@ -434,6 +481,35 @@ app.post("/api/messages/send", isLoggedIn, async (req, res) => {
 
 
 
+// app.get("/inbox", isLoggedIn, async (req, res) => {
+//   const myPhone = req.user.phone;
+  
+
+//   const messages = await Chat.find({
+//     $or: [{ senderPhone: myPhone }, { receiverPhone: myPhone }]
+//   }).sort({ createdAt: -1 }).lean();
+
+//   const conversationsMap = new Map();
+
+//   for (let msg of messages) {
+//     const otherPhone = msg.senderPhone === myPhone ? msg.receiverPhone : msg.senderPhone;
+//     if (!conversationsMap.has(otherPhone)) {
+//       conversationsMap.set(otherPhone, msg);
+//     }
+//   }
+
+//   const conversations = [];
+//   for (let [phone, lastMessage] of conversationsMap) {
+//     const profile = await UserProfile.findOne({ phone }).lean();
+//     if (profile) {
+//       conversations.push({ user: profile, lastMessage });
+//     }
+//   }
+//   io.to(myPhone).emit("unread_count", 0);
+//   res.render("inbox.ejs", { conversations });
+// });
+
+//new inbox route 
 app.get("/inbox", isLoggedIn, async (req, res) => {
   const myPhone = req.user.phone;
 
@@ -444,21 +520,56 @@ app.get("/inbox", isLoggedIn, async (req, res) => {
   const conversationsMap = new Map();
 
   for (let msg of messages) {
-    const otherPhone = msg.senderPhone === myPhone ? msg.receiverPhone : msg.senderPhone;
+    const otherPhone =
+      msg.senderPhone === myPhone ? msg.receiverPhone : msg.senderPhone;
+
     if (!conversationsMap.has(otherPhone)) {
-      conversationsMap.set(otherPhone, msg);
+      conversationsMap.set(otherPhone, {
+        lastMessage: msg,
+        hasUnread: msg.receiverPhone === myPhone && msg.isRead === false
+      });
     }
   }
 
   const conversations = [];
-  for (let [phone, lastMessage] of conversationsMap) {
+  for (let [phone, data] of conversationsMap) {
     const profile = await UserProfile.findOne({ phone }).lean();
     if (profile) {
-      conversations.push({ user: profile, lastMessage });
+      conversations.push({
+        user: profile,
+        lastMessage: data.lastMessage,
+        hasUnread: data.hasUnread
+      });
     }
   }
+
   res.render("inbox.ejs", { conversations });
 });
+
+
+
+
+app.get("/api/unread-count", isLoggedIn, async (req, res) => {
+  try {
+    const count = await Chat.countDocuments({
+      receiverPhone: req.user.phone,
+      isRead: false
+    });
+
+    res.json({ count });
+  } catch (err) {
+    console.error("Unread count error:", err);
+    res.status(500).json({ count: 0 });
+  }
+});
+
+
+
+
+
+//blogig request
+
+
 
 
 app.get("/blogs", async (req, res) => {

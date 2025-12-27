@@ -73,10 +73,20 @@
               <i class="fa-solid fa-user-group text-xl mb-1"></i>
               People
             </a>
-            <a href="/inbox" class="flex flex-col items-center hover:text-pink-600">
+            <a href="/inbox" class="relative flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-comments text-xl mb-1"></i>
+            
+              <!-- BADGE -->
+              <span
+                id="inboxBadge"
+                class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full"
+              >
+                0
+              </span>
+            
               Inbox
             </a>
+            
             
           
             <a href="/pricing" class="flex flex-col items-center hover:text-pink-600">
@@ -150,10 +160,19 @@ class="hidden md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50"
       <span>People</span>
     </a>
 
-    <a href="/inbox" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
+    <a href="/inbox" class="relative flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
       <i class="fa-solid fa-comments text-pink-600"></i>
       <span>Inbox</span>
+    
+      <!-- MOBILE BADGE -->
+      <span
+        id="mobileInboxBadge"
+        class="hidden absolute top-1 right-3 bg-red-600 text-white text-xs px-1.5 rounded-full"
+      >
+        0
+      </span>
     </a>
+    
 
     <a href="/pricing" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">
       <i class="fa-solid fa-tag text-pink-600"></i>
@@ -240,6 +259,36 @@ class="hidden md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50"
         });
       });
     </script>
+    <script>
+      const inboxBadge = document.getElementById("inboxBadge");
+      const mobileInboxBadge = document.getElementById("mobileInboxBadge");
+    
+      // Fetch initial unread count
+      fetch("/api/unread-count")
+        .then(res => res.json())
+        .then(data => {
+          updateBadge(data.count);
+        });
+    
+      function updateBadge(count) {
+        if (count > 0) {
+          inboxBadge?.classList.remove("hidden");
+          mobileInboxBadge?.classList.remove("hidden");
+    
+          inboxBadge.textContent = count;
+          mobileInboxBadge.textContent = count;
+        } else {
+          inboxBadge?.classList.add("hidden");
+          mobileInboxBadge?.classList.add("hidden");
+        }
+      }
+    
+      // Listen for live updates
+      window.socket.on("unread_count", (count) => {
+        updateBadge(count);
+      });
+    </script>
+    
     
     
      
