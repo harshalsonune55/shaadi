@@ -1,7 +1,7 @@
 <%- layout("/layouts/navbar.ejs") %>
 
 <!-- PAGE WRAPPER -->
-<div id="page" class="min-h-screen bg-gradient-to-br from-red-500 to-red-800 py-16 px-4 opacity-0">
+<div id="page" class="min-h-screen bg-gradient-to-br from-pink-500 to-pink-800 py-16 px-4 opacity-0">
 
   <div class="max-w-7xl mx-auto">
 
@@ -16,17 +16,7 @@
       </p>
     </div>
 
-    <!-- TOGGLE -->
-    <div class="flex justify-center mb-14 animate-fade-up delay-100">
-      <div class="bg-white/20 backdrop-blur rounded-full flex p-1 w-80">
-        <button class="flex-1 py-2 rounded-full bg-white text-red-700 font-semibold shadow">
-          Monthly
-        </button>
-        <button class="flex-1 py-2 rounded-full text-white/80">
-          Quarterly (save 10%)
-        </button>
-      </div>
-    </div>
+   
 
     <!-- PLANS -->
     <div class="grid gap-8 md:grid-cols-3">
@@ -40,13 +30,13 @@
         <p class="text-gray-600 mb-6">Perfect for getting started</p>
 
         <h2 class="text-4xl font-bold text-gray-900">₹499</h2>
-        <p class="text-gray-500 mb-6">/month</p>
+        <p class="text-gray-500 mb-6">/week</p>
 
         <ul class="space-y-3 text-gray-700 flex-1">
           <li>✓ View up to 50 profiles</li>
           <li>✓ Send 10 interests per day</li>
           <li>✓ Basic profile visibility</li>
-          <li>✓ Chat with matches</li>
+          <li>✓ Unlimited chat one week</li>
           <li>✓ Email support</li>
           <li class="line-through text-gray-400">Priority customer support</li>
           <li class="line-through text-gray-400">Profile highlighting</li>
@@ -54,31 +44,31 @@
         </ul>
 
         <button onclick="subscribe('Basic',499)"
-          class="mt-8 w-full py-3 rounded-full border border-red-600 text-red-600 font-semibold hover:bg-red-50 transition">
+          class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
           Get started
         </button>
       </div>
 
       <!-- PREMIUM -->
       <div class="relative bg-white rounded-2xl p-8 shadow-2xl scale-105 border-2 border-red-500 flex flex-col animate-fade-up delay-300">
-        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-bold px-4 py-1 rounded-full">
+        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs font-bold px-4 py-1 rounded-full">
           MOST POPULAR
         </span>
 
-        <span class="bg-red-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
-          Premium
+        <span class="bg-pink-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          standard
         </span>
 
         <p class="text-gray-600 mb-6">Best value for serious seekers</p>
 
         <h2 class="text-4xl font-bold text-gray-900">₹999</h2>
-        <p class="text-gray-500 mb-6">/month</p>
+        <p class="text-gray-500 mb-6">/week</p>
 
         <ul class="space-y-3 text-gray-700 flex-1">
           <li>✓ View unlimited profiles</li>
           <li>✓ Send unlimited interests</li>
           <li>✓ Enhanced profile visibility</li>
-          <li>✓ Unlimited chat with matches</li>
+          <li>✓ Unlimited call one week</li>
           <li>✓ Priority email & phone support</li>
           <li>✓ Profile highlighting (3x per week)</li>
           <li>✓ Advanced search filters</li>
@@ -86,15 +76,15 @@
         </ul>
 
         <button onclick="subscribe('Premium',999)"
-          class="mt-8 w-full py-3 rounded-full bg-red-600 text-white font-bold hover:bg-red-700 transition">
-          Choose Premium
+          class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
+          Choose standard
         </button>
       </div>
 
       <!-- ELITE -->
       <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col animate-fade-up delay-400">
         <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
-          Elite
+          Premium
         </span>
 
         <p class="text-gray-600 mb-6">Complete matrimonial solution</p>
@@ -105,7 +95,7 @@
         <ul class="space-y-3 text-gray-700 flex-1">
           <li>✓ Everything in Premium</li>
           <li>✓ Featured profile placement</li>
-          <li>✓ Dedicated relationship manager</li>
+          <li>✓ unlimited call/chat for one month</li>
           <li>✓ Personalized match recommendations</li>
           <li>✓ Profile verification badge</li>
           <li>✓ Background verification assistance</li>
@@ -114,8 +104,8 @@
         </ul>
 
         <button onclick="subscribe('Elite',2999)"
-          class="mt-8 w-full py-3 rounded-full bg-red-600 text-white font-bold hover:bg-red-700 transition">
-          Go Elite
+          class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
+          choose premium
         </button>
       </div>
 
@@ -132,15 +122,15 @@
           <p class="italic text-gray-700 mb-4">
             "Found my soulmate within 3 months! Premium was totally worth it."
           </p>
-          <p class="font-semibold text-red-700">Rahul & Sneha</p>
+          <p class="font-semibold text-red-700">Anjali & Rajesh</p>
           <p class="text-sm text-gray-500">Married in 2024</p>
         </div>
 
         <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
           <p class="italic text-gray-700 mb-4">
-            "Elite plan gave us personal guidance. Best decision ever!"
+            "premium plan gave us personal guidance. Best decision ever!"
           </p>
-          <p class="font-semibold text-red-700">Amit & Priya</p>
+          <p class="font-semibold text-red-700">Simran & Advin</p>
           <p class="text-sm text-gray-500">Married in 2023</p>
         </div>
 
@@ -148,7 +138,7 @@
           <p class="italic text-gray-700 mb-4">
             "Advanced filters helped me find someone with shared values."
           </p>
-          <p class="font-semibold text-red-700">Vikram & Kavya</p>
+          <p class="font-semibold text-red-700">Ravi & Neha</p>
           <p class="text-sm text-gray-500">Married in 2024</p>
         </div>
       </div>

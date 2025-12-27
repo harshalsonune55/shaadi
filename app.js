@@ -723,6 +723,39 @@ app.post(
   }
 );
 
+app.post("/profile/photos/delete", isLoggedIn, async (req, res) => {
+  try {
+    const { photoUrl } = req.body;
+
+    if (!photoUrl) {
+      return res.redirect("/profile");
+    }
+
+    // 1️⃣ Remove from MongoDB
+    await UserProfile.findOneAndUpdate(
+      { phone: req.user.phone },
+      { $pull: { photos: photoUrl } }
+    );
+
+    // 2️⃣ Remove from Cloudinary
+    const publicId = photoUrl
+      .split("/")
+      .slice(-1)[0]
+      .split(".")[0];
+
+    await cloudinary.uploader.destroy(
+      `shaadiwali_profiles/${publicId}`
+    );
+
+    res.redirect("/profile");
+
+  } catch (err) {
+    console.error("❌ Photo delete failed:", err);
+    res.status(500).send("Failed to delete photo");
+  }
+});
+
+
 app.get("/contact-us", (req, res) => {
   res.render("contact");
 });

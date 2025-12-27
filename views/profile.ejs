@@ -143,12 +143,18 @@
     <h2 class="text-xl font-semibold text-gray-900">Photos</h2>
 
     <!-- Add Photos Button -->
-    <a
-      href="/profile/photos"
-      class="bg-pink-600 text-white text-sm px-4 py-2 rounded-full hover:bg-pink-700 transition"
-    >
-      ➕ Add More Photos
-    </a>
+    <% if ((userProfile.photos || []).length < 6) { %>
+      <a
+        href="/profile/photos"
+        class="bg-pink-600 text-white text-sm px-4 py-2 rounded-full hover:bg-pink-700 transition"
+      >
+        ➕ Add More Photos
+      </a>
+    <% } else { %>
+      <span class="text-sm text-gray-500">
+        Maximum 6 photos reached
+      </span>
+    <% } %>
   </div>
 
   <% if (userProfile.photos && userProfile.photos.length > 0) { %>
@@ -157,13 +163,36 @@
         id="gallerySlider"
         class="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide"
       >
-        <% userProfile.photos.forEach(photo => { %>
+      <% userProfile.photos.forEach((photo, index) => { %>
+        <div class="relative w-48 h-48 flex-shrink-0">
+          
+          <!-- PHOTO -->
           <img
             src="<%= photo %>"
-            class="w-48 h-48 object-cover rounded-xl shadow-md flex-shrink-0"
+            class="w-full h-full object-cover rounded-xl shadow-md"
             alt="Profile photo"
           />
-        <% }) %>
+      
+          <!-- DELETE BUTTON -->
+          <form
+            action="/profile/photos/delete"
+            method="POST"
+            class="absolute top-2 right-2"
+            onsubmit="return confirm('Delete this photo?')"
+          >
+            <input type="hidden" name="photoUrl" value="<%= photo %>" />
+      
+            <button
+              type="submit"
+              class="bg-red-600 text-white text-xs px-2 py-1 rounded-full hover:bg-red-700 shadow"
+            >
+              ✕
+            </button>
+          </form>
+      
+        </div>
+      <% }) %>
+      
       </div>
     </div>
   <% } else { %>
