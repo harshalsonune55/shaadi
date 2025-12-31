@@ -26,6 +26,13 @@ const userProfileSchema = new mongoose.Schema({
     about: { type: String },
 expertise: [{ type: String }],
 interests: [{ type: String }],
+likes: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserProfile"
+  }
+]
+
 
 
 });

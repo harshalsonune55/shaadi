@@ -1,0 +1,84 @@
+<%- layout("layouts/navbar") %>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+
+  <% if (!profile) { %>
+    <div class="text-center text-gray-500">
+      🎉 No more profiles to show
+    </div>
+  <% } else { %>
+
+  <div class="w-[340px] bg-white rounded-3xl shadow-xl overflow-hidden">
+
+    <!-- IMAGE -->
+    <div class="h-[420px] overflow-hidden">
+      <img
+        src="<%= profile.image %>"
+        class="w-full h-full object-cover"
+      />
+    </div>
+
+    <!-- INFO -->
+    <div class="p-5 space-y-2">
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl font-bold text-gray-900">
+          <%= profile.first_name %> <%= profile.last_name %>
+        </h2>
+        <span class="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+          ✔
+        </span>
+      </div>
+
+      <p class="text-sm text-gray-600 line-clamp-2">
+        <%= profile.about || "No description provided." %>
+      </p>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="flex justify-between items-center px-6 py-5 bg-gray-50">
+
+      <!-- DISLIKE -->
+      <button
+        onclick="dislikeProfile('<%= profile._id %>')"
+        class="w-14 h-14 rounded-full bg-white border shadow
+               flex items-center justify-center
+               hover:bg-red-50 transition"
+      >
+        ❌
+      </button>
+
+      <!-- LIKE -->
+      <button
+        onclick="likeProfile('<%= profile._id %>')"
+        class="w-14 h-14 rounded-full bg-white border shadow
+               flex items-center justify-center
+               hover:bg-green-50 transition"
+      >
+        ✔
+      </button>
+
+    </div>
+
+  </div>
+
+  <% } %>
+</div>
+
+<script>
+async function likeProfile(profileId) {
+  await fetch("/choosing/like", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ profileId })
+  });
+  location.reload();
+}
+
+async function dislikeProfile(profileId) {
+  await fetch("/choosing/dislike", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  location.reload();
+}
+</script>

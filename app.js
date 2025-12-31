@@ -760,6 +760,7 @@ app.get("/profile/edit", isLoggedIn, (req, res) => {
   }
 });
 
+
 app.post(
   "/profile",
   isLoggedIn,
@@ -875,6 +876,52 @@ app.post("/profile/photos/delete", isLoggedIn, async (req, res) => {
 
 app.get("/contact-us", (req, res) => {
   res.render("contact");
+});
+
+//choosing
+app.get("/choosing",isLoggedIn, async (req, res) => {
+  const myPhone = req.user.phone;
+
+  const myProfile = await UserProfile.findOne({ phone: myPhone });
+
+  const excludedIds = [
+    myProfile?._id,
+    ...(myProfile?.likes || [])
+  ];
+
+  // get one random profile user hasn’t liked yet
+  const profile = await UserProfile.findOne({
+    _id: { $nin: excludedIds }
+  });
+
+  if (!profile) {
+    return res.render("choosing.ejs", { profile: null });
+  }
+
+  res.render("choosing.ejs", { profile });
+});
+
+app.post("/choosing/like", isLoggedIn, async (req, res) => {
+  const myProfile = await UserProfile.findOne({ phone: req.user.phone });
+
+  await UserProfile.updateOne(
+    { _id: myProfile._id },
+    { $addToSet: { likes: req.body.profileId } }
+  );
+
+  res.json({ success: true });
+});
+app.post("/choosing/dislike", isLoggedIn, async (req, res) => {
+  res.json({ success: true });
+});
+
+app.get("/liked", isLoggedIn, async (req, res) => {
+  const myProfile = await UserProfile
+    .findOne({ phone: req.user.phone })
+    .populate("likes")
+    .lean();
+
+  res.render("liked.ejs", { profiles: myProfile.likes });
 });
 
 
