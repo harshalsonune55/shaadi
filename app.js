@@ -68,6 +68,7 @@ mongoose.connect(process.env.MONGO_URL)
 
 /* ===================== APP CONFIG ===================== */
 app.engine("ejs", ejsmate);
+app.set("trust proxy", 1);
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
