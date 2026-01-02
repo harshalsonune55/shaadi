@@ -1,9 +1,27 @@
+<script>
+  const IS_SUBSCRIBED = <%= isSubscribed ? "true" : "false" %>;
+</script>
+
 <%- layout("layouts/navbar") %>
 
 <div class="max-w-3xl mx-auto p-4">
   <h2 class="text-xl font-semibold mb-4">
     Chat with <%= receiverProfile.first_name %> <%= receiverProfile.last_name %>
   </h2>
+  <!-- CHAT TIMER -->
+  <% if (!isSubscribed) { %>
+    <div
+      id="chatTimer"
+      class="mb-3 flex items-center justify-center gap-2
+             bg-pink-50 border border-pink-200
+             text-pink-700 font-semibold
+             rounded-lg py-2 text-sm"
+    >
+      ⏳ Free chat ends in
+      <span id="timerText" class="font-bold">24:00:00</span>
+    </div>
+  <% } %>
+
 
   <div id="messages" class="h-96 overflow-y-auto border rounded p-3 mb-3 bg-white">
     <% messages.forEach(msg => { %>
@@ -208,4 +226,91 @@
     return phoneRegex.test(text) || emailRegex.test(text);
   }
 </script>
+<script>
+  // ===============================
+  // 1 DAY CHAT LIMIT + UI TIMER
+  // ===============================
+  if (!IS_SUBSCRIBED) {
+  const CHAT_LIMIT_MS = 24 * 60 * 60 * 1000; // 1 day
+  const chatKey = `chat_start_${receiverId}`;
 
+  const sendBtn = chatForm.querySelector('button[type="submit"]');
+  const timerText = document.getElementById("timerText");
+  const chatTimer = document.getElementById("chatTimer");
+
+  function lockChat() {
+    msgInput.disabled = true;
+    msgInput.classList.add("bg-gray-100", "cursor-not-allowed");
+    msgInput.placeholder = "Chat locked. Subscribe to continue...";
+    sendBtn.disabled = true;
+    sendBtn.classList.add("opacity-60", "cursor-not-allowed");
+  }
+
+  function showModal() {
+    if (typeof modal !== "undefined") {
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+  }
+
+  // 🔐 Ensure correct start time
+  function getStartTime() {
+    let saved = localStorage.getItem(chatKey);
+
+    if (!saved) {
+      saved = Date.now();
+      localStorage.setItem(chatKey, saved);
+    }
+
+    return parseInt(saved, 10);
+  }
+
+  // ⏱ Format as HH:MM:SS
+  function formatTime(ms) {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
+  function startTimer() {
+    const start = getStartTime();
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const remaining = CHAT_LIMIT_MS - elapsed;
+
+      if (remaining <= 0) {
+        timerText.textContent = "00:00:00";
+        chatTimer.classList.remove("bg-pink-50", "text-pink-700");
+        chatTimer.classList.add("bg-red-100", "text-red-700");
+
+        clearInterval(interval);
+        lockChat();
+        showModal();
+        return;
+      }
+
+      timerText.textContent = formatTime(remaining);
+
+      // 🔥 Turn red in last 1 hour
+      if (remaining <= 60 * 60 * 1000) {
+        chatTimer.classList.remove("bg-pink-50", "text-pink-700");
+        chatTimer.classList.add("bg-red-100", "text-red-700");
+      }
+    }, 1000);
+  }
+
+  startTimer();
+}
+
+  // Safety: block sending after expiry
+  chatForm.addEventListener("submit", (e) => {
+    if (msgInput.disabled || sendBtn.disabled) {
+      e.preventDefault();
+      showModal();
+    }
+  });
+
+</script>

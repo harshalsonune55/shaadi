@@ -78,26 +78,41 @@
         <a href="/people" class="block text-center text-sm text-gray-500 hover:underline">
           Clear all filters
         </a>
-        <div class="mt-6">
-          <a
-            href="/choosing"
-            class="w-full flex items-center justify-center gap-2
-                   bg-pink-600 text-white py-3 rounded-lg font-semibold
-                   shadow-md hover:bg-pink-700 transition"
-          >
-            🔀 Go to Choicing View
-          </a>
-        </div>
+        <% if (userProfile?.isSubscribed) { %>
+          <div class="mt-6">
+            <a
+              href="/choosing"
+              class="w-full flex items-center justify-center gap-2
+                     bg-pink-600 text-white py-3 rounded-lg font-semibold
+                     shadow-md hover:bg-pink-700 transition"
+            >
+              🔀 Go to Choicing View
+            </a>
+          </div>
+        <% } else { %>
+          <div class="mt-6 p-3 text-sm bg-gray-100 text-gray-600 rounded-lg text-center">
+            Upgrade to use Choicing View 🔒
+          </div>
+        <% } %>
+        
       </form>
     </aside>
     <!-- GO TO CHOICING VIEW BUTTON -->
 
-
+  
+    
 
     <!-- 🪪 CARDS SECTION (UNCHANGED) -->
     <section class="md:col-span-3">
 
-
+      <% if (limit > 0 && people.length === limit) { %>
+        <div class="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800">
+          ⚠️ You are viewing the maximum profiles allowed for your plan.
+          <a href="/pricing" class="font-semibold underline ml-1">
+            Upgrade to see more →
+          </a>
+        </div>
+      <% } %>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 mb-12">
 

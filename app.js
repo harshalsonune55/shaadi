@@ -22,6 +22,8 @@ import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Blog from "./model/Blog.js";
+import MongoStore from "connect-mongo";
+import rateLimit from "express-rate-limit";
 
 configDotenv();
 cloudinary.config({
@@ -37,7 +39,13 @@ const storage = new CloudinaryStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 500 * 1024 
+  }
+});
+
 
 
 
@@ -72,17 +80,23 @@ app.use(
 
 /* ===================== SESSION ===================== */
 app.use(
-    session({
-      name: "shaadi.sid",
-      secret: process.env.SESSION_SECRET || "shaadi-super-secret-key",
-      resave: false,
-      saveUninitialized: true,   // ✅ MUST BE TRUE FOR OTP
-      cookie: {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 7
-      }
-    })
-  );
+  session({
+    name: "shaadi.sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false, // ❗ change this
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URL,
+      ttl: 14 * 24 * 60 * 60
+    }),
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+  })
+);
 
 /* ===================== PASSPORT ===================== */
 app.use(passport.initialize());
@@ -107,6 +121,26 @@ app.use(async (req, res, next) => {
     }
     res.locals.isAdmin = req.user?.isAdmin === true;
   
+    next();
+  });
+  //subscription cancle 
+  app.use(async (req, res, next) => {
+    if (req.user?.phone) {
+      const profile = await UserProfile.findOne({ phone: req.user.phone });
+  
+      if (
+        profile?.isSubscribed &&
+        profile.subscriptionExpiresAt &&
+        profile.subscriptionExpiresAt < new Date()
+      ) {
+        profile.isSubscribed = false;
+        profile.subscriptionPlan = null;
+        profile.subscriptionExpiresAt = null;
+        await profile.save();
+      }
+  
+      res.locals.userProfile = profile;
+    }
     next();
   });
   
@@ -175,6 +209,12 @@ export function verifyOTP(mobile, otp) {
       req.end();
     });
   }
+
+  const otpLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 5,
+    message: "Too many OTP requests. Try later."
+  });
 
   //admin Routes 
 
@@ -282,7 +322,7 @@ app.get("/logout", (req, res, next) => {
   });
 
 // 2. Send the OTP for Login
-app.post("/send-otp", async (req, res) => {
+app.post("/send-otp",otpLimiter, async (req, res) => {
     const { phone } = req.body;
   
     if (!phone) {
@@ -381,6 +421,10 @@ app.get("/chat/:userId", isLoggedIn, async (req, res) => {
     const receiverProfile = await UserProfile.findById(req.params.userId).lean();
     if (!receiverProfile) return res.status(404).send("User not found");
 
+    const myProfile = await UserProfile.findOne({
+      phone: req.user.phone
+    }).lean();
+
     const messages = await Chat.find({
       $or: [
         { senderPhone: req.user.phone, receiverPhone: receiverProfile.phone },
@@ -409,7 +453,8 @@ app.get("/chat/:userId", isLoggedIn, async (req, res) => {
     res.render("chat.ejs", {
       receiverProfile,
       receiverPhone: receiverProfile.phone, // Pass phone for socket matching
-      messages
+      messages,
+      isSubscribed: myProfile?.isSubscribed === true
     });
   } catch (err) {
     res.status(500).send("Error");
@@ -659,65 +704,142 @@ app.post("/admin/profile/:id/delete", isAdmin, async (req, res) => {
 // --- PROTECTED ROUTES ---
 
 // People & Profile Routes
-app.get("/people", async (req, res) => {
-    try {
-        const { name, address, minAge, maxAge, gender, interest } = req.query;
+// app.get("/people", async (req, res) => {
+//     try {
+//         const { name, address, minAge, maxAge, gender, interest } = req.query;
 
       
-        // Base filter
-let filter = {};
+//         // Base filter
+// let filter = {};
 
-// Exclude logged-in user ONLY if logged in
-if (req.user?.phone) {
-    filter.phone = { $ne: req.user.phone };
-}
+// // Exclude logged-in user ONLY if logged in
+// if (req.user?.phone) {
+//     filter.phone = { $ne: req.user.phone };
+// }
 
           
 
-        // 🔍 Name filter (first or last name)
-        if (name) {
-            filter.$or = [
-                { first_name: { $regex: name, $options: "i" } },
-                { last_name: { $regex: name, $options: "i" } }
-            ];
-        }
+//         // 🔍 Name filter (first or last name)
+//         if (name) {
+//             filter.$or = [
+//                 { first_name: { $regex: name, $options: "i" } },
+//                 { last_name: { $regex: name, $options: "i" } }
+//             ];
+//         }
 
-        // 📍 Address filter
-        if (address) {
-            filter.address = { $regex: address, $options: "i" };
-        }
+//         // 📍 Address filter
+//         if (address) {
+//             filter.address = { $regex: address, $options: "i" };
+//         }
 
-        // ⚧ Gender filter
-        if (gender) {
-          filter.gender = { $regex: `^${gender}$`, $options: "i" };
-        }
+//         // ⚧ Gender filter
+//         if (gender) {
+//           filter.gender = { $regex: `^${gender}$`, $options: "i" };
+//         }
 
-        // 🎂 Age range filter
-        if (minAge || maxAge) {
-            filter.age = {};
-            if (minAge) filter.age.$gte = Number(minAge);
-            if (maxAge) filter.age.$lte = Number(maxAge);
-        }
+//         // 🎂 Age range filter
+//         if (minAge || maxAge) {
+//             filter.age = {};
+//             if (minAge) filter.age.$gte = Number(minAge);
+//             if (maxAge) filter.age.$lte = Number(maxAge);
+//         }
 
-        // 🎯 Interest filter (array-safe)
-        if (interest) {
-            filter.interests = { $in: [new RegExp(interest, "i")] };
-        }
+//         // 🎯 Interest filter (array-safe)
+//         if (interest) {
+//             filter.interests = { $in: [new RegExp(interest, "i")] };
+//         }
 
-        // 🔎 Query database
-        const people = await UserProfile.find(filter).lean();
+//         // 🔎 Query database
+//         const people = await UserProfile.find(filter).lean();
 
-        // Render page
-        res.render("people", {
-            people,
-            query: req.query
-        });
+//         // Render page
+//         res.render("people", {
+//             people,
+//             query: req.query
+//         });
 
-    } catch (err) {
-        console.error("Error fetching filtered people:", err);
-        res.status(500).send("Error loading people list.");
+//     } catch (err) {
+//         console.error("Error fetching filtered people:", err);
+//         res.status(500).send("Error loading people list.");
+//     }
+// });
+
+app.get("/people", async (req, res) => {
+  try {
+    const { name, address, minAge, maxAge, gender, interest } = req.query;
+
+    let filter = {};
+
+    // Exclude logged-in user
+    if (req.user?.phone) {
+      filter.phone = { $ne: req.user.phone };
     }
+
+    // Filters
+    if (name) {
+      filter.$or = [
+        { first_name: { $regex: name, $options: "i" } },
+        { last_name: { $regex: name, $options: "i" } }
+      ];
+    }
+
+    if (address) {
+      filter.address = { $regex: address, $options: "i" };
+    }
+
+    if (gender) {
+      filter.gender = { $regex: `^${gender}$`, $options: "i" };
+    }
+
+    if (minAge || maxAge) {
+      filter.age = {};
+      if (minAge) filter.age.$gte = Number(minAge);
+      if (maxAge) filter.age.$lte = Number(maxAge);
+    }
+
+    if (interest) {
+      filter.interests = { $in: [new RegExp(interest, "i")] };
+    }
+
+    // 🔐 SUBSCRIPTION LOGIC
+    let limit = 20; // default → FREE
+
+    if (req.user) {
+      const myProfile = await UserProfile.findOne({ phone: req.user.phone });
+
+      if (myProfile?.isSubscribed) {
+        if (myProfile.subscriptionPlan === "Basic") {
+          limit = 100;
+        } else if (
+          myProfile.subscriptionPlan === "Premium" ||
+          myProfile.subscriptionPlan === "Elite"
+        ) {
+          limit = 0; // unlimited
+        }
+      }
+    }
+
+    // 🔎 Fetch profiles
+    let query = UserProfile.find(filter).sort({ createdAt: -1 });
+
+    if (limit > 0) {
+      query = query.limit(limit);
+    }
+
+    const people = await query.lean();
+
+    res.render("people", {
+      people,
+      query: req.query,
+      limit
+    });
+
+  } catch (err) {
+    console.error("People fetch error:", err);
+    res.status(500).send("Error loading profiles");
+  }
 });
+
 
 
 app.get("/people/:id", async (req, res) => {
@@ -955,34 +1077,53 @@ app.post("/create-order", isLoggedIn, async (req, res) => {
 });
 
 app.post("/verify-payment", isLoggedIn, async (req, res) => {
-    const secret = process.env.Razor_key_secret;
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const secret = process.env.Razor_key_secret;
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    plan
+  } = req.body;
 
-    try {
-        const shasum = crypto.createHmac("sha256", secret);
-        shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-        const generated_signature = shasum.digest("hex");
+  try {
+    const shasum = crypto.createHmac("sha256", secret);
+    shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const generated_signature = shasum.digest("hex");
 
-        if (generated_signature === razorpay_signature) {
-          console.log("Payment verified successfully:", razorpay_payment_id);
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.Razor_key_secret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
 
-          await UserProfile.findOneAndUpdate(
-              { email: req.user.email },
-              { isSubscribed: true },
-              { new: true, upsert: true, setDefaultsOnInsert: true }
-          );
-          console.log(`User ${req.user.email} subscription status updated.`);
-
-          res.json({ success: true });
-        } else {
-          console.error("Payment verification failed: Invalid signature");
-          res.status(400).json({ success: false, message: "Invalid signature" });
-        }
-    } catch (error) {
-        console.error("Error during payment verification or profile update:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, message: "Invalid signature" });
     }
+
+    // ⏳ PLAN DURATION
+    let expiresAt = new Date();
+    if (plan === "Basic") expiresAt.setDate(expiresAt.getDate() + 7);
+    if (plan === "Premium") expiresAt.setDate(expiresAt.getDate() + 7);
+    if (plan === "Elite") expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+    await UserProfile.findOneAndUpdate(
+      { phone: req.user.phone },
+      {
+        isSubscribed: true,
+        subscriptionPlan: plan,
+        subscriptionStartedAt: new Date(),
+        subscriptionExpiresAt: expiresAt
+      },
+      { new: true, upsert: true }
+    );
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("Payment verify error:", err);
+    res.status(500).json({ success: false });
+  }
 });
+
 
 
 // --- SERVER LISTEN ---

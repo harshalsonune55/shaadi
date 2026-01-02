@@ -1,3 +1,4 @@
+
 <%- layout("/layouts/navbar.ejs") %>
 
 <!-- PAGE WRAPPER -->
@@ -29,7 +30,7 @@
 
         <p class="text-gray-600 mb-6">Perfect for getting started</p>
 
-        <h2 class="text-4xl font-bold text-gray-900">₹499</h2>
+        <h2 class="text-4xl font-bold text-gray-900">₹9</h2>
         <p class="text-gray-500 mb-6">/week</p>
 
         <ul class="space-y-3 text-gray-700 flex-1">
@@ -43,7 +44,7 @@
           <li class="line-through text-gray-400">Advanced search filters</li>
         </ul>
 
-        <button onclick="subscribe('Basic',499)"
+        <button onclick="subscribe('Basic',9)"
           class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
           Get started
         </button>
@@ -168,11 +169,69 @@
     document.getElementById("page").classList.remove("opacity-0");
   });
 
-  function subscribe(plan, price) {
-    if (confirm(`Subscribe to ${plan} plan for ₹${price}/month?`)) {
-      alert(`🎉 Thank you for choosing ${plan}!`);
+  
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  const isLoggedIn = <%= user ? "true" : "false" %>;
+
+  async function subscribe(plan, price) {
+    // 🚫 Not logged in → redirect
+    if (!isLoggedIn) {
+      window.location.href = "/login?redirect=/pricing";
+      return;
+    }
+
+    try {
+      // 1️⃣ Create Razorpay order
+      const res = await fetch("/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: price })
+      });
+
+      if (!res.ok) throw new Error("Order creation failed");
+
+      const { orderId } = await res.json();
+
+      // 2️⃣ Open Razorpay
+      const options = {
+        key: "<%= process.env.Razor_key_id %>",
+        amount: price * 100,
+        currency: "INR",
+        name: "Shaadiwali",
+        description: `${plan} Plan`,
+        order_id: orderId,
+        handler: async function (response) {
+          const verifyRes = await fetch("/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+      ...response,
+      plan   
+    })
+          });
+
+          const result = await verifyRes.json();
+          if (result.success) {
+            alert("🎉 Subscription activated!");
+            window.location.reload();
+          } else {
+            alert("Payment verification failed");
+          }
+        },
+        theme: { color: "#E11D48" }
+      };
+
+      new Razorpay(options).open();
+
+    } catch (err) {
+      console.error(err);
+      alert("Payment failed. Please try again.");
     }
   }
 </script>
+
 
 <%- include("layouts/footer.ejs") %>

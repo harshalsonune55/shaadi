@@ -31,11 +31,25 @@ likes: [
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserProfile"
   }
-]
+],
+// ✅ SUBSCRIPTION FIELDS
+isSubscribed: {
+  type: Boolean,
+  default: false
+},
+
+subscriptionPlan: {
+  type: String,
+  enum: ["Basic", "Premium", "Elite"],
+  default: null
+},
+
+subscriptionStartedAt: Date,
+subscriptionExpiresAt: Date
 
 
 
-});
+}, { timestamps: true });
 
 const UserProfile = mongoose.model('UserProfilefake', userProfileSchema);
 
