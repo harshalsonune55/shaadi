@@ -11,6 +11,8 @@
         <th class="p-3">Expertise</th>
         <th class="p-3">Interests</th>
         <th class="p-3">Membership</th>
+        <th class="p-3">Verified</th>
+
       </tr>
     </thead>
 
@@ -41,6 +43,15 @@
               <span class="text-green-600 font-semibold">Active</span>
             <% } else { %>
               <span class="text-gray-500 font-semibold">Inactive</span>
+            <% } %>
+          </td>
+          <td class="p-3">
+            <% if (p.isVerified) { %>
+              <span class="text-blue-600 font-semibold">✓ Verified</span>
+            <% } else if (p.govtIdImage) { %>
+              <span class="text-yellow-600 font-semibold">Pending</span>
+            <% } else { %>
+              <span class="text-gray-500">No</span>
             <% } %>
           </td>
         </tr>

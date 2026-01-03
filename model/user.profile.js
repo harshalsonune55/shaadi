@@ -45,7 +45,26 @@ subscriptionPlan: {
 },
 
 subscriptionStartedAt: Date,
-subscriptionExpiresAt: Date
+subscriptionExpiresAt: Date,
+// ✅ VERIFICATION FIELDS
+isVerified: {
+  type: Boolean,
+  default: false
+},
+
+govtIdImage: {
+  type: String, // Cloudinary URL
+  default: null
+},
+
+verificationRequestedAt: Date,
+verifiedAt: Date,
+verifiedByAdmin: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null
+}
+
 
 
 

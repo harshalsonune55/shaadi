@@ -37,9 +37,45 @@
           />
 
           <!-- VERIFIED BADGE -->
-          <span class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow">
-            ✓ Verified
-          </span>
+          <!-- VERIFIED / GET VERIFIED -->
+          <% if (userProfile.isVerified) { %>
+            <span
+              class="absolute -bottom-2 -right-2
+                     flex items-center gap-1
+                     bg-gradient-to-r from-blue-600 to-blue-500
+                     text-white text-xs font-semibold
+                     px-3 py-1 rounded-full
+                     shadow-lg ring-2 ring-white"
+            >
+              ✔ Verified
+            </span>
+          
+          <% } else if (userProfile.govtIdImage) { %>
+            <span
+              class="absolute -bottom-2 -right-2
+                     flex items-center gap-1
+                     bg-gradient-to-r from-yellow-500 to-orange-500
+                     text-white text-xs font-semibold
+                     px-3 py-1 rounded-full
+                     shadow-lg ring-2 ring-white animate-pulse"
+            >
+              ⏳ Pending
+            </span>
+          
+          <% } else { %>
+            <span
+              class="absolute -bottom-2 -right-2
+                     flex items-center gap-1
+                     bg-gray-500 text-white text-xs font-medium
+                     px-3 py-1 rounded-full
+                     shadow ring-2 ring-white"
+            >
+              ✖ Not Verified
+            </span>
+          <% } %>
+          
+          
+
         </div>
 
         <!-- BASIC INFO -->
@@ -65,6 +101,19 @@
             >
               ✏️ Edit Profile
             </a>
+            <% if (!userProfile.isVerified) { %>
+              <a
+                href="/profile/verify"
+                class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition"
+              >
+                🛂 Get Verified
+              </a>
+            <% } else { %>
+              <span class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm">
+                ✓ Verified Profile
+              </span>
+            <% } %>
+            
           </div>
         </div>
 

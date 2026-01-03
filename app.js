@@ -231,19 +231,25 @@ export function verifyOTP(mobile, otp) {
         ]
       });
   
-      const activeMembers = await UserProfile.countDocuments({
-        isSubscribed: true
+      const activeMembers = await UserProfile.countDocuments({ isSubscribed: true });
+      const inactiveMembers = await UserProfile.countDocuments({ isSubscribed: false });
+  
+      const verifiedProfiles = await UserProfile.countDocuments({
+        isVerified: true
       });
   
-      const inactiveMembers = await UserProfile.countDocuments({
-        isSubscribed: false
+      const pendingVerifications = await UserProfile.countDocuments({
+        isVerified: false,
+        govtIdImage: { $exists: true, $ne: "" }
       });
   
       res.render("admin/dashboard.ejs", {
         totalProfiles,
         incompleteProfiles,
         activeMembers,
-        inactiveMembers
+        inactiveMembers,
+        verifiedProfiles,
+        pendingVerifications
       });
   
     } catch (err) {
@@ -251,6 +257,18 @@ export function verifyOTP(mobile, otp) {
       res.status(500).send("Admin dashboard error");
     }
   });
+  
+
+  app.get("/admin/verifications", isAdmin, async (req, res) => {
+    const profiles = await UserProfile.find({
+      isVerified: false,
+      govtIdImage: { $exists: true }
+    }).lean();
+  
+    res.render("admin/verifications.ejs", { profiles });
+  });
+  
+  
 
   app.get("/privacy-policy", (req, res) => {
     res.render("privacy.ejs");
@@ -853,6 +871,46 @@ app.get("/people/:id", async (req, res) => {
         res.status(500).send("Error loading profile details");
     }
 });
+
+//verigy batch
+app.get("/profile/verify", isLoggedIn, (req, res) => {
+  res.render("verify.ejs");
+});
+app.post(
+  "/profile/verify",
+  isLoggedIn,
+  upload.single("govtId"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).send("File required");
+      }
+
+      await UserProfile.findOneAndUpdate(
+        { phone: req.user.phone },
+        {
+          govtIdImage: req.file.path,
+          verificationRequestedAt: new Date()
+        }
+      );
+
+      res.redirect("/profile");
+    } catch (err) {
+      console.error("Verification upload error:", err);
+      res.status(500).send("Verification failed");
+    }
+  }
+);
+app.post("/admin/verify/:id", isAdmin, async (req, res) => {
+  await UserProfile.findByIdAndUpdate(req.params.id, {
+    isVerified: true,
+    verifiedAt: new Date(),
+    verifiedByAdmin: req.user._id
+  });
+
+  res.redirect("/admin/profile/" + req.params.id);
+});
+
 
 // Profile Routes
 app.get("/profile", isLoggedIn, async (req, res) => {

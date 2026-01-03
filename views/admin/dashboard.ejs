@@ -4,7 +4,7 @@
   <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
   <!-- STATS GRID -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
 
     <div class="bg-white p-6 rounded-xl shadow">
       <p class="text-gray-500 mb-1">Total Profiles</p>
@@ -25,6 +25,21 @@
       <p class="text-gray-500 mb-1">Inactive Memberships</p>
       <p class="text-4xl font-bold text-gray-600"><%= inactiveMembers %></p>
     </div>
+    <!-- ✅ VERIFIED -->
+  <div class="bg-white p-6 rounded-xl shadow border border-blue-200">
+    <p class="text-gray-500 mb-1">Verified Profiles</p>
+    <p class="text-4xl font-bold text-blue-700"><%= verifiedProfiles %></p>
+  </div>
+
+  <!-- ⏳ PENDING VERIFICATION -->
+  <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl shadow border border-yellow-300">
+    <p class="text-gray-600 mb-1 font-medium">⏳ Pending Verification</p>
+    <p class="text-4xl font-bold text-yellow-700"><%= pendingVerifications %></p>
+    <p class="text-xs text-yellow-700 mt-1">
+      Awaiting admin approval
+    </p>
+  </div>
+  
 
     <!-- 📝 BLOG CARD -->
     
