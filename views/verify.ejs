@@ -13,13 +13,18 @@
     enctype="multipart/form-data"
     class="space-y-4"
   >
-    <input
-      type="file"
-      name="govtId"
-      accept="image/*,.pdf"
-      required
-      class="block w-full border rounded p-2"
-    />
+  <input
+  type="file"
+  name="govtId"
+  accept="image/*,.pdf"
+  multiple
+  required
+  class="block w-full border rounded p-2"
+/>
+
+<p class="text-sm text-gray-500 mt-1">
+  You can upload up to <strong>6 files</strong> (JPG, PNG, PDF)
+</p>
 
     <button
       type="submit"

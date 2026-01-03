@@ -52,9 +52,13 @@ isVerified: {
   default: false
 },
 
-govtIdImage: {
-  type: String, // Cloudinary URL
-  default: null
+govtIdImages: {
+  type: [String],
+  validate: [
+    arr => arr.length <= 6,
+    "Maximum 6 government ID files allowed"
+  ],
+  default: []
 },
 
 verificationRequestedAt: Date,

@@ -240,8 +240,9 @@ export function verifyOTP(mobile, otp) {
   
       const pendingVerifications = await UserProfile.countDocuments({
         isVerified: false,
-        govtIdImage: { $exists: true, $ne: "" }
+        govtIdImages: { $exists: true, $not: { $size: 0 } }
       });
+      
   
       res.render("admin/dashboard.ejs", {
         totalProfiles,
@@ -262,8 +263,9 @@ export function verifyOTP(mobile, otp) {
   app.get("/admin/verifications", isAdmin, async (req, res) => {
     const profiles = await UserProfile.find({
       isVerified: false,
-      govtIdImage: { $exists: true }
+      govtIdImages: { $exists: true, $not: { $size: 0 } }
     }).lean();
+    
   
     res.render("admin/verifications.ejs", { profiles });
   });
@@ -879,7 +881,7 @@ app.get("/profile/verify", isLoggedIn, (req, res) => {
 app.post(
   "/profile/verify",
   isLoggedIn,
-  upload.single("govtId"),
+  upload.single("govtId",6),
   async (req, res) => {
     try {
       if (!req.file) {
