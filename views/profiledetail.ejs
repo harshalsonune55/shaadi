@@ -185,10 +185,13 @@
       <p><strong>Sub-Caste:</strong>
         <%= person.matchmaking?.subCaste || "Not specified" %>
       </p>
+      <p><strong>Gotra:</strong>
+        <%= person.matchmaking?.gotra || "Not specified" %>
+      </p>
 
       <p><strong>Height:</strong>
-        <%= person.matchmaking?.heightFeet || "-" %> ft
-        <%= person.matchmaking?.heightInches || "-" %> in
+        <%= person.matchmaking?.height.feet || "-" %> ft
+        <%= person.matchmaking?.height.inches || "-" %> in
       </p>
 
       <p><strong>Weight:</strong>
@@ -207,13 +210,30 @@
         <%= person.matchmaking?.drinkingHabit || "Not specified" %>
       </p>
 
+      <p><strong>citizenship:</strong>
+        <%= person.matchmaking?.citizenship || "Not specified" %>
+      </p>
       <p><strong>Lives In:</strong>
         <%= person.matchmaking?.liveInCity || "—" %>,
         <%= person.matchmaking?.liveInState || "" %>
       </p>
 
+      <p><strong>father Occupation:</strong>
+        <%= person.matchmaking?.fatherOccupation || "Not specified" %>
+      </p>
+      <p><strong>mother Occupation:</strong>
+        <%= person.matchmaking?.motherOccupation || "Not specified" %>
+      </p>
+
+      <p><strong>Number of Brother:</strong>
+        <%= person.matchmaking?.brothers || "Not specified" %>
+      </p>
+      <p><strong>Number of Sisters:</strong>
+        <%= person.matchmaking?.sisters || "Not specified" %>
+      </p>
+
       <p><strong>Family Income:</strong>
-        <%= person.matchmaking?.familyIncome || "Not disclosed" %>
+        <%= person.matchmaking?.familyAnnualIncome || "Not disclosed" %>
       </p>
 
     </div>
