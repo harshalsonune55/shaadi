@@ -13,6 +13,12 @@
     (userProfile.subscriptionPlan === "Premium" ||
      userProfile.subscriptionPlan === "Elite");
 %>
+<%
+  const canViewMatchmaking =
+    userProfile &&
+    (userProfile.isSubscribed === true); 
+%>
+
 
 <div class="bg-gray-50 min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
@@ -148,6 +154,94 @@
     </p>
   <% } %>
 </div>
+
+
+<hr class="my-6 border-gray-200">
+
+<div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-fade-up delay-300">
+  <h3 class="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+    <span class="text-lg">🧬</span> Matchmaking Details
+    <% if (!canViewMatchmaking) { %>
+      <span class="ml-2 text-xs text-red-500">(Subscription Required)</span>
+    <% } %>
+  </h3>
+
+  <div class="<%= canViewMatchmaking ? '' : 'blur-section' %> space-y-4">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+
+      <p><strong>Marital Status:</strong>
+        <%= person.matchmaking?.maritalStatus || "Not specified" %>
+      </p>
+
+      <p><strong>Religion:</strong>
+        <%= person.matchmaking?.religion || "Not specified" %>
+      </p>
+
+      <p><strong>Caste:</strong>
+        <%= person.matchmaking?.caste || "Not specified" %>
+      </p>
+
+      <p><strong>Sub-Caste:</strong>
+        <%= person.matchmaking?.subCaste || "Not specified" %>
+      </p>
+
+      <p><strong>Height:</strong>
+        <%= person.matchmaking?.heightFeet || "-" %> ft
+        <%= person.matchmaking?.heightInches || "-" %> in
+      </p>
+
+      <p><strong>Weight:</strong>
+        <%= person.matchmaking?.weight || "N/A" %> kg
+      </p>
+
+      <p><strong>Eating Habit:</strong>
+        <%= person.matchmaking?.eatingHabit || "Not specified" %>
+      </p>
+
+      <p><strong>Smoking:</strong>
+        <%= person.matchmaking?.smokingHabit || "Not specified" %>
+      </p>
+
+      <p><strong>Drinking:</strong>
+        <%= person.matchmaking?.drinkingHabit || "Not specified" %>
+      </p>
+
+      <p><strong>Lives In:</strong>
+        <%= person.matchmaking?.liveInCity || "—" %>,
+        <%= person.matchmaking?.liveInState || "" %>
+      </p>
+
+      <p><strong>Family Income:</strong>
+        <%= person.matchmaking?.familyIncome || "Not disclosed" %>
+      </p>
+
+    </div>
+
+    <% if (person.matchmaking?.otherInfo) { %>
+      <div class="pt-3 border-t">
+        <p class="text-gray-700 text-sm">
+          <strong>Other Info:</strong><br />
+          <%= person.matchmaking.otherInfo %>
+        </p>
+      </div>
+    <% } %>
+
+  </div>
+
+  <% if (!canViewMatchmaking) { %>
+    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-center text-sm">
+      🔒 Subscribe to <strong>Basic</strong> or higher to view matchmaking details
+      <br />
+      <a href="/pricing" class="text-pink-600 font-semibold underline">
+        View Plans →
+      </a>
+    </div>
+  <% } %>
+</div>
+
+
+
       <hr class="my-6 border-gray-200">
 
       <% const hasExpertise = person.expertise && person.expertise.length > 0; %>

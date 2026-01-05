@@ -67,7 +67,69 @@ verifiedByAdmin: {
   type: mongoose.Schema.Types.ObjectId,
   ref: "User",
   default: null
+},
+// ✅ MATCHMAKING DETAILS
+matchmaking: {
+  maritalStatus: {
+    type: String,
+    enum: ["Single", "Divorced", "Widowed", "Separated"],
+    default: ""
+  },
+
+  birth: {
+    date: Date,
+    time: String,
+    place: String
+  },
+
+  educationDetails: String,
+  occupationDetails: String,
+
+  religion: String,
+  caste: String,
+  subCaste: String,
+  gotra: String,
+
+  citizenship: String,
+  liveInCity: String,
+  liveInState: String,
+
+  height: {
+    feet: Number,
+    inches: Number
+  },
+
+  weight: Number,
+
+  eatingHabit: {
+    type: String,
+    enum: ["Veg", "Non-Veg", "Eggetarian"],
+    default: ""
+  },
+
+  smokingHabit: {
+    type: String,
+    enum: ["No", "Occasionally", "Yes"],
+    default: "No"
+  },
+
+  drinkingHabit: {
+    type: String,
+    enum: ["No", "Occasionally", "Yes"],
+    default: "No"
+  },
+
+  fatherOccupation: String,
+  motherOccupation: String,
+
+  brothers: Number,
+  sisters: Number,
+
+  familyAnnualIncome: String,
+
+  otherInfo: String
 }
+
 
 
 

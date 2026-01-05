@@ -101,6 +101,8 @@
             >
               ✏️ Edit Profile
             </a>
+            
+
             <% if (!userProfile.isVerified) { %>
               <a
                 href="/profile/verify"
@@ -186,6 +188,79 @@
           <p><strong>Education:</strong> <%= userProfile.Education || "Not specified" %></p>
         </div>
       </div>
+
+      <% if (userProfile.matchmaking) { %>
+        <div class="border-t px-6 py-6 bg-white">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">
+              💍 Matchmaking Details
+            </h2>
+      
+            <a
+              href="/profile/matchmaking"
+              class="text-sm text-blue-600 hover:underline font-medium"
+            >
+              Edit
+            </a>
+          </div>
+      
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+      
+            <p><strong>Marital Status:</strong> <%= userProfile.matchmaking.maritalStatus || "—" %></p>
+            <p><strong>Religion:</strong> <%= userProfile.matchmaking.religion || "—" %></p>
+      
+            <p><strong>Caste:</strong> <%= userProfile.matchmaking.caste || "—" %></p>
+            <p><strong>Sub Caste:</strong> <%= userProfile.matchmaking.subCaste || "—" %></p>
+      
+            <p><strong>Gotra:</strong> <%= userProfile.matchmaking.gotra || "—" %></p>
+            <p><strong>Citizenship:</strong> <%= userProfile.matchmaking.citizenship || "—" %></p>
+      
+            <p><strong>Lives In:</strong> <%= userProfile.matchmaking.liveInCity || "—" %>,<%= userProfile.matchmaking.liveInState|| "—" %></p>
+            <p><strong>Education:</strong> <%= userProfile.matchmaking.educationDetails || "—" %></p>
+      
+            <p><strong>Occupation:</strong> <%= userProfile.matchmaking.occupationDetails || "—" %></p>
+            <p><strong>Height:</strong> <%= userProfile.matchmaking.height.feet || "—" %>.<%= userProfile.matchmaking.height.inches || "—" %></p>
+      
+            <p><strong>Weight:</strong> <%= userProfile.matchmaking.weight || "—" %></p>
+            <p><strong>Eating Habit:</strong> <%= userProfile.matchmaking.eatingHabit || "—" %></p>
+      
+            <p><strong>Smoking:</strong> <%= userProfile.matchmaking.smokingHabit || "—" %></p>
+            <p><strong>Drinking:</strong> <%= userProfile.matchmaking.drinkingHabit || "—" %></p>
+      
+            <p><strong>Father’s Occupation:</strong> <%= userProfile.matchmaking.fatherOccupation || "—" %></p>
+            <p><strong>Mother’s Occupation:</strong> <%= userProfile.matchmaking.motherOccupation || "—" %></p>
+      
+            <p><strong>No. of Brothers:</strong> <%= userProfile.matchmaking.brothers ?? "—" %></p>
+            <p><strong>No. of Sisters:</strong> <%= userProfile.matchmaking.sisters ?? "—" %></p>
+      
+            <p><strong>Family Income:</strong> <%= userProfile.matchmaking.familyAnnualIncome || "—" %></p>
+      
+          </div>
+      
+          <% if (userProfile.matchmaking.additionalInfo) { %>
+            <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 font-medium mb-1">
+                Additional Information
+              </p>
+              <p class="text-gray-800">
+                <%= userProfile.matchmaking.additionalInfo %>
+              </p>
+            </div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <div class="border-t px-6 py-6 bg-yellow-50 text-yellow-800">
+          <p class="font-medium">
+            ⚠️ Matchmaking details are incomplete.
+            <a href="/profile/matchmaking" class="underline font-semibold ml-1">
+              Complete now →
+            </a>
+          </p>
+        </div>
+      <% } %>
+      
+
+
       <!-- PHOTO GALLERY -->
 <div class="border-t px-6 py-6">
   <div class="flex items-center justify-between mb-4">

@@ -1,0 +1,149 @@
+<%- layout("layouts/navbar.ejs") %>
+
+<div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow">
+  <h2 class="text-2xl font-bold mb-6 text-center">
+    Matchmaking Information
+  </h2>
+
+  <form action="/profile/matchmaking" method="POST"
+        class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- MARITAL STATUS -->
+    <select name="maritalStatus" class="border p-2 rounded">
+      <option value="">Marital Status</option>
+      <% ["Single","Divorced","Widowed","Separated"].forEach(s => { %>
+        <option value="<%= s %>"
+          <%= userProfile.matchmaking?.maritalStatus === s ? "selected" : "" %>>
+          <%= s %>
+        </option>
+      <% }) %>
+    </select>
+
+    <!-- BIRTH DETAILS -->
+    <input type="date" name="birthDate"
+      value="<%= userProfile.matchmaking?.birth.date || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="birthTime" placeholder="Birth Time"
+      value="<%= userProfile.matchmaking?.birth.time || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="birthPlace" placeholder="Birth Place"
+      value="<%= userProfile.matchmaking?.birth.place || "" %>"
+      class="border p-2 rounded" />
+
+    <!-- EDUCATION / OCCUPATION -->
+    <input type="text" name="educationDetails" placeholder="Education Details"
+      value="<%= userProfile.matchmaking?.educationDetails || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="occupationDetails" placeholder="Occupation Details"
+      value="<%= userProfile.matchmaking?.occupationDetails || "" %>"
+      class="border p-2 rounded" />
+
+    <!-- RELIGION -->
+    <input type="text" name="religion" placeholder="Religion"
+      value="<%= userProfile.matchmaking?.religion || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="caste" placeholder="Caste"
+      value="<%= userProfile.matchmaking?.caste || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="subCaste" placeholder="Sub Caste"
+      value="<%= userProfile.matchmaking?.subCaste || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="gotra" placeholder="Gotra"
+      value="<%= userProfile.matchmaking?.gotra || "" %>"
+      class="border p-2 rounded" />
+
+    <!-- LOCATION -->
+    <input type="text" name="citizenship" placeholder="Citizenship"
+      value="<%= userProfile.matchmaking?.citizenship || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="liveInCity" placeholder="City"
+      value="<%= userProfile.matchmaking?.liveInCity || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="liveInState" placeholder="State"
+      value="<%= userProfile.matchmaking?.liveInState || "" %>"
+      class="border p-2 rounded" />
+
+    <!-- PHYSICAL -->
+    <input type="number" name="heightFeet" placeholder="Height (ft)"
+      value="<%= userProfile.matchmaking?.height.feet || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="number" name="heightInches" placeholder="Height (in)"
+      value="<%= userProfile.matchmaking?.height.inches || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="number" name="weight" placeholder="Weight (kg)"
+      value="<%= userProfile.matchmaking?.weight || "" %>"
+      class="border p-2 rounded" />
+
+    <!-- HABITS -->
+    <select name="eatingHabit" class="border p-2 rounded">
+      <option value="">Eating Habit</option>
+      <% ["Veg","Non-Veg","Eggetarian"].forEach(h => { %>
+        <option value="<%= h %>"
+          <%= userProfile.matchmaking?.eatingHabit === h ? "selected" : "" %>>
+          <%= h %>
+        </option>
+      <% }) %>
+    </select>
+
+    <select name="smokingHabit" class="border p-2 rounded">
+      <% ["No","Occasionally","Yes"].forEach(h => { %>
+        <option value="<%= h %>"
+          <%= userProfile.matchmaking?.smokingHabit === h ? "selected" : "" %>>
+          Smoking: <%= h %>
+        </option>
+      <% }) %>
+    </select>
+
+    <select name="drinkingHabit" class="border p-2 rounded">
+      <% ["No","Occasionally","Yes"].forEach(h => { %>
+        <option value="<%= h %>"
+          <%= userProfile.matchmaking?.drinkingHabit === h ? "selected" : "" %>>
+          Drinking: <%= h %>
+        </option>
+      <% }) %>
+    </select>
+
+    <!-- FAMILY -->
+    <input type="text" name="fatherOccupation" placeholder="Father's Occupation"
+      value="<%= userProfile.matchmaking?.fatherOccupation || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="motherOccupation" placeholder="Mother's Occupation"
+      value="<%= userProfile.matchmaking?.motherOccupation || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="number" name="brothers" placeholder="No. of Brothers"
+      value="<%= userProfile.matchmaking?.brothers || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="number" name="sisters" placeholder="No. of Sisters"
+      value="<%= userProfile.matchmaking?.sisters || "" %>"
+      class="border p-2 rounded" />
+
+    <input type="text" name="familyIncome" placeholder="Family Annual Income"
+      value="<%= userProfile.matchmaking?.familyAnnualIncome || "" %>"
+      class="border p-2 rounded" />
+
+    <!-- OTHER INFO -->
+    <textarea name="otherInfo" placeholder="Any other information"
+      class="border p-2 rounded md:col-span-2"><%= userProfile.matchmaking?.otherInfo || "" %></textarea>
+
+    <button
+      type="submit"
+      class="md:col-span-2 bg-pink-600 text-white py-3 rounded-lg font-semibold hover:bg-pink-700"
+    >
+      Save Matchmaking Info
+    </button>
+
+  </form>
+</div>

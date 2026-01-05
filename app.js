@@ -291,8 +291,71 @@ export function verifyOTP(mobile, otp) {
     res.render("admin/profiles.ejs", { profiles });
   });
 
+  //matchmaking 
+  // Serve Matchmaking Form Page
+app.get("/profile/matchmaking", isLoggedIn, async (req, res) => {
+  try {
+    const userProfile = await UserProfile.findOne({
+      phone: req.user.phone
+    }).lean();
+
+    res.render("matchmaking.ejs", {
+      userProfile
+    });
+  } catch (err) {
+    console.error("Matchmaking page error:", err);
+    res.status(500).send("Unable to load matchmaking page");
+  }
+});
 
 
+  app.post("/profile/matchmaking", isLoggedIn, async (req, res) => {
+    try {
+      await UserProfile.findOneAndUpdate(
+        { phone: req.user.phone },
+        {
+          matchmaking: {
+            maritalStatus: req.body.maritalStatus,
+            birth: {
+              date: req.body.birthDate,
+              time: req.body.birthTime,
+              place: req.body.birthPlace
+            },
+            educationDetails: req.body.educationDetails,
+            occupationDetails: req.body.occupationDetails,
+            religion: req.body.religion,
+            caste: req.body.caste,
+            subCaste: req.body.subCaste,
+            gotra: req.body.gotra,
+            citizenship: req.body.citizenship,
+            liveInCity: req.body.liveInCity,
+            liveInState: req.body.liveInState,
+            height: {
+              feet: req.body.heightFeet,
+              inches: req.body.heightInches
+            },
+            weight: req.body.weight,
+            eatingHabit: req.body.eatingHabit,
+            smokingHabit: req.body.smokingHabit,
+            drinkingHabit: req.body.drinkingHabit,
+            fatherOccupation: req.body.fatherOccupation,
+            motherOccupation: req.body.motherOccupation,
+            brothers: req.body.brothers,
+            sisters: req.body.sisters,
+            familyAnnualIncome: req.body.familyIncome,
+            otherInfo: req.body.otherInfo
+          }
+        },
+        { new: true, upsert: true }
+      );
+  
+      res.redirect("/profile");
+    } catch (err) {
+      console.error("Matchmaking save error:", err);
+      res.status(500).send("Failed to save matchmaking info");
+    }
+  });
+  
   
 
 
