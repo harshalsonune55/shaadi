@@ -68,6 +68,14 @@ verifiedByAdmin: {
   ref: "User",
   default: null
 },
+callTokens: {
+  type: Number,
+  default: 0
+},
+totalCallMinutes: {
+  type: Number,
+  default: 0
+},
 // ✅ MATCHMAKING DETAILS
 matchmaking: {
   maritalStatus: {

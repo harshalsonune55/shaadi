@@ -69,10 +69,14 @@
             </a>
 
            <% } else { %>
+            
             <a href="/people" class="flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-user-group text-xl mb-1"></i>
               People
             </a>
+            <!-- CALL TOKENS -->
+
+
             <a href="/inbox" class="relative flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-comments text-xl mb-1"></i>
             
@@ -112,10 +116,30 @@
                 Admin
               </a>
             <% } %>
+            
+            
             <a href="/logout" class="flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-right-from-bracket text-xl mb-1"></i>
               Logout
             </a>
+           
+            
+            <div class="flex items-center gap-2 bg-yellow-50 px-3 py-1 rounded-full">
+              <i class="fa-solid fa-circle-dollar-to-slot text-yellow-600"></i>
+            
+              <span class="text-sm font-semibold text-gray-800">
+                <%= userProfile?.callTokens || 0 %> Coins
+              </span>
+            
+              <a
+                href="/tokens"
+                class="text-xs text-pink-600 font-semibold underline ml-1"
+              >
+                Recharge
+              </a>
+            </div>
+            
+            
            <% } %>
  
            
@@ -176,6 +200,13 @@ class="hidden md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50"
         0
       </span>
     </a>
+    <a href="/tokens" class="flex items-center gap-3 p-3 rounded-lg bg-yellow-50">
+      <i class="fa-solid fa-coins text-yellow-600"></i>
+      <span>
+        Call Tokens: <strong><%= userProfile?.callTokens || 0 %></strong>
+      </span>
+    </a>
+    
     
 
     <a href="/pricing" class="flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50">

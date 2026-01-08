@@ -26,6 +26,7 @@
     "express-session": "^1.18.2",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
+    "livekit-server-sdk": "^2.15.0",
     "mongodb": "^6.20.0",
     "mongoose": "^8.18.1",
     "multer": "^2.0.2",

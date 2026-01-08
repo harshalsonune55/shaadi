@@ -24,6 +24,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Blog from "./model/Blog.js";
 import MongoStore from "connect-mongo";
 import rateLimit from "express-rate-limit";
+import { AccessToken } from "livekit-server-sdk";
 
 configDotenv();
 cloudinary.config({
@@ -1059,6 +1060,30 @@ app.post(
   }
 );
 
+//tokens
+
+app.get("/tokens", isLoggedIn, (req, res) => {
+  res.render("tokens.ejs");
+});
+app.post("/tokens/verify", isLoggedIn, async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, tokens } = req.body;
+
+  const generatedSignature = crypto
+    .createHmac("sha256", process.env.Razor_key_secret)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    .digest("hex");
+
+  if (generatedSignature !== razorpay_signature) {
+    return res.status(400).json({ success: false });
+  }
+
+  await UserProfile.findOneAndUpdate(
+    { phone: req.user.phone },
+    { $inc: { callTokens: tokens } }
+  );
+
+  res.json({ success: true });
+});
 
 
   
