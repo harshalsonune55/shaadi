@@ -928,15 +928,37 @@ app.get("/people", async (req, res) => {
 
 
 app.get("/people/:id", async (req, res) => {
-    try {
-        const person = await UserProfile.findById(req.params.id).lean(); // Use lean
-        if (!person) return res.status(404).send("Person not found");
-        res.render("profiledetail.ejs", { person, user: req.user || null, userProfile: res.locals.userProfile ||null });
-    } catch (err) {
-        console.error("Error fetching person details:", err);
-        res.status(500).send("Error loading profile details");
+  try {
+    const person = await UserProfile.findById(req.params.id);
+    if (!person) return res.status(404).send("Person not found");
+
+    // 🔍 Track profile view (only if logged in & not self)
+    if (req.user && req.user.phone && req.user.phone !== person.phone) {
+      await UserProfile.updateOne(
+        { _id: person._id },
+        {
+          $inc: { profileViewsCount: 1 },
+          $push: {
+            profileViews: {
+              viewerPhone: req.user.phone
+            }
+          }
+        }
+      );
     }
+
+    res.render("profiledetail.ejs", {
+      person: person.toObject(),
+      user: req.user || null,
+      userProfile: res.locals.userProfile || null
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading profile");
+  }
 });
+
 
 //verigy batch
 app.get("/profile/verify", isLoggedIn, (req, res) => {

@@ -40,7 +40,7 @@ isSubscribed: {
 
 subscriptionPlan: {
   type: String,
-  enum: ["Basic", "Premium", "Elite"],
+  enum: ["Basic", "standard", "premium","Elite","NRI"],
   default: null
 },
 
@@ -136,6 +136,20 @@ matchmaking: {
   familyAnnualIncome: String,
 
   otherInfo: String
+},
+profileViews: [
+  {
+    viewerPhone: String,
+    viewedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }
+],
+
+profileViewsCount: {
+  type: Number,
+  default: 0
 }
 
 
