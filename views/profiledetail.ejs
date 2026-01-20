@@ -190,8 +190,9 @@
       </p>
 
       <p><strong>Height:</strong>
-        <%= person.matchmaking?.height.feet || "-" %> ft
-        <%= person.matchmaking?.height.inches || "-" %> in
+        <%= person.matchmaking?.height?.feet || "-" %> ft
+<%= person.matchmaking?.height?.inches || "-" %> in
+
       </p>
 
       <p><strong>Weight:</strong>
@@ -411,7 +412,8 @@
             <% } else { %>
               <!-- Premium & Elite -->
               <a
-  href="/call/<%= person._id %>"
+  href="#"
+  onclick="sendCallInvite('<%= person._id %>', '<%= person.phone %>')"
   class="w-full py-3 rounded-lg
          bg-green-600 text-white font-bold
          text-center block
@@ -419,6 +421,8 @@
 >
   📞 Start Video Call
 </a>
+
+
 
             <% } %>
           
@@ -469,6 +473,25 @@
 <%-include("layouts/footer.ejs") %>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  function initiateCall(receiverId, receiverPhone) {
+    if (!window.socket || !window.socket.connected) {
+      alert("Connection not ready. Please try again.");
+      return;
+    }
+  
+    socket.emit("incoming_call", {
+      to: receiverPhone,
+      from: "<%= user.phone %>",
+      callerName: "<%= user.fullname %>",
+      callUrl: "/call/" + receiverId
+    });
+  
+    // Redirect caller to call page
+    window.location.href = "/call/" + receiverId;
+  }
+  </script>
+  
 
 <script>
     // --- REMOVED old 'startChatLink' event listener ---
@@ -748,3 +771,30 @@
     });
   });
 </script>
+<script>
+  function sendCallInvite(callerProfileId, receiverPhone) {
+    const callUrl = `/call/${callerProfileId}`;
+  
+    fetch("/api/messages/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        receiverId: "<%= person._id %>", 
+        message: `📞 Incoming video call. Click here to join: ${callUrl}`
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = callUrl; // Caller directly enters call
+      } else {
+        alert("Failed to send call invite");
+      }
+    })
+    .catch(err => {
+      console.error("Call invite error:", err);
+      alert("Call invite failed");
+    });
+  }
+  </script>
+  

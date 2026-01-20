@@ -1,0 +1,174 @@
+<%- layout("layouts/navbar") %>
+
+<div class="min-h-screen bg-gray-900 flex flex-col items-center justify-center px-4 py-6">
+
+  <!-- CALL HEADER -->
+  <div class="text-white text-center mb-6">
+    <h2 class="text-2xl font-bold">📞 Video Call</h2>
+    <p class="text-sm text-gray-300 mt-1">Connected securely via Shaadiwali</p>
+  </div>
+
+  <!-- VIDEO CONTAINER -->
+  <div class="relative w-full max-w-5xl aspect-video bg-black rounded-xl overflow-hidden shadow-lg flex items-center justify-center">
+
+    <!-- REMOTE VIDEO (BIG) -->
+    <video
+      id="remoteVideo"
+      autoplay
+      playsinline
+      class="w-full h-full object-cover"
+    ></video>
+
+    <!-- LOCAL VIDEO (SMALL OVERLAY) -->
+    <video
+      id="localVideo"
+      autoplay
+      muted
+      playsinline
+      class="absolute bottom-4 right-4 w-40 h-28 object-cover rounded-lg border-2 border-white shadow-lg"
+    ></video>
+
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="mt-6 flex items-center gap-6">
+
+    <button
+      onclick="toggleMute()"
+      id="muteBtn"
+      class="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition"
+    >
+      🔇 Mute
+    </button>
+
+    <button
+      onclick="endCall()"
+      class="bg-red-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-700 transition shadow-lg"
+    >
+      ❌ End Call
+    </button>
+
+    <button
+      onclick="toggleCamera()"
+      id="cameraBtn"
+      class="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition"
+    >
+      📷 Camera Off
+    </button>
+
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script >const socket = io();
+    const roomId = "<%= receiver.phone %>"; // or combined id
+    
+    let localStream;
+    let peerConnection;
+    
+    const iceServers = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }
+      ]
+    };
+    
+    async function startCall() {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    
+      document.getElementById("localVideo").srcObject = localStream;
+    
+      peerConnection = new RTCPeerConnection(iceServers);
+    
+      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    
+      peerConnection.ontrack = e => {
+        document.getElementById("remoteVideo").srcObject = e.streams[0];
+      };
+    
+      peerConnection.onicecandidate = e => {
+        if (e.candidate) {
+          socket.emit("ice_candidate", { roomId, candidate: e.candidate });
+        }
+      };
+    
+      socket.emit("join_call", { roomId });
+    
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+    
+      socket.emit("offer", { roomId, offer });
+    }
+    
+    socket.on("offer", async offer => {
+      await peerConnection.setRemoteDescription(offer);
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      socket.emit("answer", { roomId, answer });
+    });
+    
+    socket.on("answer", async answer => {
+      await peerConnection.setRemoteDescription(answer);
+    });
+    
+    socket.on("ice_candidate", async candidate => {
+      await peerConnection.addIceCandidate(candidate);
+    });
+    socket.on("end_call", () => {
+  alert("Call ended by the other user");
+
+  if (peerConnection) peerConnection.close();
+  if (localStream) localStream.getTracks().forEach(track => track.stop());
+
+  window.location.href = document.referrer || "/profile";
+});
+
+    function endCall() {
+  // Notify other user
+  socket.emit("end_call", { roomId });
+
+  // Close peer connection safely
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+
+  // Stop all camera & mic tracks
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+  }
+
+  // Go back to previous page
+  if (document.referrer) {
+    window.location.href = document.referrer;  // Go back safely
+  } else {
+    window.history.back(); // fallback
+  }
+}
+
+    
+    let isMuted = false;
+    let isCameraOff = false;
+    
+    function toggleMute() {
+      if (!localStream) return;
+      localStream.getAudioTracks().forEach(track => {
+        track.enabled = isMuted;
+      });
+      isMuted = !isMuted;
+      document.getElementById("muteBtn").innerText = isMuted ? "🔊 Unmute" : "🔇 Mute";
+    }
+    
+    function toggleCamera() {
+      if (!localStream) return;
+      localStream.getVideoTracks().forEach(track => {
+        track.enabled = isCameraOff;
+      });
+      isCameraOff = !isCameraOff;
+      document.getElementById("cameraBtn").innerText = isCameraOff ? "📷 Camera On" : "📷 Camera Off";
+    }
+    
+    </script>
+<script>
+  startCall(); // start camera + connection
+</script>

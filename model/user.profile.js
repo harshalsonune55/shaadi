@@ -40,7 +40,7 @@ isSubscribed: {
 
 subscriptionPlan: {
   type: String,
-  enum: ["Basic", "standard", "premium","Elite","NRI"],
+  enum: ["Basic", "Standard", "Premium", "Elite", "NRI"],
   default: null
 },
 
@@ -73,6 +73,39 @@ callTokens: {
   default: 0
 },
 totalCallMinutes: {
+  type: Number,
+  default: 0
+},
+activeCall: {
+  roomId: String,
+  withPhone: String,
+  startedAt: Date,
+  lastBilledAt: Date,
+  isActive: {
+    type: Boolean,
+    default: false
+  }
+},
+
+callHistory: [
+  {
+    roomId: String,
+    withPhone: String,
+    durationMinutes: Number,
+    coinsUsed: Number,
+    startedAt: Date,
+    endedAt: Date
+  }
+],
+
+callRate: {
+  coinsPerMinute: {
+    type: Number,
+    default: 5
+  }
+},
+
+callDiscountPercent: {
   type: Number,
   default: 0
 },

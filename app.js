@@ -150,6 +150,25 @@ app.use(async (req, res, next) => {
 
 
   io.on("connection", (socket) => {
+    socket.on("join_call", ({ roomId }) => {
+      socket.join(roomId);
+    });
+  
+    socket.on("offer", ({ roomId, offer }) => {
+      socket.to(roomId).emit("offer", offer);
+    });
+  
+    socket.on("answer", ({ roomId, answer }) => {
+      socket.to(roomId).emit("answer", answer);
+    });
+  
+    socket.on("ice_candidate", ({ roomId, candidate }) => {
+      socket.to(roomId).emit("ice_candidate", candidate);
+    });
+  
+    socket.on("end_call", ({ roomId }) => {
+      socket.to(roomId).emit("end_call");
+    });
     // Now joining by phone instead of ID
     socket.on("join user room", (phone) => {
       if (phone) {
@@ -157,6 +176,20 @@ app.use(async (req, res, next) => {
         
       }
     });
+      // 📞 Incoming Call Notification
+  socket.on("incoming_call", ({ to, from, callerName, callUrl }) => {
+    if (!to) return;
+
+    console.log(`📞 Incoming call from ${from} to ${to}`);
+
+    // Send notification to receiver's personal room
+    io.to(to.toString()).emit("incoming_call", {
+      from,
+      callerName,
+      callUrl
+    });
+  });
+
   });
   
 
@@ -500,6 +533,22 @@ app.post("/verify-otp", async (req, res) => {
 //     res.status(500).send("Error");
 //   }
 // });
+
+//calling 
+app.get("/call/:id", isLoggedIn, async (req, res) => {
+  const receiver = await UserProfile.findById(req.params.id).lean();
+  const myProfile = await UserProfile.findOne({ phone: req.user.phone });
+
+  if (!myProfile?.isSubscribed || !["Premium","Elite"].includes(myProfile.subscriptionPlan)) {
+    return res.redirect("/pricing");
+  }
+
+  res.render("call.ejs", {
+    receiver,
+    myProfile
+  });
+});
+
 
 app.get("/chat/:userId", isLoggedIn, async (req, res) => {
   try {
@@ -938,11 +987,13 @@ app.get("/people/:id", async (req, res) => {
         { _id: person._id },
         {
           $inc: { profileViewsCount: 1 },
-          $push: {
+          $addToSet: {
             profileViews: {
-              viewerPhone: req.user.phone
+              viewerPhone: req.user.phone,
+              viewedAt: new Date()
             }
           }
+          
         }
       );
     }
@@ -967,7 +1018,7 @@ app.get("/profile/verify", isLoggedIn, (req, res) => {
 app.post(
   "/profile/verify",
   isLoggedIn,
-  upload.single("govtId",6),
+  upload.single("govtId"),
   async (req, res) => {
     try {
       if (!req.file) {
@@ -1002,16 +1053,36 @@ app.post("/admin/verify/:id", isAdmin, async (req, res) => {
 
 // Profile Routes
 app.get("/profile", isLoggedIn, async (req, res) => {
-    const userProfile = await UserProfile.findOne({
-      phone: req.user.phone
-    }).lean();
-  
-    if (!userProfile) {
-      return res.redirect("/profile/edit");
-    }
-  
-    res.render("profile.ejs", { userProfile });
-  });
+  const userProfile = await UserProfile.findOne({
+    phone: req.user.phone
+  }).lean();
+
+  if (!userProfile) {
+    return res.redirect("/profile/edit");
+  }
+
+  // 🔥 Populate viewer names
+  if (userProfile.profileViews?.length) {
+    const phones = userProfile.profileViews.map(v => v.viewerPhone);
+
+    const viewers = await UserProfile.find({ phone: { $in: phones } })
+      .select("first_name last_name phone image")
+      .lean();
+
+    const viewerMap = {};
+    viewers.forEach(v => {
+      viewerMap[v.phone] = v;
+    });
+
+    userProfile.profileViews = userProfile.profileViews.map(v => ({
+      ...v,
+      viewer: viewerMap[v.viewerPhone] || null
+    }));
+  }
+
+  res.render("profile.ejs", { userProfile });
+});
+
   
   app.get("/about-us", (req, res) => {
     res.render("about.ejs");

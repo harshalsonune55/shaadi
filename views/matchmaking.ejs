@@ -21,15 +21,15 @@
 
     <!-- BIRTH DETAILS -->
     <input type="date" name="birthDate"
-      value="<%= userProfile.matchmaking?.birth.date || "" %>"
+      value="<%= userProfile.matchmaking?.birth?.date || "" %>"
       class="border p-2 rounded" />
 
     <input type="text" name="birthTime" placeholder="Birth Time"
-      value="<%= userProfile.matchmaking?.birth.time || "" %>"
+      value="<%= userProfile.matchmaking?.birth?.time || "" %>"
       class="border p-2 rounded" />
 
     <input type="text" name="birthPlace" placeholder="Birth Place"
-      value="<%= userProfile.matchmaking?.birth.place || "" %>"
+      value="<%= userProfile.matchmaking?.birth?.place || "" %>"
       class="border p-2 rounded" />
 
     <!-- EDUCATION / OCCUPATION -->
@@ -73,12 +73,13 @@
 
     <!-- PHYSICAL -->
     <input type="number" name="heightFeet" placeholder="Height (ft)"
-      value="<%= userProfile.matchmaking?.height.feet || "" %>"
-      class="border p-2 rounded" />
-
-    <input type="number" name="heightInches" placeholder="Height (in)"
-      value="<%= userProfile.matchmaking?.height.inches || "" %>"
-      class="border p-2 rounded" />
+    value="<%= userProfile.matchmaking?.height?.feet ?? "" %>"
+    class="border p-2 rounded" />
+  
+  <input type="number" name="heightInches" placeholder="Height (in)"
+    value="<%= userProfile.matchmaking?.height?.inches ?? "" %>"
+    class="border p-2 rounded" />
+  
 
     <input type="number" name="weight" placeholder="Weight (kg)"
       value="<%= userProfile.matchmaking?.weight || "" %>"
