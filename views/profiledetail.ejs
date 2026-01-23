@@ -479,13 +479,15 @@
       alert("Connection not ready. Please try again.");
       return;
     }
-  
+  <%if(user){%>
     socket.emit("incoming_call", {
       to: receiverPhone,
       from: "<%= user.phone %>",
       callerName: "<%= user.fullname %>",
       callUrl: "/call/" + receiverId
     });
+  <%}%>
+    
   
     // Redirect caller to call page
     window.location.href = "/call/" + receiverId;
@@ -795,6 +797,20 @@
       console.error("Call invite error:", err);
       alert("Call invite failed");
     });
+    <% if (!user) { %>
+    alert("Please login to make a call");
+    window.location.href = "/login";
+    return;
+  <% } %>
+
+  socket.emit("incoming_call", {
+    to: receiverPhone,
+    from: "<%= user.phone %>",
+    callerName: "<%= user.fullname %>",
+    callUrl: "/call/" + receiverId
+  });
+
+  window.location.href = "/call/" + receiverId;
   }
   </script>
   

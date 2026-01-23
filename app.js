@@ -176,6 +176,22 @@ app.use(async (req, res, next) => {
         
       }
     });
+      // Register user phone with socket
+  socket.on("register", phone => {
+    socket.phone = phone;
+  });
+
+  // Incoming call relay
+  socket.on("incoming_call", data => {
+    const { to } = data;
+
+    for (let [id, sock] of io.of("/").sockets) {
+      if (sock.phone === to) {
+        sock.emit("incoming_call_alert", data);
+        break;
+      }
+    }
+  });
       // 📞 Incoming Call Notification
   socket.on("incoming_call", ({ to, from, callerName, callUrl }) => {
     if (!to) return;
@@ -831,6 +847,36 @@ app.post("/admin/profile/:id/delete", isAdmin, async (req, res) => {
 });
 
 
+app.get("/api/call/remaining-time", isLoggedIn, async (req, res) => {
+  try {
+    const user = await UserProfile.findOne({ phone: req.user.phone });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const rate = user.callRate?.coinsPerMinute || 5;
+    const discount = user.callDiscountPercent || 0;
+    const effectiveRate = rate - (rate * discount) / 100;
+
+    if (effectiveRate <= 0) {
+      return res.json({ remainingMinutes: Infinity });
+    }
+
+    const remainingMinutes = Math.floor(user.callTokens / effectiveRate);
+
+    res.json({
+      callTokens: user.callTokens,
+      coinsPerMinute: rate,
+      effectiveRate,
+      remainingMinutes
+    });
+
+  } catch (err) {
+    console.error("Remaining time error:", err);
+    res.status(500).json({ error: "Failed to compute remaining time" });
+  }
+});
 
 
 
@@ -1000,8 +1046,8 @@ app.get("/people/:id", async (req, res) => {
 
     res.render("profiledetail.ejs", {
       person: person.toObject(),
-      user: req.user || null,
-      userProfile: res.locals.userProfile || null
+  user: req.user || null,
+  userProfile: res.locals.userProfile || null
     });
 
   } catch (err) {

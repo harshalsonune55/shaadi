@@ -1,17 +1,23 @@
 <%- layout("layouts/navbar") %>
 
-<div class="min-h-screen bg-gray-900 flex flex-col items-center justify-center px-4 py-6">
+<div class="min-h-screen bg-gray-900 flex flex-col items-center justify-center px-4 py-6 space-y-5">
 
   <!-- CALL HEADER -->
-  <div class="text-white text-center mb-6">
+  <div class="text-white text-center">
     <h2 class="text-2xl font-bold">📞 Video Call</h2>
     <p class="text-sm text-gray-300 mt-1">Connected securely via Shaadiwali</p>
   </div>
 
-  <!-- VIDEO CONTAINER -->
-  <div class="relative w-full max-w-5xl aspect-video bg-black rounded-xl overflow-hidden shadow-lg flex items-center justify-center">
+  <!-- REMAINING TIME BADGE -->
+  <div id="remainingTime"
+       class="bg-gray-800 text-white px-4 py-1 rounded-full text-sm shadow-md">
+    ⏳ Calculating remaining time...
+  </div>
 
-    <!-- REMOTE VIDEO (BIG) -->
+  <!-- VIDEO CONTAINER -->
+  <div class="relative w-full max-w-5xl aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
+
+    <!-- REMOTE VIDEO -->
     <video
       id="remoteVideo"
       autoplay
@@ -19,7 +25,7 @@
       class="w-full h-full object-cover"
     ></video>
 
-    <!-- LOCAL VIDEO (SMALL OVERLAY) -->
+    <!-- LOCAL VIDEO -->
     <video
       id="localVideo"
       autoplay
@@ -31,7 +37,7 @@
   </div>
 
   <!-- CONTROLS -->
-  <div class="mt-6 flex items-center gap-6">
+  <div class="flex items-center gap-6 mt-4">
 
     <button
       onclick="toggleMute()"
@@ -59,6 +65,7 @@
   </div>
 
 </div>
+
 
 <script src="/socket.io/socket.io.js"></script>
 <script >const socket = io();
@@ -172,3 +179,52 @@
 <script>
   startCall(); // start camera + connection
 </script>
+<script>
+  let remainingSeconds = null;
+  let countdownInterval = null;
+  
+  async function fetchRemainingTime() {
+    try {
+      const res = await fetch("/api/call/remaining-time");
+      const data = await res.json();
+  
+      if (data.remainingMinutes === Infinity) {
+        document.getElementById("remainingTime").innerText = "♾ Unlimited time";
+        return;
+      }
+  
+      remainingSeconds = data.remainingMinutes * 60;
+  
+      if (!countdownInterval) {
+        startCountdown();
+      }
+  
+    } catch (err) {
+      document.getElementById("remainingTime").innerText =
+        "⚠ Unable to fetch remaining time";
+    }
+  }
+  
+  function startCountdown() {
+    countdownInterval = setInterval(() => {
+      if (remainingSeconds <= 0) {
+        clearInterval(countdownInterval);
+        document.getElementById("remainingTime").innerText = "⛔ Time expired";
+        return;
+      }
+  
+      remainingSeconds--;
+      const min = Math.floor(remainingSeconds / 60);
+      const sec = remainingSeconds % 60;
+      document.getElementById("remainingTime").innerText =
+        `⏳ Remaining Time: ${min}:${sec.toString().padStart(2, "0")}`;
+    }, 1000);
+  }
+  
+  // Run initially
+  fetchRemainingTime();
+  
+  // Refresh every 30 seconds from server
+  setInterval(fetchRemainingTime, 30000);
+  </script>
+  

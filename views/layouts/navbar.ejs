@@ -25,6 +25,18 @@
 
    </head>
    <body class="bg-gray-50">
+    <!-- INCOMING CALL MODAL (GLOBAL) -->
+<div id="incomingCallModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 w-80 text-center shadow-lg">
+    <h3 class="text-lg font-bold mb-2">📞 Incoming Call</h3>
+    <p id="callerNameText" class="text-gray-700 mb-4"></p>
+    <div class="flex gap-4 justify-center">
+      <button id="acceptCallBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg">Accept</button>
+      <button id="rejectCallBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg">Reject</button>
+    </div>
+  </div>
+</div>
+
  
      <!-- Header -->
      <header class="bg-white shadow-md">
@@ -320,9 +332,40 @@ class="hidden md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50"
       window.socket.on("unread_count", (count) => {
         updateBadge(count);
       });
-    </script>
-    
-    
+    </script>\<script>
+  const socket = io();
+
+  <% if (user) { %>
+    socket.emit("register", "<%= user.phone %>");
+  <% } %>
+</script>
+
+<script>
+  socket.on("incoming_call_alert", data => {
+    const accept = confirm(`📞 Incoming call from ${data.callerName}. Accept?`);
+    if (accept) {
+      window.location.href = data.callUrl;
+    }
+  });
+</script>
+
+<script>
+  socket.on("incoming_call_alert", data => {
+    const modal = document.getElementById("incomingCallModal");
+    modal.classList.remove("hidden");
+
+    document.getElementById("callerNameText").innerText = `Call from ${data.callerName}`;
+
+    document.getElementById("acceptCallBtn").onclick = () => {
+      window.location.href = data.callUrl;
+    };
+
+    document.getElementById("rejectCallBtn").onclick = () => {
+      modal.classList.add("hidden");
+    };
+  });
+</script>
+
     
      
 

@@ -275,10 +275,24 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
 
           <p><strong>Email:</strong> <%= user.email %></p>
+        
+          <p>
+            <strong>Mobile:</strong>
+            <% if (userProfile.isSubscribed && ["Premium","Elite"].includes(userProfile.subscriptionPlan)) { %>
+              📱 <%= userProfile.phone %>
+            <% } else { %>
+              🔒 Hidden
+              <a href="/pricing" class="text-pink-600 underline ml-1">
+                Upgrade to view
+              </a>
+            <% } %>
+          </p>
+        
           <p><strong>Gender:</strong> <%= userProfile.gender || "Not specified" %></p>
           <p><strong>Age:</strong> <%= userProfile.age || "N/A" %></p>
           <p><strong>Education:</strong> <%= userProfile.Education || "Not specified" %></p>
         </div>
+        
       </div>
 
       <% if (userProfile.matchmaking) { %>
