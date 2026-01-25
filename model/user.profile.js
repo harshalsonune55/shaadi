@@ -70,8 +70,10 @@ verifiedByAdmin: {
 },
 callTokens: {
   type: Number,
-  default: 0
+  default: 0,
+  min: 0
 },
+
 totalCallMinutes: {
   type: Number,
   default: 0
@@ -80,23 +82,31 @@ activeCall: {
   roomId: String,
   withPhone: String,
   startedAt: Date,
-  lastBilledAt: Date,
+  endsAt: Date,
+  callType: {
+    type: String,
+    enum: ["video", "audio"],
+    default: "video"
+  },      
   isActive: {
     type: Boolean,
     default: false
   }
 },
 
+
 callHistory: [
   {
     roomId: String,
     withPhone: String,
+    isCaller: Boolean,   // who initiated
     durationMinutes: Number,
     coinsUsed: Number,
     startedAt: Date,
     endedAt: Date
   }
 ],
+
 
 callRate: {
   coinsPerMinute: {
@@ -108,6 +118,10 @@ callRate: {
 callDiscountPercent: {
   type: Number,
   default: 0
+},
+callLock: {
+  type: Boolean,
+  default: false
 },
 // ✅ MATCHMAKING DETAILS
 matchmaking: {

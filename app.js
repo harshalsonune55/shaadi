@@ -209,6 +209,10 @@ app.use(async (req, res, next) => {
   });
   
 
+// deducting coin code 
+
+
+
 
 
 
@@ -550,7 +554,207 @@ app.post("/verify-otp", async (req, res) => {
 //   }
 // });
 
+//audio calling
+app.get("/call/audio/:id", isLoggedIn, async (req, res) => {
+  const receiver = await UserProfile.findById(req.params.id).lean();
+  const myProfile = await UserProfile.findOne({ phone: req.user.phone });
+
+  if (!myProfile?.isSubscribed || !["Premium","Elite"].includes(myProfile.subscriptionPlan)) {
+    return res.redirect("/pricing");
+  }
+
+  res.render("audio_call.ejs", {
+    receiver,
+    myProfile
+  });
+});
+
+
 //calling 
+
+setInterval(async () => {
+  try {
+    const now = new Date();
+
+    const expiredCalls = await UserProfile.find({
+      "activeCall.isActive": true,
+      "activeCall.endsAt": { $lte: now }
+    });
+
+    for (let user of expiredCalls) {
+      user.activeCall.isActive = false;
+      user.callLock = false;
+
+      user.callHistory.push({
+        roomId: user.activeCall.roomId,
+        withPhone: user.activeCall.withPhone,
+        startedAt: user.activeCall.startedAt,
+        endedAt: new Date()
+      });
+
+      user.activeCall = null;
+      await user.save();
+    }
+
+  } catch (err) {
+    console.error("Auto-end error:", err);
+  }
+}, 15000);
+
+
+setInterval(async () => {
+  const now = new Date();
+
+  const expiredCalls = await UserProfile.find({
+    "activeCall.isActive": true,
+    "activeCall.endsAt": { $lte: now }
+  });
+
+  for (let user of expiredCalls) {
+    user.activeCall.isActive = false;
+    user.activeCall = null;
+    await user.save();
+  }
+}, 10000);
+
+setInterval(async () => {
+  const staleTime = new Date(Date.now() - 15 * 60 * 1000); // 15 mins ago
+
+  await UserProfile.updateMany(
+    {
+      callLock: true,
+      "activeCall.startedAt": { $lt: staleTime }
+    },
+    {
+      $set: {
+        callLock: false,
+        activeCall: null
+      }
+    }
+  );
+}, 5 * 60 * 1000); // every 5 minutes
+
+
+
+app.post("/api/call/start", isLoggedIn, async (req, res) => {
+  try {
+    const { roomId, withPhone, callType } = req.body;
+
+    const user = await UserProfile.findOne({ phone: req.user.phone });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (user.callLock && user.activeCall?.isActive) {
+      return res.status(400).json({ error: "Already in another call" });
+    }
+    
+
+    const rate = user.callRate?.coinsPerMinute || 5;
+    const initialMinutes = 5;
+    const cost = rate * initialMinutes;
+
+    if (user.callTokens < cost) {
+      return res.status(400).json({ error: "Insufficient tokens for 5 minutes call" });
+    }
+
+    // Deduct coins upfront
+    user.callTokens -= cost;
+
+    user.callLock = true;
+    user.activeCall = {
+      roomId,
+      withPhone,
+      callType: callType || "video",
+      startedAt: new Date(),
+      endsAt: new Date(Date.now() + initialMinutes * 60000),
+      isActive: true
+    };
+
+    await user.save();
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("Call start error:", err);
+    res.status(500).json({ error: "Failed to start call" });
+  }
+});
+
+
+app.post("/api/call/extend", isLoggedIn, async (req, res) => {
+  try {
+    const { minutes } = req.body;
+    const user = await UserProfile.findOne({ phone: req.user.phone });
+
+    if (!user || !user.activeCall?.isActive) {
+      return res.status(400).json({ error: "No active call" });
+    }
+
+    const rate = user.callRate?.coinsPerMinute || 5;
+    const cost = minutes * rate;
+
+    if (user.callTokens < cost) {
+      return res.status(400).json({ error: "Insufficient tokens" });
+    }
+
+    user.callTokens -= cost;
+
+    user.activeCall.endsAt = new Date(
+      new Date(user.activeCall.endsAt).getTime() + minutes * 60000
+    );
+
+    await user.save();
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("Extend call error:", err);
+    res.status(500).json({ error: "Failed to extend call" });
+  }
+});
+
+
+
+app.post("/api/call/end", isLoggedIn, async (req, res) => {
+  try {
+    const user = await UserProfile.findOne({ phone: req.user.phone });
+
+    if (!user) return res.json({ success: true });
+
+    if (user.activeCall?.isActive) {
+      const active = user.activeCall;
+
+      user.callHistory.push({
+        roomId: active.roomId,
+        withPhone: active.withPhone,
+        durationMinutes: active.totalBilledMinutes || 0,
+        coinsUsed: (active.totalBilledMinutes || 0) * (user.callRate?.coinsPerMinute || 5),
+        startedAt: active.startedAt,
+        endedAt: new Date()
+      });
+    }
+
+    // Force cleanup stale lock
+if (user.callLock && !user.activeCall?.isActive) {
+  user.callLock = false;
+}
+
+
+    // 🔥 FORCE RESET
+    user.activeCall = null;
+    user.callLock = false;
+
+    await user.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("Call end error:", err);
+    res.status(500).json({ error: "Failed to end call" });
+  }
+});
+
+
+
+
 app.get("/call/:id", isLoggedIn, async (req, res) => {
   const receiver = await UserProfile.findById(req.params.id).lean();
   const myProfile = await UserProfile.findOne({ phone: req.user.phone });
@@ -851,25 +1055,31 @@ app.get("/api/call/remaining-time", isLoggedIn, async (req, res) => {
   try {
     const user = await UserProfile.findOne({ phone: req.user.phone });
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    const rate = user.callRate?.coinsPerMinute || 5;
-    const discount = user.callDiscountPercent || 0;
-    const effectiveRate = rate - (rate * discount) / 100;
+    const baseRate = user.callRate?.coinsPerMinute || 5;
 
-    if (effectiveRate <= 0) {
-      return res.json({ remainingMinutes: Infinity });
+// 🎧 If audio call, make it cheaper
+let rate = baseRate;
+if (user.activeCall.callType === "audio") {
+  rate = Math.ceil(baseRate * 0.6); // 40% cheaper audio
+}
+
+const discount = user.callDiscountPercent || 0;
+const effectiveRate = rate - (rate * discount) / 100;
+
+
+    if (effectiveRate <= 0 || user.callTokens <= 0) {
+      return res.json({ remainingMinutes: 0 });
     }
 
     const remainingMinutes = Math.floor(user.callTokens / effectiveRate);
 
     res.json({
+      remainingMinutes,
       callTokens: user.callTokens,
       coinsPerMinute: rate,
-      effectiveRate,
-      remainingMinutes
+      effectiveRate
     });
 
   } catch (err) {
@@ -877,6 +1087,7 @@ app.get("/api/call/remaining-time", isLoggedIn, async (req, res) => {
     res.status(500).json({ error: "Failed to compute remaining time" });
   }
 });
+
 
 
 
