@@ -924,7 +924,8 @@ app.get("/admin/users/new", isAdmin, (req, res) => {
   res.render("admin/add_user.ejs");
 });
 
-app.post("/admin/users", isAdmin, async (req, res) => {
+app.post("/admin/users", isAdmin, upload.single("image"), async (req, res) => {
+
   try {
     const newUser = await AdminUserProfile.create({
       createdByAdmin: req.user._id,
@@ -941,6 +942,7 @@ app.post("/admin/users", isAdmin, async (req, res) => {
 
       // ABOUT
       about: req.body.about,
+      image: req.file?.path || null, 
       expertise: req.body.expertise
         ? req.body.expertise.split(",").map(e => e.trim())
         : [],
