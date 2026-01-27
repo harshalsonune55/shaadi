@@ -1,0 +1,162 @@
+<%- layout("layouts/navbar.ejs") %>
+
+<div class="max-w-6xl mx-auto mt-12 bg-white shadow-2xl rounded-2xl p-10 border border-gray-200">
+
+  <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+    ➕ Create New User Profile
+  </h2>
+
+  <form action="/admin/users" method="POST" class="space-y-12">
+
+    <!-- BASIC DETAILS -->
+    <section>
+      <h3 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">👤 Basic Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <input name="first_name" placeholder="First Name" required class="form-input">
+        <input name="last_name" placeholder="Last Name" required class="form-input">
+        <input name="phone" placeholder="Phone" required class="form-input">
+        <input name="age" type="number" placeholder="Age" class="form-input">
+        <input name="gender" placeholder="Gender" class="form-input">
+        <input name="address" placeholder="Address" class="form-input">
+        <input name="work" placeholder="Work" class="form-input">
+        <input name="Education" placeholder="Education" class="form-input">
+      </div>
+    </section>
+
+    <!-- ABOUT + INTERESTS -->
+    <section>
+      <h3 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">🧠 About & Preferences</h3>
+      <div class="space-y-5">
+        <textarea name="about" placeholder="About user..." class="form-textarea"></textarea>
+        <input name="expertise" placeholder="Expertise (comma separated)" class="form-input">
+        <input name="interests" placeholder="Interests (comma separated)" class="form-input">
+      </div>
+    </section>
+
+    <!-- SUBSCRIPTION & VERIFICATION -->
+    <section>
+      <h3 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">🔐 Status & Verification</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <select name="isSubscribed" class="form-input">
+          <option value="">Subscribed?</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <select name="subscriptionPlan" class="form-input">
+          <option value="">Subscription Plan</option>
+          <option>Basic</option>
+          <option>Standard</option>
+          <option>Premium</option>
+          <option>Elite</option>
+          <option>NRI</option>
+        </select>
+
+        <select name="isVerified" class="form-input">
+          <option value="">Verified?</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- MATCHMAKING -->
+    <section>
+      <h3 class="text-xl font-semibold text-gray-700 mb-5 border-b pb-2">🧬 Matchmaking Details</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <select name="maritalStatus" class="form-input">
+          <option value="">Marital Status</option>
+          <option>Single</option>
+          <option>Divorced</option>
+          <option>Widowed</option>
+          <option>Separated</option>
+        </select>
+
+        <input name="religion" placeholder="Religion" class="form-input">
+        <input name="caste" placeholder="Caste" class="form-input">
+        <input name="subCaste" placeholder="Sub-Caste" class="form-input">
+        <input name="gotra" placeholder="Gotra" class="form-input">
+        <input name="citizenship" placeholder="Citizenship" class="form-input">
+        <input name="liveInCity" placeholder="City" class="form-input">
+        <input name="liveInState" placeholder="State" class="form-input">
+        <input name="birthPlace" placeholder="Birth Place" class="form-input">
+        <input name="birthDate" type="date" class="form-input">
+        <input name="heightFeet" placeholder="Height (Feet)" class="form-input">
+        <input name="heightInches" placeholder="Height (Inches)" class="form-input">
+        <input name="weight" placeholder="Weight (kg)" class="form-input">
+
+        <select name="eatingHabit" class="form-input">
+          <option value="">Eating Habit</option>
+          <option>Veg</option>
+          <option>Non-Veg</option>
+          <option>Eggetarian</option>
+        </select>
+
+        <select name="smokingHabit" class="form-input">
+          <option value="">Smoking</option>
+          <option>No</option>
+          <option>Occasionally</option>
+          <option>Yes</option>
+        </select>
+
+        <select name="drinkingHabit" class="form-input">
+          <option value="">Drinking</option>
+          <option>No</option>
+          <option>Occasionally</option>
+          <option>Yes</option>
+        </select>
+
+        <input name="fatherOccupation" placeholder="Father Occupation" class="form-input">
+        <input name="motherOccupation" placeholder="Mother Occupation" class="form-input">
+        <input name="brothers" placeholder="No. of Brothers" class="form-input">
+        <input name="sisters" placeholder="No. of Sisters" class="form-input">
+        <input name="familyAnnualIncome" placeholder="Family Income" class="form-input">
+      </div>
+
+      <textarea name="otherInfo" placeholder="Other Info" class="form-textarea mt-5"></textarea>
+    </section>
+
+    <!-- SUBMIT -->
+    <div class="flex justify-end pt-8 border-t">
+      <button type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition transform hover:scale-[1.02]">
+        ✅ Create Profile
+      </button>
+    </div>
+
+  </form>
+</div>
+<style>
+    .form-input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.75rem;
+      outline: none;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+  
+    .form-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+  
+    .form-textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 0.8rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.75rem;
+      outline: none;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+  
+    .form-textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+  </style>
+  

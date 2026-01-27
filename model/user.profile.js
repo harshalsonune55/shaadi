@@ -128,7 +128,7 @@ matchmaking: {
   maritalStatus: {
     type: String,
     enum: ["Single", "Divorced", "Widowed", "Separated"],
-    default: ""
+    default: undefined
   },
 
   birth: {
@@ -159,7 +159,7 @@ matchmaking: {
   eatingHabit: {
     type: String,
     enum: ["Veg", "Non-Veg", "Eggetarian"],
-    default: ""
+    default: undefined
   },
 
   smokingHabit: {

@@ -24,6 +24,8 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Blog from "./model/Blog.js";
 import MongoStore from "connect-mongo";
 import rateLimit from "express-rate-limit";
+import AdminUserProfile from "./model/admin.user.profile.js";
+
 
 
 configDotenv();
@@ -89,6 +91,7 @@ app.use(
     saveUninitialized: false, // ❗ change this
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URL,
+      rolling: true,
       ttl: 14 * 24 * 60 * 60
     }),
     cookie: {
@@ -369,12 +372,15 @@ app.get("/profile/matchmaking", isLoggedIn, async (req, res) => {
         { phone: req.user.phone },
         {
           matchmaking: {
-            maritalStatus: req.body.maritalStatus,
-            birth: {
-              date: req.body.birthDate,
-              time: req.body.birthTime,
-              place: req.body.birthPlace
-            },
+            maritalStatus: req.body.maritalStatus || undefined,
+  birth: {
+    date: req.body.birthDate || undefined,
+    time: req.body.birthTime || undefined,
+    place: req.body.birthPlace || undefined
+  },
+  eatingHabit: req.body.eatingHabit || undefined,
+  smokingHabit: req.body.smokingHabit || undefined,
+  drinkingHabit: req.body.drinkingHabit || undefined,
             educationDetails: req.body.educationDetails,
             occupationDetails: req.body.occupationDetails,
             religion: req.body.religion,
@@ -389,9 +395,6 @@ app.get("/profile/matchmaking", isLoggedIn, async (req, res) => {
               inches: req.body.heightInches
             },
             weight: req.body.weight,
-            eatingHabit: req.body.eatingHabit,
-            smokingHabit: req.body.smokingHabit,
-            drinkingHabit: req.body.drinkingHabit,
             fatherOccupation: req.body.fatherOccupation,
             motherOccupation: req.body.motherOccupation,
             brothers: req.body.brothers,
@@ -573,6 +576,38 @@ app.get("/call/audio/:id", isLoggedIn, async (req, res) => {
 //calling 
 
 setInterval(async () => {
+  const users = await UserProfile.find({ "activeCall.isActive": true });
+
+  for (let user of users) {
+    const rate = user.callRate?.coinsPerMinute || 5;
+    const now = new Date();
+
+    const last = user.activeCall.lastBilledAt || user.activeCall.startedAt;
+    const diff = Math.floor((now - new Date(last)) / 60000);
+
+    if (diff >= 1) {
+      if (user.callTokens >= rate) {
+        user.callTokens -= rate;
+        user.activeCall.lastBilledAt = now;
+        await user.save();
+      } else {
+        user.callHistory.push({
+          roomId: user.activeCall.roomId,
+          withPhone: user.activeCall.withPhone,
+          startedAt: user.activeCall.startedAt,
+          endedAt: now
+        });
+
+        user.activeCall = null;
+        user.callLock = false;
+        await user.save();
+      }
+    }
+  }
+}, 60000);
+
+
+setInterval(async () => {
   try {
     const now = new Date();
 
@@ -602,37 +637,9 @@ setInterval(async () => {
 }, 15000);
 
 
-setInterval(async () => {
-  const now = new Date();
 
-  const expiredCalls = await UserProfile.find({
-    "activeCall.isActive": true,
-    "activeCall.endsAt": { $lte: now }
-  });
 
-  for (let user of expiredCalls) {
-    user.activeCall.isActive = false;
-    user.activeCall = null;
-    await user.save();
-  }
-}, 10000);
 
-setInterval(async () => {
-  const staleTime = new Date(Date.now() - 15 * 60 * 1000); // 15 mins ago
-
-  await UserProfile.updateMany(
-    {
-      callLock: true,
-      "activeCall.startedAt": { $lt: staleTime }
-    },
-    {
-      $set: {
-        callLock: false,
-        activeCall: null
-      }
-    }
-  );
-}, 5 * 60 * 1000); // every 5 minutes
 
 
 
@@ -644,10 +651,15 @@ app.post("/api/call/start", isLoggedIn, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
+    // 🧹 Fix stale lock
+    if (user.callLock && !user.activeCall) {
+      user.callLock = false;
+      await user.save();
+    }
+
     if (user.callLock && user.activeCall?.isActive) {
       return res.status(400).json({ error: "Already in another call" });
     }
-    
 
     const rate = user.callRate?.coinsPerMinute || 5;
     const initialMinutes = 5;
@@ -657,9 +669,7 @@ app.post("/api/call/start", isLoggedIn, async (req, res) => {
       return res.status(400).json({ error: "Insufficient tokens for 5 minutes call" });
     }
 
-    // Deduct coins upfront
     user.callTokens -= cost;
-
     user.callLock = true;
     user.activeCall = {
       roomId,
@@ -678,6 +688,7 @@ app.post("/api/call/start", isLoggedIn, async (req, res) => {
     res.status(500).json({ error: "Failed to start call" });
   }
 });
+
 
 
 app.post("/api/call/extend", isLoggedIn, async (req, res) => {
@@ -908,6 +919,99 @@ app.post("/api/messages/send", isLoggedIn, async (req, res) => {
 //   res.render("inbox.ejs", { conversations });
 // });
 
+// more users 
+app.get("/admin/users/new", isAdmin, (req, res) => {
+  res.render("admin/add_user.ejs");
+});
+
+app.post("/admin/users", isAdmin, async (req, res) => {
+  try {
+    const newUser = await AdminUserProfile.create({
+      createdByAdmin: req.user._id,
+
+      // BASIC
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      phone: req.body.phone,
+      gender: req.body.gender,
+      age: req.body.age,
+      address: req.body.address,
+      work: req.body.work,
+      Education: req.body.Education,
+
+      // ABOUT
+      about: req.body.about,
+      expertise: req.body.expertise
+        ? req.body.expertise.split(",").map(e => e.trim())
+        : [],
+      interests: req.body.interests
+        ? req.body.interests.split(",").map(i => i.trim())
+        : [],
+
+      // STATUS
+      isSubscribed: req.body.isSubscribed === "true",
+      subscriptionPlan: req.body.subscriptionPlan || null,
+      isVerified: req.body.isVerified === "true",
+
+      // MATCHMAKING
+      matchmaking: {
+        maritalStatus: req.body.maritalStatus,
+
+        birth: {
+          date: req.body.birthDate || null,
+          place: req.body.birthPlace || null
+        },
+
+        religion: req.body.religion,
+        caste: req.body.caste,
+        subCaste: req.body.subCaste,
+        gotra: req.body.gotra,
+
+        citizenship: req.body.citizenship,
+        liveInCity: req.body.liveInCity,
+        liveInState: req.body.liveInState,
+
+        height: {
+          feet: req.body.heightFeet,
+          inches: req.body.heightInches
+        },
+
+        weight: req.body.weight,
+
+        eatingHabit: req.body.eatingHabit,
+        smokingHabit: req.body.smokingHabit,
+        drinkingHabit: req.body.drinkingHabit,
+
+        fatherOccupation: req.body.fatherOccupation,
+        motherOccupation: req.body.motherOccupation,
+
+        brothers: req.body.brothers,
+        sisters: req.body.sisters,
+
+        familyAnnualIncome: req.body.familyAnnualIncome,
+        otherInfo: req.body.otherInfo
+      }
+    });
+
+    res.redirect("/admin/users/list");
+
+  } catch (err) {
+    console.error("Admin user create error:", err);
+    res.status(500).send("Failed to add user");
+  }
+});
+
+
+
+app.get("/admin/users/list", isAdmin, async (req, res) => {
+  const users = await AdminUserProfile.find()
+    .populate("createdByAdmin", "phone")
+    .lean();
+
+  res.render("admin/users_list.ejs", { users });
+});
+
+
 //new inbox route 
 app.get("/inbox", isLoggedIn, async (req, res) => {
   const myPhone = req.user.phone;
@@ -1059,10 +1163,9 @@ app.get("/api/call/remaining-time", isLoggedIn, async (req, res) => {
 
     const baseRate = user.callRate?.coinsPerMinute || 5;
 
-// 🎧 If audio call, make it cheaper
 let rate = baseRate;
 if (user.activeCall.callType === "audio") {
-  rate = Math.ceil(baseRate * 0.6); // 40% cheaper audio
+  rate = Math.ceil(baseRate * 0.6); 
 }
 
 const discount = user.callDiscountPercent || 0;
@@ -1088,72 +1191,6 @@ const effectiveRate = rate - (rate * discount) / 100;
   }
 });
 
-
-
-
-
-// --- PROTECTED ROUTES ---
-
-// People & Profile Routes
-// app.get("/people", async (req, res) => {
-//     try {
-//         const { name, address, minAge, maxAge, gender, interest } = req.query;
-
-      
-//         // Base filter
-// let filter = {};
-
-// // Exclude logged-in user ONLY if logged in
-// if (req.user?.phone) {
-//     filter.phone = { $ne: req.user.phone };
-// }
-
-          
-
-//         // 🔍 Name filter (first or last name)
-//         if (name) {
-//             filter.$or = [
-//                 { first_name: { $regex: name, $options: "i" } },
-//                 { last_name: { $regex: name, $options: "i" } }
-//             ];
-//         }
-
-//         // 📍 Address filter
-//         if (address) {
-//             filter.address = { $regex: address, $options: "i" };
-//         }
-
-//         // ⚧ Gender filter
-//         if (gender) {
-//           filter.gender = { $regex: `^${gender}$`, $options: "i" };
-//         }
-
-//         // 🎂 Age range filter
-//         if (minAge || maxAge) {
-//             filter.age = {};
-//             if (minAge) filter.age.$gte = Number(minAge);
-//             if (maxAge) filter.age.$lte = Number(maxAge);
-//         }
-
-//         // 🎯 Interest filter (array-safe)
-//         if (interest) {
-//             filter.interests = { $in: [new RegExp(interest, "i")] };
-//         }
-
-//         // 🔎 Query database
-//         const people = await UserProfile.find(filter).lean();
-
-//         // Render page
-//         res.render("people", {
-//             people,
-//             query: req.query
-//         });
-
-//     } catch (err) {
-//         console.error("Error fetching filtered people:", err);
-//         res.status(500).send("Error loading people list.");
-//     }
-// });
 
 app.get("/people", async (req, res) => {
   try {

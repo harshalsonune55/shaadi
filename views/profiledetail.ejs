@@ -177,6 +177,21 @@
       <p><strong>Religion:</strong>
         <%= person.matchmaking?.religion || "Not specified" %>
       </p>
+      <p><strong>Birth Date:</strong>
+        <% if (person.matchmaking?.birth?.date) { %>
+          <%= new Date(person.matchmaking.birth.date).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+          }) %>
+        <% } else { %>
+          Not specified
+        <% } %>
+      </p>
+      
+      <p><strong>Birth Place:</strong>
+        <%= person.matchmaking?.birth?.place || "Not specified" %>
+      </p>
 
       <p><strong>Caste:</strong>
         <%= person.matchmaking?.caste || "Not specified" %>
@@ -399,37 +414,54 @@
             </a>
           
             <!-- CALL BUTTON -->
-            <% if (!canViewPremium) { %>
-              <!-- Locked for Free & Basic -->
-              <button
-                class="relative w-full py-3 rounded-lg
-                       bg-gray-200 text-gray-500 font-bold
-                       cursor-not-allowed"
-                title="Upgrade to Premium to unlock calling"
-              >
-                🔒 Call Now
-              </button>
-            <% } else { %>
-              <!-- Premium & Elite -->
-              <a
-  href="#"
-  onclick="sendCallInvite('<%= person._id %>', '<%= person.phone %>')"
-  class="w-full py-3 rounded-lg
-         bg-green-600 text-white font-bold
-         text-center block
-         hover:bg-green-700 transition"
->
-  📞 Start Video Call
-</a>
-<a href="/call/audio/<%= person._id %>" 
-  class="bg-green-600 text-white px-4 py-2 rounded">
-  📞 Audio Call
-</a>
+<!-- CALL BUTTONS -->
+<% if (!canViewPremium) { %>
+  <!-- Locked Button -->
+  <div class="relative group w-full">
+    <button
+      class="w-full py-3 rounded-xl bg-gray-200 text-gray-500 font-semibold cursor-not-allowed flex items-center justify-center gap-2"
+    >
+      🔒 Call Locked
+    </button>
+    <div class="absolute inset-0 rounded-xl border border-dashed border-gray-400"></div>
+  </div>
+<% } else { %>
 
+  <!-- VIDEO CALL -->
+  <a
+    href="#"
+    onclick="sendCallInvite('<%= person._id %>', '<%= person.phone %>')"
+    class="group relative w-full py-3 rounded-xl
+           bg-gradient-to-r from-green-500 to-emerald-600
+           text-white font-bold text-center block
+           shadow-lg hover:shadow-xl transition-all duration-300
+           hover:scale-[1.02]"
+  >
+    <span class="relative z-10 flex items-center justify-center gap-2">
+      📹 Start Video Call
+    </span>
+    <span class="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition"></span>
+  </a>
 
+  <!-- AUDIO CALL -->
+  <a
+    href="/call/audio/<%= person._id %>"
+    class="group relative w-full py-3 rounded-xl
+           bg-gradient-to-r from-blue-500 to-indigo-600
+           text-white font-bold text-center block
+           shadow-lg hover:shadow-xl transition-all duration-300
+           hover:scale-[1.02]"
+  >
+    <span class="relative z-10 flex items-center justify-center gap-2">
+      🎧 Start Audio Call
+    </span>
+    <span class="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition"></span>
+  </a>
 
+<% } %>
 
-            <% } %>
+  
+
           
           </div>
           <% if (!canViewPremium) { %>
