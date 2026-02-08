@@ -391,7 +391,25 @@ app.get("/profile/matchmaking", isLoggedIn, async (req, res) => {
   });
   
   
-
+  app.post("/api/call/deduct-tokens", isLoggedIn, async (req, res) => {
+    const { tokens } = req.body;
+  
+    const profile = await UserProfile.findOne({ phone: req.user.phone });
+  
+    if (!profile || profile.callTokens < tokens) {
+      return res.json({ success: false });
+    }
+  
+    profile.callTokens -= tokens;
+    await profile.save();
+  
+    res.json({
+      success: true,
+      remaining: profile.callTokens
+    });
+  });
+  
+  
 
   app.get("/admin/profile/:id", isAdmin, async (req, res) => {
     try {

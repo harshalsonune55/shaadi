@@ -145,19 +145,19 @@ matchmaking: {
   eatingHabit: {
     type: String,
     enum: ["Veg", "Non-Veg", "Eggetarian"],
-    default: ""
+    default: null
   },
 
   smokingHabit: {
     type: String,
     enum: ["No", "Occasionally", "Yes"],
-    default: "No"
+    default: null
   },
 
   drinkingHabit: {
     type: String,
     enum: ["No", "Occasionally", "Yes"],
-    default: "No"
+    default: null
   },
 
   fatherOccupation: String,

@@ -277,6 +277,11 @@
           <p><strong>Email:</strong> <%= user.email %></p>
           <p><strong>Gender:</strong> <%= userProfile.gender || "Not specified" %></p>
           <p><strong>Age:</strong> <%= userProfile.age || "N/A" %></p>
+          <p>
+            <strong>Phone:</strong>
+            <%= userProfile.phone || "Not available" %>
+          </p>
+          
           <p><strong>Education:</strong> <%= userProfile.Education || "Not specified" %></p>
         </div>
       </div>
@@ -300,6 +305,27 @@
       
             <p><strong>Marital Status:</strong> <%= userProfile.matchmaking.maritalStatus || "—" %></p>
             <p><strong>Religion:</strong> <%= userProfile.matchmaking.religion || "—" %></p>
+            <p>
+              <strong>Birth Date:</strong>
+              <%= userProfile.matchmaking?.birth?.date
+                ? new Date(userProfile.matchmaking.birth.date).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                  })
+                : "—" %>
+            </p>
+            
+            <p>
+              <strong>Birth Time:</strong>
+              <%= userProfile.matchmaking?.birth?.time || "—" %>
+            </p>
+            
+            <p>
+              <strong>Birth Place:</strong>
+              <%= userProfile.matchmaking?.birth?.place || "—" %>
+            </p>
+            
       
             <p><strong>Caste:</strong> <%= userProfile.matchmaking.caste || "—" %></p>
             <p><strong>Sub Caste:</strong> <%= userProfile.matchmaking.subCaste || "—" %></p>

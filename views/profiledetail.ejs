@@ -194,6 +194,27 @@
 <%= person.matchmaking?.height?.inches || "-" %> in
 
       </p>
+      <p>
+        <strong>Birth Date:</strong>
+        <%= userProfile.matchmaking?.birth?.date
+          ? new Date(userProfile.matchmaking.birth.date).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric"
+            })
+          : "—" %>
+      </p>
+      
+      <p>
+        <strong>Birth Time:</strong>
+        <%= userProfile.matchmaking?.birth?.time || "—" %>
+      </p>
+      
+      <p>
+        <strong>Birth Place:</strong>
+        <%= userProfile.matchmaking?.birth?.place || "—" %>
+      </p>
+      
 
       <p><strong>Weight:</strong>
         <%= person.matchmaking?.weight || "N/A" %> kg
