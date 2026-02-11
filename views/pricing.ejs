@@ -1,329 +1,241 @@
-
 <%- layout("/layouts/navbar.ejs") %>
 
-<!-- PAGE WRAPPER -->
-<div id="page" class="min-h-screen bg-gradient-to-br from-pink-500 to-pink-800 py-16 px-4 opacity-0">
+<div class="min-h-screen bg-gradient-to-br from-pink-500 to-pink-800 py-16 px-4">
 
   <div class="max-w-7xl mx-auto">
 
     <!-- HEADER -->
-    <div class="text-center mb-12 animate-fade-up">
-      <h1 class="text-white text-4xl md:text-5xl font-bold mb-3">
+    <div class="text-center mb-16">
+      <h1 class="text-white text-5xl font-bold mb-4">
         Choose your right plan!
       </h1>
-      <p class="text-white/90 text-lg max-w-2xl mx-auto">
+
+      <p class="text-white/90 text-lg mb-3">
         Select from best plans, ensuring a perfect match.
-        Need more or less? Customize your subscription seamlessly.
+        Customize your subscription seamlessly.
+      </p>
+
+      <p class="text-yellow-200 font-semibold text-sm bg-white/10 inline-block px-4 py-2 rounded-full">
+        Coins Recharge Must require for Chat / Call / Video Call with any Subscription
       </p>
     </div>
 
+    <!-- TOP 3 PLANS -->
+    <div class="grid gap-8 md:grid-cols-3">
 
-    <!-- PLANS WRAPPER -->
-<div class="space-y-16">
-
-  <!-- TOP 3 PLANS -->
-  <div class="grid gap-8 md:grid-cols-3 justify-center">
-          <!-- BASIC -->
-          <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col animate-fade-up delay-200">
-            <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
-              Basic
-            </span>
-    
-            <p class="text-gray-600 mb-6">Perfect for getting started</p>
-    
-            <h2 class="text-4xl font-bold text-gray-900">₹9</h2>
-            <p class="text-gray-500 mb-6">/week</p>
-    
-            <ul class="space-y-3 text-gray-700 flex-1">
-              <li>✓ View up to 50 profiles</li>
-              <li>✓ Send 10 interests per day</li>
-              <li>✓<strong>10% discount in All call charges (video/audio)</strong></li>
-              <li>✓ Basic profile visibility</li>
-              <li>✓ Unlimited chat one week</li>
-              <li>✓ Email support</li>
-              <li class="line-through text-gray-400">Priority customer support</li>
-              <li class="line-through text-gray-400">Profile highlighting</li>
-              <li class="line-through text-gray-400">Advanced search filters</li>
-            </ul>
-    
-            <button onclick="subscribe('Basic',9)"
-              class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
-              Get started
-            </button>
-          </div>
-    
-          <!-- PREMIUM -->
-          <div class="relative bg-white rounded-2xl p-8 shadow-2xl scale-105 border-2 border-red-500 flex flex-col animate-fade-up delay-300">
-            <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs font-bold px-4 py-1 rounded-full">
-              MOST POPULAR
-            </span>
-    
-            <span class="bg-pink-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
-              standard
-            </span>
-    
-            <p class="text-gray-600 mb-6">Best value for serious seekers</p>
-    
-            <h2 class="text-4xl font-bold text-gray-900">₹999</h2>
-            <p class="text-gray-500 mb-6">/week</p>
-    
-            <ul class="space-y-3 text-gray-700 flex-1">
-              <li>✓ View unlimited profiles</li>
-              <li>✓ Send unlimited interests</li>
-              <li>✓ Enhanced profile visibility</li>
-              <li>✓ Unlimited call one week</li>
-              <li>✓ Priority email & phone support</li>
-              <li>✓ Profile highlighting (3x per week)</li>
-              <li>✓ Advanced search filters</li>
-              <li>✓ See who viewed your profile</li>
-            </ul>
-    
-            <button onclick="subscribe('standard',999)"
-              class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
-              Choose standard
-            </button>
-          </div>
-    
-          <!-- ELITE -->
-          <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col animate-fade-up delay-400">
-            <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
-              Premium
-            </span>
-    
-            <p class="text-gray-600 mb-6">Complete matrimonial solution</p>
-    
-            <h2 class="text-4xl font-bold text-gray-900">₹2999</h2>
-            <p class="text-gray-500 mb-6">/month</p>
-    
-            <ul class="space-y-3 text-gray-700 flex-1">
-              <li>✓ Everything in Premium</li>
-              <li>✓ Featured profile placement</li>
-              <li>✓ unlimited call/chat for one month</li>
-              <li>✓ Personalized match recommendations</li>
-              <li>✓ Profile verification badge</li>
-              <li>✓ Background verification assistance</li>
-              <li>✓ Exclusive matchmaking events</li>
-              <li>✓ 24/7 priority support</li>
-            </ul>
-    
-            <button onclick="subscribe('premium',2999)"
-              class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-red-700 transition">
-              choose premium
-            </button>
-          </div>
-  </div>
-
-  <!-- ELITE & NRI (CENTERED) -->
-  <div class="flex flex-col md:flex-row gap-8 justify-center items-stretch">
-    <!-- ELITE -->
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full flex flex-col overflow-hidden border border-pink-500 animate-fade-up delay-500 hover:scale-[1.02] transition">
-
-      <!-- IMAGE HEADER -->
-      <div class="relative h-40">
-        <img src="/images/elite.jpg" alt="Elite Plan"
-          class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-pink-600/40"></div>
-    
-        <span class="absolute top-4 left-4 bg-pink-600 text-white px-4 py-1 rounded-full text-sm font-bold">
-          Elite
+      <!-- BASIC -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col">
+        <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          Basic
         </span>
+
+        <p class="text-gray-600 mb-6">Perfect for getting started</p>
+
+        <h2 class="text-4xl font-bold text-gray-900">₹499</h2>
+        <p class="text-gray-500 mb-6">One Month</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ View up to 50 profiles</li>
+          <li>✓ Send 10 interests per day</li>
+          <li>✓ Unlimited Chat / Call will start</li>
+          <li>✓ Email support</li>
+          <li>✓ Profile highlighting</li>
+        </ul>
+
+        <button onclick="subscribe('Basic',499)"
+          class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-pink-700 transition">
+          Get started
+        </button>
       </div>
-    
-      <!-- CONTENT -->
-      <div class="p-8 flex flex-col flex-1">
-        <p class="text-gray-600 mb-4 text-sm uppercase tracking-wide">
-          Premium Matchmaking
-        </p>
-    
-        <h2 class="text-4xl font-extrabold text-gray-900">₹5999</h2>
-        <p class="text-gray-500 mb-6">/ 6 Months</p>
-    
-        <ul class="space-y-3 text-gray-700 flex-1 text-sm">
-          <li>✓ Unlimited profile views</li>
-          <li>✓ Unlimited interests</li>
-          <li>✓ <strong>50% OFF</strong> voice & video calls</li>
+
+      <!-- STANDARD -->
+      <div class="relative bg-white rounded-2xl p-8 shadow-2xl border-2 border-pink-600 flex flex-col">
+
+        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs font-bold px-4 py-1 rounded-full">
+          MOST POPULAR
+        </span>
+
+        <span class="bg-pink-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          Standard
+        </span>
+
+        <p class="text-gray-600 mb-6">Best value for serious seekers</p>
+
+        <h2 class="text-4xl font-bold text-gray-900">₹999</h2>
+        <p class="text-gray-500 mb-6">One Month</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ View up to 100 profiles</li>
+          <li>✓ Send 50 interests per day</li>
+          <li>✓ 20% Discount in all Chat / Call Charges</li>
+          <li>✓ Unlimited Video Call will Start</li>
+          <li>✓ Priority email & phone support</li>
+          <li>✓ Profile highlighting (3x per week)</li>
+          <li>✓ Advanced search filters</li>
+          <li>✓ See who viewed your profile</li>
+        </ul>
+
+        <button onclick="subscribe('standard',999)"
+          class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-pink-700 transition">
+          Choose standard
+        </button>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="bg-white rounded-2xl p-8 shadow-xl flex flex-col">
+        <span class="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 w-fit">
+          Premium
+        </span>
+
+        <p class="text-gray-600 mb-6">Complete matrimonial solution</p>
+
+        <h2 class="text-4xl font-bold text-gray-900">₹1999</h2>
+        <p class="text-gray-500 mb-6">One Month</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ View unlimited profiles</li>
+          <li>✓ Send unlimited interests</li>
+          <li>✓ 30% Discount in all Chat / Video Call Charges</li>
           <li>✓ Featured profile placement</li>
-          <li>✓ Unlimited chat (6 months)</li>
-          <li>✓ Personalized match suggestions</li>
-          <li>✓ Dedicated relationship manager</li>
-          <li>✓ Background verification</li>
+          <li>✓ Unlimited chat for one month</li>
+          <li>✓ Personalized match recommendations</li>
+          <li>✓ Profile verification badge</li>
+          <li>✓ Our Staff will Assist you for Matches</li>
           <li>✓ 24/7 priority support</li>
         </ul>
-    
-        <button
-          onclick="subscribe('Elite',5999)"
-          class="mt-8 w-full py-3 rounded-full bg-gradient-to-r from-pink-600 to-red-600 text-white font-bold hover:opacity-90 transition">
-          Choose Elite
+
+        <button onclick="subscribe('Premium',1999)"
+          class="mt-8 w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-pink-700 transition">
+          Choose premium
         </button>
       </div>
-    </div>
-    <!-- NRI -->
-    <div class="bg-black rounded-3xl shadow-2xl max-w-md w-full flex flex-col overflow-hidden border border-yellow-500 animate-fade-up delay-500 hover:scale-[1.02] transition">
 
-      <!-- IMAGE HEADER -->
-      <div class="relative h-40">
-        <img src="/images/nri.jpeg" alt="NRI Plan"
-          class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-yellow-600/40"></div>
-    
-        <span class="absolute top-4 left-4 bg-yellow-500 text-black px-4 py-1 rounded-full text-sm font-bold">
-          NRI Exclusive
-        </span>
-      </div>
-    
-      <!-- CONTENT -->
-      <div class="p-8 flex flex-col flex-1 text-white">
-        <p class="text-gray-300 mb-4 text-sm uppercase tracking-wide">
-          Global Matchmaking
-        </p>
-    
-        <h2 class="text-4xl font-extrabold text-yellow-400">₹5999</h2>
-        <p class="text-gray-400 mb-6">/ 6 Months</p>
-    
-        <ul class="space-y-3 text-gray-200 flex-1 text-sm">
-          <li>✓ Unlimited profile views</li>
-          <li>✓ Unlimited interests</li>
-          <li>✓ <strong>50% OFF</strong> international calls</li>
-          <li>✓ Featured global profile placement</li>
-          <li>✓ Unlimited chat (6 months)</li>
-          <li>✓ NRI-focused match recommendations</li>
-          <li>✓ Dedicated NRI relationship manager</li>
-          <li>✓ Background & document verification</li>
-          <li>✓ 24/7 global support</li>
+    </div>
+
+    <!-- ELITE & NRI -->
+    <div class="grid md:grid-cols-2 gap-10 mt-16">
+
+      <!-- ELITE -->
+      <div class="bg-white rounded-3xl shadow-2xl p-8 flex flex-col border border-pink-500">
+        <h3 class="text-2xl font-bold text-pink-600 mb-4">Elite</h3>
+
+        <h2 class="text-4xl font-bold text-gray-900">
+          ₹3999 / ₹6999
+        </h2>
+        <p class="text-gray-500 mb-6">3 Months / 6 Months</p>
+
+        <ul class="space-y-3 text-gray-700 flex-1">
+          <li>✓ View unlimited profiles</li>
+          <li>✓ Send unlimited interests</li>
+          <li>✓ 50% Discount in all Call Charges (Voice / Video)</li>
+          <li>✓ Featured profile placement</li>
+          <li>✓ Unlimited chat for three / six months</li>
+          <li>✓ Personalized match recommendations</li>
+          <li>✓ Your A/c Manager assist You for Match</li>
+          <li>✓ Background verification assistance</li>
+          <li>✓ 24/7 priority support</li>
         </ul>
-    
-        <button
-          onclick="subscribe('NRI',5999)"
-          class="mt-8 w-full py-3 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-bold hover:opacity-90 transition">
-          Choose NRI Plan
-        </button>
-      </div>
-    </div>
-    
-  </div>
 
-</div>
-
-    <!-- TESTIMONIALS -->
-    <div class="mt-24 bg-white rounded-3xl p-12 shadow-xl animate-fade-up delay-500">
-      <h2 class="text-3xl font-bold text-red-700 text-center mb-10">
-        ❤️ Success Stories
-      </h2>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
-          <p class="italic text-gray-700 mb-4">
-            "Found my soulmate within 3 months! Premium was totally worth it."
-          </p>
-          <p class="font-semibold text-red-700">Anjali & Rajesh</p>
-          <p class="text-sm text-gray-500">Married in 2025</p>
-        </div>
-
-        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
-          <p class="italic text-gray-700 mb-4">
-            "premium plan gave us personal guidance. Best decision ever!"
-          </p>
-          <p class="font-semibold text-red-700">Simran & Advin</p>
-          <p class="text-sm text-gray-500">Married in 2025</p>
-        </div>
-
-        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
-          <p class="italic text-gray-700 mb-4">
-            "Advanced filters helped me find someone with shared values."
-          </p>
-          <p class="font-semibold text-red-700">Ravi & Neha</p>
-          <p class="text-sm text-gray-500">Married in 2025</p>
+        <div class="flex gap-4 mt-6">
+          <button onclick="subscribe('Elite-3',3999)"
+            class="w-full py-3 rounded-full bg-pink-600 text-white font-bold hover:bg-pink-700 transition">
+            Choose 3 Months
+          </button>
+          <button onclick="subscribe('Elite-6',6999)"
+            class="w-full py-3 rounded-full bg-pink-800 text-white font-bold hover:bg-pink-900 transition">
+            Choose 6 Months
+          </button>
         </div>
       </div>
+
+      <!-- NRI -->
+      <div class="bg-black rounded-3xl shadow-2xl p-8 flex flex-col border border-yellow-500 text-white">
+        <h3 class="text-2xl font-bold text-yellow-400 mb-4">NRI</h3>
+
+        <h2 class="text-4xl font-bold text-yellow-400">
+          ₹3999 / ₹6999
+        </h2>
+        <p class="text-gray-400 mb-6">3 Months / 6 Months</p>
+
+        <ul class="space-y-3 text-gray-200 flex-1">
+          <li>✓ View unlimited profiles</li>
+          <li>✓ Send unlimited interests</li>
+          <li>✓ 50% Discount in all Call Charges (Voice / Video)</li>
+          <li>✓ Featured profile placement</li>
+          <li>✓ Unlimited chat for three / six months</li>
+          <li>✓ Personalized match recommendations</li>
+          <li>✓ Your A/c Manager assist You for Match</li>
+          <li>✓ Background verification assistance</li>
+          <li>✓ 24/7 priority support</li>
+        </ul>
+
+        <div class="flex gap-4 mt-6">
+          <button onclick="subscribe('NRI-3',3999)"
+            class="w-full py-3 rounded-full bg-yellow-400 text-black font-bold hover:bg-yellow-500 transition">
+            Choose 3 Months
+          </button>
+          <button onclick="subscribe('NRI-6',6999)"
+            class="w-full py-3 rounded-full bg-yellow-600 text-black font-bold hover:bg-yellow-700 transition">
+            Choose 6 Months
+          </button>
+        </div>
+      </div>
+
     </div>
 
   </div>
 </div>
 
-<!-- ANIMATION + LOADER SCRIPT -->
-<style>
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-up {
-  animation: fadeUp 0.8s ease forwards;
-}
-.delay-100 { animation-delay: .1s }
-.delay-200 { animation-delay: .2s }
-.delay-300 { animation-delay: .3s }
-.delay-400 { animation-delay: .4s }
-.delay-500 { animation-delay: .5s }
-</style>
-
-<script>
-  window.addEventListener("load", () => {
-    document.getElementById("page").classList.remove("opacity-0");
-  });
-
-  
-</script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
-  const isLoggedIn = <%= user ? "true" : "false" %>;
+const isLoggedIn = <%= user ? "true" : "false" %>;
 
-  async function subscribe(plan, price) {
-    // 🚫 Not logged in → redirect
-    if (!isLoggedIn) {
-      window.location.href = "/login?redirect=/pricing";
-      return;
-    }
+async function subscribe(plan, price) {
 
-    try {
-      // 1️⃣ Create Razorpay order
-      const res = await fetch("/create-order", {
+  if (!isLoggedIn) {
+    window.location.href = "/login?redirect=/pricing";
+    return;
+  }
+
+  const res = await fetch("/create-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount: price })
+  });
+
+  const { orderId } = await res.json();
+
+  const options = {
+    key: "<%= process.env.Razor_key_id %>",
+    amount: price * 100,
+    currency: "INR",
+    name: "Shaadiwali",
+    description: plan + " Plan",
+    order_id: orderId,
+    handler: async function (response) {
+
+      const verifyRes = await fetch("/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: price })
+        body: JSON.stringify({
+          ...response,
+          plan
+        })
       });
 
-      if (!res.ok) throw new Error("Order creation failed");
-
-      const { orderId } = await res.json();
-
-      // 2️⃣ Open Razorpay
-      const options = {
-        key: "<%= process.env.Razor_key_id %>",
-        amount: price * 100,
-        currency: "INR",
-        name: "Shaadiwali",
-        description: `${plan} Plan`,
-        order_id: orderId,
-        handler: async function (response) {
-          const verifyRes = await fetch("/verify-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-      ...response,
-      plan   
-    })
-          });
-
-          const result = await verifyRes.json();
-          if (result.success) {
-            alert("🎉 Subscription activated!");
-            window.location.reload();
-          } else {
-            alert("Payment verification failed");
-          }
-        },
-        theme: { color: "#E11D48" }
-      };
-
-      new Razorpay(options).open();
-
-    } catch (err) {
-      console.error(err);
-      alert("Payment failed. Please try again.");
+      const result = await verifyRes.json();
+      if (result.success) {
+        alert("🎉 Subscription activated!");
+        window.location.reload();
+      } else {
+        alert("Payment verification failed");
+      }
     }
-  }
-</script>
+  };
 
+  new Razorpay(options).open();
+}
+</script>
 
 <%- include("layouts/footer.ejs") %>

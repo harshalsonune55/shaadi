@@ -369,9 +369,10 @@ app.get("/profile/matchmaking", isLoggedIn, async (req, res) => {
               inches: req.body.heightInches
             },
             weight: req.body.weight,
-            eatingHabit: req.body.eatingHabit,
-            smokingHabit: req.body.smokingHabit,
-            drinkingHabit: req.body.drinkingHabit,
+            eatingHabit: req.body.eatingHabit || null,
+smokingHabit: req.body.smokingHabit || null,
+drinkingHabit: req.body.drinkingHabit || null,
+
             fatherOccupation: req.body.fatherOccupation,
             motherOccupation: req.body.motherOccupation,
             brothers: req.body.brothers,
@@ -557,13 +558,17 @@ app.get("/call/:id", isLoggedIn, async (req, res) => {
   const receiver = await UserProfile.findById(req.params.id).lean();
   const myProfile = await UserProfile.findOne({ phone: req.user.phone });
 
-  if (!myProfile?.isSubscribed || !["Premium","Elite"].includes(myProfile.subscriptionPlan)) {
+  if (!myProfile?.isSubscribed) {
     return res.redirect("/pricing");
   }
 
+  const isCaller = true;
+  
+
   res.render("call.ejs", {
     receiver,
-    myProfile
+    myProfile,
+    isCaller
   });
 });
 
@@ -960,15 +965,25 @@ app.get("/people", async (req, res) => {
       const myProfile = await UserProfile.findOne({ phone: req.user.phone });
 
       if (myProfile?.isSubscribed) {
+        const unlimitedPlans = [
+          "standard",
+          "Premium",
+          "Elite-3",
+          "Elite-6",
+          "NRI-3",
+          "NRI-6"
+        ];
+        
+      
         if (myProfile.subscriptionPlan === "Basic") {
+          limit = 50;
+        } else if (myProfile.subscriptionPlan === "standard") {
           limit = 100;
-        } else if (
-          myProfile.subscriptionPlan === "Premium" ||
-          myProfile.subscriptionPlan === "Elite"
-        ) {
+        } else if (unlimitedPlans.includes(myProfile.subscriptionPlan)) {
           limit = 0; // unlimited
         }
       }
+      
     }
 
     // 🔎 Fetch profiles
@@ -1337,33 +1352,47 @@ app.post("/create-order", isLoggedIn, async (req, res) => {
 });
 
 app.post("/verify-payment", isLoggedIn, async (req, res) => {
-  const secret = process.env.Razor_key_secret;
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    plan
-  } = req.body;
-
   try {
-    const shasum = crypto.createHmac("sha256", secret);
-    shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const generated_signature = shasum.digest("hex");
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      plan
+    } = req.body;
 
+    // ✅ Verify Razorpay signature
     const generatedSignature = crypto
       .createHmac("sha256", process.env.Razor_key_secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
     if (generatedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, message: "Invalid signature" });
+      return res.status(400).json({ success: false });
     }
 
-    // ⏳ PLAN DURATION
+    // ✅ PLAN DURATION LOGIC
     let expiresAt = new Date();
-    if (plan === "Basic") expiresAt.setDate(expiresAt.getDate() + 7);
-    if (plan === "Premium") expiresAt.setDate(expiresAt.getDate() + 7);
-    if (plan === "Elite") expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+    switch (plan) {
+      case "Basic":
+      case "standard":
+      case "Premium":
+        expiresAt.setMonth(expiresAt.getMonth() + 1);
+        break;
+
+      case "Elite-3":
+      case "NRI-3":
+        expiresAt.setMonth(expiresAt.getMonth() + 3);
+        break;
+
+      case "Elite-6":
+      case "NRI-6":
+        expiresAt.setMonth(expiresAt.getMonth() + 6);
+        break;
+
+      default:
+        return res.status(400).json({ success: false });
+    }
 
     await UserProfile.findOneAndUpdate(
       { phone: req.user.phone },
@@ -1383,6 +1412,7 @@ app.post("/verify-payment", isLoggedIn, async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
+
 
 
 

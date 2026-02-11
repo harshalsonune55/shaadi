@@ -203,63 +203,71 @@
 </script>
 
 <script>
-  let FREE_TIME = 1 * 60; // 5 minutes
-  let remainingSeconds = FREE_TIME;
-  let callTimer = null;
-
   let callTokens = <%= myProfile.callTokens || 0 %>;
+  const isCaller = <%= isCaller ? "true" : "false" %>;
 
+  let remainingSeconds = 60; 
+  let callTimer = null;
+  
   function startCallTimer() {
     if (callTimer) clearInterval(callTimer);
-
+  
     callTimer = setInterval(() => {
       remainingSeconds--;
-
+  
       if (remainingSeconds <= 0) {
         clearInterval(callTimer);
+        callTimer = null;
         openExtendModal();
       }
     }, 1000);
   }
-
+  
   function openExtendModal() {
+    if (isCaller !== "true") return;
     document.getElementById("tokenCount").innerText = callTokens;
     document.getElementById("extendModal").classList.remove("hidden");
   }
-
+  
   async function selectAddon(minutes, tokensRequired) {
     if (callTokens < tokensRequired) {
       alert("❌ Not enough tokens");
       endCall();
       return;
     }
-
-    // Lock UI to avoid double click
-    document.getElementById("extendModal").classList.add("hidden");
-
-    // Deduct tokens from backend FIRST
+  
     const res = await fetch("/api/call/deduct-tokens", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tokens: tokensRequired })
     });
-
+  
     const data = await res.json();
-
+  
     if (!data.success) {
       alert("❌ Token deduction failed");
       endCall();
       return;
     }
-
-    // Update local state
+  
+    // Update tokens
     callTokens = data.remaining;
-
-    // Extend call
+  
+    // Close modal
+    document.getElementById("extendModal").classList.add("hidden");
+  
+    // Reset timer completely
     remainingSeconds = minutes * 60;
-    startCallTimer();
-  }
-
-  // Start timer after call starts
+  
+    // Restart timer cleanly
+    if (isCaller === "true") {
   startCallTimer();
-</script>
+}
+  }
+  
+  // Start first free timer
+  if (isCaller === "true") {
+  startCallTimer();
+}
+  </script>
+  
