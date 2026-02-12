@@ -27,20 +27,24 @@
   
       <p class="mb-4">Your tokens: <span id="planTokenCount"><%= userProfile.callTokens || 0 %></span></p>
   
-      <button onclick="startPaidCall(5,5)"
-        class="w-full bg-green-600 py-2 rounded mb-2 hover:bg-green-700">
-        5 Minutes (5 Tokens)
-      </button>
-  
-      <button onclick="startPaidCall(10,10)"
-        class="w-full bg-blue-600 py-2 rounded mb-2 hover:bg-blue-700">
-        10 Minutes (10 Tokens)
-      </button>
-  
-      <button onclick="startPaidCall(20,18)"
-        class="w-full bg-purple-600 py-2 rounded mb-2 hover:bg-purple-700">
-        20 Minutes (18 Tokens)
-      </button>
+      <button data-plan data-minutes="5"
+      onclick="startPaidCall(5)"
+      class="w-full bg-green-600 py-2 rounded mb-2 hover:bg-green-700">
+      5 Minutes
+    </button>
+    
+    <button data-plan data-minutes="10"
+      onclick="startPaidCall(10)"
+      class="w-full bg-blue-600 py-2 rounded mb-2 hover:bg-blue-700">
+      10 Minutes
+    </button>
+    
+    <button data-plan data-minutes="20"
+      onclick="startPaidCall(20)"
+      class="w-full bg-purple-600 py-2 rounded mb-2 hover:bg-purple-700">
+      20 Minutes
+    </button>
+    
   
       <button onclick="closePlanModal()"
         class="w-full bg-red-600 py-2 rounded hover:bg-red-700">
@@ -491,7 +495,7 @@
             <!-- Premium & Elite -->
             <a
 href="#"
-onclick="sendCallInvite('<%= person._id %>', '<%= person.phone %>')"
+onclick="sendVoiceCallInvite('<%= person._id %>')"
 class="w-full py-3 rounded-lg
        bg-green-600 text-white font-bold
        text-center block
@@ -864,7 +868,7 @@ class="w-full py-3 rounded-lg
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        openPlanModal(callUrl); // Caller directly enters call
+        openPlanModal(callUrl, "video"); // Caller directly enters call
       } else {
         alert("Failed to send call invite");
       }
@@ -877,33 +881,95 @@ class="w-full py-3 rounded-lg
   </script>
 <script>
 let selectedCallUrl = null;
+let selectedCallType = null;
 
-function openPlanModal(callUrl) {
+function openPlanModal(callUrl, callType) {
   selectedCallUrl = callUrl;
-  document.getElementById("planModal").classList.remove("hidden");
+  selectedCallType = callType;
+
+  const modal = document.getElementById("planModal");
+  const buttons = modal.querySelectorAll("button[data-plan]");
+
+  buttons.forEach(btn => {
+    const minutes = parseInt(btn.dataset.minutes);
+
+    if (callType === "voice") {
+      if (minutes === 5) btn.textContent = "5 Minutes (3 Tokens)";
+      if (minutes === 10) btn.textContent = "10 Minutes (6 Tokens)";
+      if (minutes === 20) btn.textContent = "20 Minutes (10 Tokens)";
+    } else {
+      if (minutes === 5) btn.textContent = "5 Minutes (5 Tokens)";
+      if (minutes === 10) btn.textContent = "10 Minutes (10 Tokens)";
+      if (minutes === 20) btn.textContent = "20 Minutes (18 Tokens)";
+    }
+  });
+
+  modal.classList.remove("hidden");
 }
+
 
 function closePlanModal() {
   document.getElementById("planModal").classList.add("hidden");
 }
 
-async function startPaidCall(minutes, tokensRequired) {
+async function startPaidCall(minutes) {
 
-  const res = await fetch("/api/call/deduct-tokens", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tokens: tokensRequired })
-  });
+let tokensRequired;
 
-  const data = await res.json();
-
-  if (!data.success) {
-    alert("❌ Not enough tokens");
-    return;
-  }
-
-  // Redirect with selected duration
-  window.location.href = selectedCallUrl + "?duration=" + minutes;
+if (selectedCallType === "voice") {
+  if (minutes === 5) tokensRequired = 3;
+  if (minutes === 10) tokensRequired = 6;
+  if (minutes === 20) tokensRequired = 10;
+} else {
+  if (minutes === 5) tokensRequired = 5;
+  if (minutes === 10) tokensRequired = 10;
+  if (minutes === 20) tokensRequired = 18;
 }
+
+const res = await fetch("/api/call/deduct-tokens", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ tokens: tokensRequired })
+});
+
+const data = await res.json();
+
+if (!data.success) {
+  alert("❌ Not enough tokens");
+  return;
+}
+
+window.location.href = selectedCallUrl + "?duration=" + minutes;
+}
+
 </script>
+  
+<script>
+  function sendVoiceCallInvite(receiverId) {
+  
+    const callUrl = `/voice-call/${receiverId}`;
+  
+    fetch("/api/messages/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        receiverId: receiverId,
+        message: `📞 Incoming voice call.\nClick to join: ${callUrl}`
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        openPlanModal(callUrl, "voice");
+
+      } else {
+        alert("Failed to send voice call invite");
+      }
+    })
+    .catch(err => {
+      console.error("Voice call invite error:", err);
+      alert("Voice call failed");
+    });
+  }
+  </script>
   

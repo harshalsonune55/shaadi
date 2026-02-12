@@ -1,0 +1,109 @@
+<%- layout("layouts/navbar") %>
+
+<div class="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white">
+
+  <h2 class="text-2xl font-bold mb-4">📞 Voice Call</h2>
+  <p class="mb-6">Calling <%= receiver.first_name %>...</p>
+
+  <div class="flex gap-6">
+    <button onclick="toggleMute()"
+      id="muteBtn"
+      class="bg-gray-700 px-6 py-3 rounded-full">
+      🔇 Mute
+    </button>
+
+    <button onclick="endCall()"
+      class="bg-red-600 px-6 py-3 rounded-full">
+      ❌ End Call
+    </button>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const roomId = "<%= receiver.phone %>";
+
+let localStream;
+let peerConnection;
+
+const iceServers = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+};
+
+async function startCall() {
+
+  // 🎤 AUDIO ONLY
+  localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  peerConnection = new RTCPeerConnection(iceServers);
+
+  localStream.getTracks().forEach(track =>
+    peerConnection.addTrack(track, localStream)
+  );
+
+  peerConnection.ontrack = e => {
+    const remoteAudio = new Audio();
+    remoteAudio.srcObject = e.streams[0];
+    remoteAudio.play();
+  };
+
+  peerConnection.onicecandidate = e => {
+    if (e.candidate) {
+      socket.emit("ice_candidate", { roomId, candidate: e.candidate });
+    }
+  };
+
+  socket.emit("join_call", { roomId });
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+
+  socket.emit("offer", { roomId, offer });
+}
+
+socket.on("offer", async offer => {
+  await peerConnection.setRemoteDescription(offer);
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  socket.emit("answer", { roomId, answer });
+});
+
+socket.on("answer", async answer => {
+  await peerConnection.setRemoteDescription(answer);
+});
+
+socket.on("ice_candidate", async candidate => {
+  await peerConnection.addIceCandidate(candidate);
+});
+
+socket.on("end_call", () => {
+  alert("Call ended");
+  window.location.href = "/profile";
+});
+
+function endCall() {
+  socket.emit("end_call", { roomId });
+
+  if (peerConnection) peerConnection.close();
+  if (localStream)
+    localStream.getTracks().forEach(track => track.stop());
+
+  window.location.href = "/profile";
+}
+
+let isMuted = false;
+
+function toggleMute() {
+  localStream.getAudioTracks().forEach(track => {
+    track.enabled = isMuted;
+  });
+
+  isMuted = !isMuted;
+  document.getElementById("muteBtn").innerText =
+    isMuted ? "🔊 Unmute" : "🔇 Mute";
+}
+
+startCall();
+</script>

@@ -419,6 +419,19 @@ app.post("/profile/matchmaking", isLoggedIn, async (req, res) => {
     });
   });
   
+  app.get("/voice-call/:id", isLoggedIn, async (req, res) => {
+    const receiver = await UserProfile.findById(req.params.id).lean();
+    const myProfile = await UserProfile.findOne({ phone: req.user.phone });
+  
+    if (!myProfile?.isSubscribed) {
+      return res.redirect("/pricing");
+    }
+  
+    res.render("voice-call.ejs", {
+      receiver,
+      myProfile
+    });
+  });
   
 
   app.get("/admin/profile/:id", isAdmin, async (req, res) => {
