@@ -21,6 +21,34 @@
 
 
 <div class="bg-gray-50 min-h-screen">
+  <div id="planModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50">
+    <div class="bg-gray-800 text-white rounded-xl p-6 w-96 text-center">
+      <h3 class="text-xl font-bold mb-3">⏰ Choose Call Duration</h3>
+  
+      <p class="mb-4">Your tokens: <span id="planTokenCount"><%= userProfile.callTokens || 0 %></span></p>
+  
+      <button onclick="startPaidCall(5,5)"
+        class="w-full bg-green-600 py-2 rounded mb-2 hover:bg-green-700">
+        5 Minutes (5 Tokens)
+      </button>
+  
+      <button onclick="startPaidCall(10,10)"
+        class="w-full bg-blue-600 py-2 rounded mb-2 hover:bg-blue-700">
+        10 Minutes (10 Tokens)
+      </button>
+  
+      <button onclick="startPaidCall(20,18)"
+        class="w-full bg-purple-600 py-2 rounded mb-2 hover:bg-purple-700">
+        20 Minutes (18 Tokens)
+      </button>
+  
+      <button onclick="closePlanModal()"
+        class="w-full bg-red-600 py-2 rounded hover:bg-red-700">
+        Cancel
+      </button>
+    </div>
+  </div>
+  
   <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
 
     <div class="flex-1 space-y-6">
@@ -436,16 +464,45 @@
   href="#"
   onclick="sendCallInvite('<%= person._id %>', '<%= person.phone %>')"
   class="w-full py-3 rounded-lg
-         bg-green-600 text-white font-bold
+         bg-blue-600 text-white font-bold
          text-center block
-         hover:bg-green-700 transition"
+         hover:bg-blue-700 transition"
 >
-  📞 Start Video Call
+  📹 Start Video Call
 </a>
 
 
 
             <% } %>
+          </a>
+          
+          <!-- CALL BUTTON -->
+          <% if (!canViewPremium) { %>
+            <!-- Locked for Free & Basic -->
+            <button
+              class="relative w-full py-3 rounded-lg
+                     bg-gray-200 text-gray-500 font-bold
+                     cursor-not-allowed"
+              title="Upgrade to Premium to unlock calling"
+            >
+              🔒 Call Now
+            </button>
+          <% } else { %>
+            <!-- Premium & Elite -->
+            <a
+href="#"
+onclick="sendCallInvite('<%= person._id %>', '<%= person.phone %>')"
+class="w-full py-3 rounded-lg
+       bg-green-600 text-white font-bold
+       text-center block
+       hover:bg-green-700 transition"
+>
+📞 Start Voice Calls
+</a>
+
+
+
+          <% } %>
           
           </div>
           <% if (!canViewPremium) { %>
@@ -807,7 +864,7 @@
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        window.location.href = callUrl; // Caller directly enters call
+        openPlanModal(callUrl); // Caller directly enters call
       } else {
         alert("Failed to send call invite");
       }
@@ -818,4 +875,35 @@
     });
   }
   </script>
+<script>
+let selectedCallUrl = null;
+
+function openPlanModal(callUrl) {
+  selectedCallUrl = callUrl;
+  document.getElementById("planModal").classList.remove("hidden");
+}
+
+function closePlanModal() {
+  document.getElementById("planModal").classList.add("hidden");
+}
+
+async function startPaidCall(minutes, tokensRequired) {
+
+  const res = await fetch("/api/call/deduct-tokens", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tokens: tokensRequired })
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    alert("❌ Not enough tokens");
+    return;
+  }
+
+  // Redirect with selected duration
+  window.location.href = selectedCallUrl + "?duration=" + minutes;
+}
+</script>
   

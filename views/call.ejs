@@ -101,6 +101,21 @@
         { urls: "stun:stun.l.google.com:19302" }
       ]
     };
+    let callTimer;
+let remainingSeconds = 0;
+
+function startTimer() {
+  callTimer = setInterval(() => {
+    remainingSeconds--;
+
+    if (remainingSeconds <= 0) {
+      clearInterval(callTimer);
+      alert("⏰ Call time ended");
+      endCall();
+    }
+  }, 1000);
+}
+
     
     async function startCall() {
       localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -112,8 +127,13 @@
       localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
     
       peerConnection.ontrack = e => {
-        document.getElementById("remoteVideo").srcObject = e.streams[0];
-      };
+  document.getElementById("remoteVideo").srcObject = e.streams[0];
+
+  console.log("Remote connected");
+
+
+};
+
     
       peerConnection.onicecandidate = e => {
         if (e.candidate) {
@@ -135,6 +155,7 @@
       await peerConnection.setLocalDescription(answer);
       socket.emit("answer", { roomId, answer });
     });
+    
     
     socket.on("answer", async answer => {
       await peerConnection.setRemoteDescription(answer);
@@ -199,35 +220,40 @@
     
     </script>
 <script>
-  startCall(); // start camera + connection
+const urlParams = new URLSearchParams(window.location.search);
+const selectedMinutes = parseInt(urlParams.get("duration"));
+
+
+
+startCall(); // always start camera
+
+if (selectedMinutes && !isNaN(selectedMinutes)) {
+  remainingSeconds = selectedMinutes * 60;
+  startTimer();
+}
+
+
+  // start camera + connection
 </script>
 
 <script>
   let callTokens = <%= myProfile.callTokens || 0 %>;
-  const isCaller = <%= isCaller ? "true" : "false" %>;
+  const isCaller = <%= isCaller ? true : false %>;
 
-  let remainingSeconds = 60; 
-  let callTimer = null;
+
   
-  function startCallTimer() {
-    if (callTimer) clearInterval(callTimer);
-  
-    callTimer = setInterval(() => {
-      remainingSeconds--;
-  
-      if (remainingSeconds <= 0) {
-        clearInterval(callTimer);
-        callTimer = null;
-        openExtendModal();
-      }
-    }, 1000);
-  }
+
+
   
   function openExtendModal() {
-    if (isCaller !== "true") return;
-    document.getElementById("tokenCount").innerText = callTokens;
-    document.getElementById("extendModal").classList.remove("hidden");
-  }
+  console.log("Timer ended. isCaller:", isCaller);
+
+
+
+  document.getElementById("tokenCount").innerText = callTokens;
+  document.getElementById("extendModal").classList.remove("hidden");
+}
+
   
   async function selectAddon(minutes, tokensRequired) {
     if (callTokens < tokensRequired) {
@@ -260,14 +286,11 @@
     remainingSeconds = minutes * 60;
   
     // Restart timer cleanly
-    if (isCaller === "true") {
-  startCallTimer();
-}
+    clearInterval(callTimer);
+startTimer();
+
   }
   
   // Start first free timer
-  if (isCaller === "true") {
-  startCallTimer();
-}
   </script>
   

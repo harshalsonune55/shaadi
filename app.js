@@ -176,6 +176,10 @@ app.use(async (req, res, next) => {
         
       }
     });
+    socket.on("call_time_ended", ({ roomId }) => {
+      // Send popup only to specific user
+      socket.to(roomId).emit("show_extend_popup");
+    });
       // 📞 Incoming Call Notification
   socket.on("incoming_call", ({ to, from, callerName, callUrl }) => {
     if (!to) return;
@@ -343,53 +347,58 @@ app.get("/profile/matchmaking", isLoggedIn, async (req, res) => {
 });
 
 
-  app.post("/profile/matchmaking", isLoggedIn, async (req, res) => {
-    try {
-      await UserProfile.findOneAndUpdate(
-        { phone: req.user.phone },
-        {
-          matchmaking: {
-            maritalStatus: req.body.maritalStatus,
-            birth: {
-              date: req.body.birthDate,
-              time: req.body.birthTime,
-              place: req.body.birthPlace
-            },
-            educationDetails: req.body.educationDetails,
-            occupationDetails: req.body.occupationDetails,
-            religion: req.body.religion,
-            caste: req.body.caste,
-            subCaste: req.body.subCaste,
-            gotra: req.body.gotra,
-            citizenship: req.body.citizenship,
-            liveInCity: req.body.liveInCity,
-            liveInState: req.body.liveInState,
-            height: {
-              feet: req.body.heightFeet,
-              inches: req.body.heightInches
-            },
-            weight: req.body.weight,
-            eatingHabit: req.body.eatingHabit || null,
-smokingHabit: req.body.smokingHabit || null,
-drinkingHabit: req.body.drinkingHabit || null,
+app.post("/profile/matchmaking", isLoggedIn, async (req, res) => {
+  try {
 
-            fatherOccupation: req.body.fatherOccupation,
-            motherOccupation: req.body.motherOccupation,
-            brothers: req.body.brothers,
-            sisters: req.body.sisters,
-            familyAnnualIncome: req.body.familyIncome,
-            otherInfo: req.body.otherInfo
-          }
-        },
-        { new: true, upsert: true }
-      );
-  
-      res.redirect("/profile");
-    } catch (err) {
-      console.error("Matchmaking save error:", err);
-      res.status(500).send("Failed to save matchmaking info");
-    }
-  });
+    const cleanEnum = (val) =>
+      val && val.trim() !== "" ? val.trim() : null;
+
+    const matchmakingData = {
+      maritalStatus: cleanEnum(req.body.maritalStatus),
+      birth: {
+        date: req.body.birthDate || null,
+        time: req.body.birthTime || null,
+        place: req.body.birthPlace || null
+      },
+      educationDetails: req.body.educationDetails || null,
+      occupationDetails: req.body.occupationDetails || null,
+      religion: req.body.religion || null,
+      caste: req.body.caste || null,
+      subCaste: req.body.subCaste || null,
+      gotra: req.body.gotra || null,
+      citizenship: req.body.citizenship || null,
+      liveInCity: req.body.liveInCity || null,
+      liveInState: req.body.liveInState || null,
+      height: {
+        feet: req.body.heightFeet || null,
+        inches: req.body.heightInches || null
+      },
+      weight: req.body.weight || null,
+      eatingHabit: cleanEnum(req.body.eatingHabit),
+      smokingHabit: cleanEnum(req.body.smokingHabit),
+      drinkingHabit: cleanEnum(req.body.drinkingHabit),
+      fatherOccupation: req.body.fatherOccupation || null,
+      motherOccupation: req.body.motherOccupation || null,
+      brothers: req.body.brothers || null,
+      sisters: req.body.sisters || null,
+      familyAnnualIncome: req.body.familyIncome || null,
+      otherInfo: req.body.otherInfo || null
+    };
+
+    await UserProfile.findOneAndUpdate(
+      { phone: req.user.phone },
+      { $set: { matchmaking: matchmakingData } },
+      { new: true, upsert: true, runValidators: true }
+    );
+
+    res.redirect("/profile");
+
+  } catch (err) {
+    console.error("Matchmaking save error:", err);
+    res.status(500).send("Failed to save matchmaking info");
+  }
+});
+
   
   
   app.post("/api/call/deduct-tokens", isLoggedIn, async (req, res) => {
@@ -562,8 +571,7 @@ app.get("/call/:id", isLoggedIn, async (req, res) => {
     return res.redirect("/pricing");
   }
 
-  const isCaller = true;
-  
+  const isCaller = req.query.caller === "true";
 
   res.render("call.ejs", {
     receiver,
@@ -571,6 +579,7 @@ app.get("/call/:id", isLoggedIn, async (req, res) => {
     isCaller
   });
 });
+
 
 
 app.get("/chat/:userId", isLoggedIn, async (req, res) => {
