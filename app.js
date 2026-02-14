@@ -426,6 +426,7 @@ app.post("/profile/matchmaking", isLoggedIn, async (req, res) => {
     if (!myProfile?.isSubscribed) {
       return res.redirect("/pricing");
     }
+    const duration = parseInt(req.query.duration) || 5;
   
     res.render("voice-call.ejs", {
       receiver,

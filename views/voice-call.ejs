@@ -48,6 +48,8 @@
 <script>
 const socket = io();
 const roomId = "<%= receiver.phone %>";
+const CALL_DURATION = <%= duration %>;
+
 
 let localStream;
 let peerConnection;
@@ -108,14 +110,23 @@ socket.on("end_call", () => {
 });
 
 function endCall() {
-  socket.emit("end_call", { roomId });
 
-  if (peerConnection) peerConnection.close();
-  if (localStream)
-    localStream.getTracks().forEach(track => track.stop());
+if (callTimer) clearInterval(callTimer);
 
-  window.location.href = "/profile";
+socket.emit("end_call", { roomId });
+
+if (peerConnection) {
+  peerConnection.close();
+  peerConnection = null;
 }
+
+if (localStream) {
+  localStream.getTracks().forEach(track => track.stop());
+}
+
+window.location.href = "/profile";
+}
+
 
 let isMuted = false;
 
@@ -128,6 +139,35 @@ function toggleMute() {
   document.getElementById("muteBtn").innerText =
     isMuted ? "🔊 Unmute" : "🔇 Mute";
 }
+let callTimer;
+let remainingSeconds;
 
-startCall();
+function startTimer(minutes) {
+
+  remainingSeconds = minutes * 60;
+
+  callTimer = setInterval(() => {
+
+    remainingSeconds--;
+
+    if (remainingSeconds <= 0) {
+      clearInterval(callTimer);
+      socket.emit("end_call", { roomId });
+      endCall();
+    }
+
+  }, 1000);
+}
+
+
+
+
+async function initCall() {
+  await startCall();
+  startTimer(CALL_DURATION);
+}
+
+initCall();
+
+
 </script>

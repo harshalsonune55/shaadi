@@ -442,14 +442,15 @@
 
             <!-- CHAT BUTTON -->
             <a
-              href="<%= user ? `/chat/${person._id}` : `/login?redirect=/chat/${person._id}` %>"
-              class="block w-full text-center py-3
-                     bg-gradient-to-r from-pink-500 to-red-500
-                     text-white font-bold rounded-lg
-                     hover:opacity-95 transition"
-            >
-              💬 Chat Now
-            </a>
+  href="#"
+  onclick="openChatPlanModal('<%= person._id %>')"
+  class="block w-full text-center py-3
+         bg-gradient-to-r from-pink-500 to-red-500
+         text-white font-bold rounded-lg
+         hover:opacity-95 transition"
+>
+  💬 Chat Now
+</a>
           
             <!-- CALL BUTTON -->
             <% if (!canViewPremium) { %>
@@ -920,6 +921,11 @@ if (selectedCallType === "voice") {
   if (minutes === 5) tokensRequired = 3;
   if (minutes === 10) tokensRequired = 6;
   if (minutes === 20) tokensRequired = 10;
+}else if (callType === "chat") {
+
+  if (minutes === 5) btn.textContent = "5 Minutes Chat (2 Tokens)";
+  if (minutes === 10) btn.textContent = "10 Minutes Chat (4 Tokens)";
+  if (minutes === 20) btn.textContent = "20 Minutes Chat (7 Tokens)";
 } else {
   if (minutes === 5) tokensRequired = 5;
   if (minutes === 10) tokensRequired = 10;
@@ -972,4 +978,10 @@ window.location.href = selectedCallUrl + "?duration=" + minutes;
     });
   }
   </script>
-  
+  <script>
+    function openChatPlanModal(receiverId) {
+  const chatUrl = `/chat/${receiverId}`;
+  openPlanModal(chatUrl, "chat");
+}
+
+  </script>

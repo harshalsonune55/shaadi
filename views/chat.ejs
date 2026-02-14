@@ -21,7 +21,10 @@
       <span id="timerText" class="font-bold">24:00:00</span>
     </div>
   <% } %>
-
+  <div id="chatTimer"
+  class="bg-red-600 text-white text-center py-2 font-semibold hidden">
+  ⏳ Time Remaining: <span id="remainingTime"></span>
+</div>
 
   <div id="messages" class="h-96 overflow-y-auto border rounded p-3 mb-3 bg-white">
     <% messages.forEach(msg => { %>
@@ -319,3 +322,46 @@
   });
 
 </script>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedMinutes = parseInt(urlParams.get("duration"));
+  
+  let remainingSeconds = 0;
+  let chatTimerInterval;
+  
+  if (selectedMinutes && !isNaN(selectedMinutes)) {
+    remainingSeconds = selectedMinutes * 60;
+    document.getElementById("chatTimer").classList.remove("hidden");
+    startChatTimer();
+  }
+  
+  function startChatTimer() {
+    chatTimerInterval = setInterval(() => {
+      remainingSeconds--;
+  
+      const minutes = Math.floor(remainingSeconds / 60);
+      const seconds = remainingSeconds % 60;
+  
+      document.getElementById("remainingTime").innerText =
+        `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  
+      if (remainingSeconds <= 0) {
+        clearInterval(chatTimerInterval);
+        endChatSession();
+      }
+  
+    }, 1000);
+  }
+  
+  function endChatSession() {
+    alert("⏰ Chat session ended");
+  
+    // Disable input
+    const input = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+  
+    if (input) input.disabled = true;
+    if (sendBtn) sendBtn.disabled = true;
+  }
+  </script>
+  
