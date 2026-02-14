@@ -36,6 +36,26 @@
              <a href="/">SHAADIWALI</a>
            </h1>
          </div>
+         <% if (userProfile) { %>
+          <div class="flex items-center mr-4">
+            <% 
+              const plan = userProfile.subscriptionPlan || "Free";
+              let planColor = "bg-gray-400";
+        
+              if (plan === "Basic") planColor = "bg-blue-500";
+              if (plan === "standard") planColor = "bg-indigo-500";
+              if (plan === "Premium") planColor = "bg-pink-600";
+              if (plan?.includes("Elite")) planColor = "bg-yellow-500";
+              if (plan?.includes("NRI")) planColor = "bg-purple-600";
+            %>
+        
+            <span class="<%= planColor %> text-white text-xs px-3 py-1 rounded-full font-semibold shadow-md animate-pulse">
+              <i class="fa-solid fa-crown mr-1"></i>
+              <%= plan %>
+            </span>
+          </div>
+        <% } %>
+        
  
          <!-- Hamburger button for mobile -->
          <button id="menu-btn" class="text-gray-600 text-2xl md:hidden focus:outline-none">
@@ -44,6 +64,7 @@
  
          <!-- Navbar links -->
          <nav id="menu" class="hidden md:flex items-center space-x-6 text-gray-700 font-medium">
+
            <a href="/" class="flex flex-col items-center hover:text-pink-600">
              <i class="fa-solid fa-house text-xl mb-1"></i>
              Home
@@ -69,6 +90,7 @@
             </a>
 
            <% } else { %>
+            
             
             <a href="/people" class="flex flex-col items-center hover:text-pink-600">
               <i class="fa-solid fa-user-group text-xl mb-1"></i>
@@ -154,6 +176,25 @@ class="hidden md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-50"
     <i class="fa-solid fa-house text-pink-600"></i>
     <span>Home</span>
   </a>
+  <% if (userProfile) { %>
+    <div class="col-span-2 flex justify-center mb-3">
+      <% 
+        const plan = userProfile.subscriptionPlan || "Free";
+        let planColor = "bg-gray-400";
+  
+        if (plan === "Basic") planColor = "bg-blue-500";
+        if (plan === "standard") planColor = "bg-indigo-500";
+        if (plan === "Premium") planColor = "bg-pink-600";
+        if (plan?.includes("Elite")) planColor = "bg-yellow-500";
+        if (plan?.includes("NRI")) planColor = "bg-purple-600";
+      %>
+  
+      <span class="<%= planColor %> text-white text-sm px-4 py-1 rounded-full font-semibold shadow-md">
+        👑 <%= plan %> Plan
+      </span>
+    </div>
+  <% } %>
+  
 
   <% if (!user) { %>
 
