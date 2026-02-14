@@ -551,7 +551,20 @@ app.post("/verify-otp", async (req, res) => {
     }
   });
 
-
+  app.post("/api/messages/delete-call-message", isLoggedIn, async (req, res) => {
+    try {
+      const { messageId } = req.body;
+  
+      await Chat.findByIdAndDelete(messageId);
+  
+      res.json({ success: true });
+  
+    } catch (err) {
+      console.error("Delete call message error:", err);
+      res.status(500).json({ success: false });
+    }
+  });
+  
   
  
 //message routes

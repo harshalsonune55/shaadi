@@ -34,8 +34,13 @@
             <%= msg.senderPhone === user.phone ? 'bg-pink-500 text-white' : 'bg-gray-200' %>">
             <%- msg.message.replace(
   /(\/(call|voice-call)\/[a-zA-Z0-9]+)/g,
-  '<a href="$1" class="text-blue-600 underline font-semibold">Join Call</a>'
+  `<a href="$1"
+     class="join-call-link text-blue-600 underline font-semibold"
+     data-message-id="${msg._id}">
+     Join Call
+   </a>`
 ) %>
+
 
 
           </span>
@@ -414,4 +419,37 @@ if (selectedMinutes && !isNaN(selectedMinutes)) {
 }
 
   </script>
-  
+  <script>
+    document.addEventListener("click", async function(e) {
+    
+      const link = e.target.closest(".join-call-link");
+      if (!link) return;
+    
+      e.preventDefault(); // stop default redirect
+    
+      const messageId = link.dataset.messageId;
+      const callUrl = link.getAttribute("href");
+    
+      try {
+    
+        // OPTIONAL: delete from DB
+        await fetch("/api/messages/delete-call-message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messageId })
+        });
+    
+      } catch (err) {
+        console.error("Delete error:", err);
+      }
+    
+      // 🧹 Remove message bubble visually
+      const bubble = link.closest(".mb-2");
+      if (bubble) bubble.remove();
+    
+      // 🚀 Redirect to call
+      window.location.href = callUrl;
+    
+    });
+    </script>
+    
