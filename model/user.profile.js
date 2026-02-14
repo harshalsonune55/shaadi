@@ -114,7 +114,7 @@ matchmaking: {
   maritalStatus: {
     type: String,
     enum: ["Single", "Divorced", "Widowed", "Separated"],
-    default: ""
+    default: null
   },
 
   birth: {

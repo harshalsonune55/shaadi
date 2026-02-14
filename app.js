@@ -430,7 +430,8 @@ app.post("/profile/matchmaking", isLoggedIn, async (req, res) => {
   
     res.render("voice-call.ejs", {
       receiver,
-      myProfile
+      myProfile,
+      duration
     });
   });
   

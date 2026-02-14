@@ -21,7 +21,7 @@
       <span id="timerText" class="font-bold">24:00:00</span>
     </div>
   <% } %>
-  <div id="chatTimer"
+  <div id="paidChatTimer"
   class="bg-red-600 text-white text-center py-2 font-semibold hidden">
   ⏳ Time Remaining: <span id="remainingTime"></span>
 </div>
@@ -52,6 +52,22 @@
       </div>
     <% }) %>
   </div>
+  <div id="noAccessBanner"
+     class="hidden mt-4 bg-yellow-50 border border-yellow-300 
+            text-yellow-800 rounded-lg p-3 text-sm text-center">
+
+  🚫 You cannot send messages directly from here.<br>
+  Please go to the profile page and click the <strong>Chat</strong> button to start the session.
+
+  <div class="mt-3">
+    <a href="/people/<%= receiverProfile._id %>"
+       class="inline-block bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
+      Go to Profile
+    </a>
+  </div>
+
+</div>
+
 
   <form id="chatForm" class="flex gap-2">
     <input type="hidden" id="receiverId" value="<%= receiverProfile._id %>">
@@ -63,7 +79,12 @@
   inputmode="text"
 />
 
-    <button type="submit" class="bg-pink-600 text-white px-4 rounded hover:bg-pink-700 transition">Send</button>
+<button id="sendBtn"
+type="submit"
+class="bg-pink-600 text-white px-4 rounded hover:bg-pink-700 transition">
+Send
+</button>
+
   </form>
 </div>
 
@@ -74,6 +95,11 @@
   const receiverId = "<%= receiverProfile._id %>"; // Ensure this is correctly rendered
   const receiverPhone = "<%= receiverPhone %>";
   const myPhone = "<%= user.phone %>"; // Added your own phone to re-join room
+  const sendBtn = document.getElementById("sendBtn");
+// Hide by default
+sendBtn.style.display = "none";
+msgInput.style.display = "none";
+
 
   const scrollToBottom = () => {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -323,17 +349,37 @@
 
 </script>
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const selectedMinutes = parseInt(urlParams.get("duration"));
-  
-  let remainingSeconds = 0;
-  let chatTimerInterval;
-  
-  if (selectedMinutes && !isNaN(selectedMinutes)) {
-    remainingSeconds = selectedMinutes * 60;
-    document.getElementById("chatTimer").classList.remove("hidden");
-    startChatTimer();
-  }
+const urlParams = new URLSearchParams(window.location.search);
+const selectedMinutes = parseInt(urlParams.get("duration"));
+
+let remainingSeconds = 0;
+let chatTimerInterval;
+
+const banner = document.getElementById("noAccessBanner");
+
+if (selectedMinutes && !isNaN(selectedMinutes)) {
+
+  // ✅ SHOW INPUT + SEND BUTTON
+  sendBtn.style.display = "block";
+  msgInput.style.display = "block";
+
+  remainingSeconds = selectedMinutes * 60;
+
+  document.getElementById("paidChatTimer").classList.remove("hidden");
+
+  startChatTimer();
+
+} else {
+
+  // ❌ No timer → hide input
+  sendBtn.style.display = "none";
+  msgInput.style.display = "none";
+
+  // ✅ SHOW BANNER
+  banner.classList.remove("hidden");
+}
+
+
   
   function startChatTimer() {
     chatTimerInterval = setInterval(() => {
@@ -354,14 +400,18 @@
   }
   
   function endChatSession() {
-    alert("⏰ Chat session ended");
-  
-    // Disable input
-    const input = document.getElementById("messageInput");
-    const sendBtn = document.getElementById("sendBtn");
-  
-    if (input) input.disabled = true;
-    if (sendBtn) sendBtn.disabled = true;
-  }
+  clearInterval(chatTimerInterval);
+
+  alert("⏰ Chat session ended");
+
+  // Optional: show message in chat
+  appendMessage("⏰ Chat session expired. Please subscribe to continue.", "left");
+
+  // Small delay so user sees message
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 1500);
+}
+
   </script>
   

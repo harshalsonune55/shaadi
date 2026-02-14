@@ -898,10 +898,14 @@ function openPlanModal(callUrl, callType) {
       if (minutes === 5) btn.textContent = "5 Minutes (3 Tokens)";
       if (minutes === 10) btn.textContent = "10 Minutes (6 Tokens)";
       if (minutes === 20) btn.textContent = "20 Minutes (10 Tokens)";
-    } else {
+    } else if(callType === "video") {
       if (minutes === 5) btn.textContent = "5 Minutes (5 Tokens)";
       if (minutes === 10) btn.textContent = "10 Minutes (10 Tokens)";
       if (minutes === 20) btn.textContent = "20 Minutes (18 Tokens)";
+    } else{
+      if (minutes === 5) btn.textContent = "5 Minutes (2 Tokens)";
+      if (minutes === 10) btn.textContent = "10 Minutes (4 Tokens)";
+      if (minutes === 20) btn.textContent = "20 Minutes (7 Tokens)";
     }
   });
 
@@ -915,38 +919,47 @@ function closePlanModal() {
 
 async function startPaidCall(minutes) {
 
-let tokensRequired;
+let tokensRequired = 0;
 
 if (selectedCallType === "voice") {
   if (minutes === 5) tokensRequired = 3;
   if (minutes === 10) tokensRequired = 6;
   if (minutes === 20) tokensRequired = 10;
-}else if (callType === "chat") {
 
-  if (minutes === 5) btn.textContent = "5 Minutes Chat (2 Tokens)";
-  if (minutes === 10) btn.textContent = "10 Minutes Chat (4 Tokens)";
-  if (minutes === 20) btn.textContent = "20 Minutes Chat (7 Tokens)";
-} else {
+} else if (selectedCallType === "video") {
   if (minutes === 5) tokensRequired = 5;
   if (minutes === 10) tokensRequired = 10;
   if (minutes === 20) tokensRequired = 18;
+
+} else if (selectedCallType === "chat") {
+  if (minutes === 5) tokensRequired = 2;
+  if (minutes === 10) tokensRequired = 4;
+  if (minutes === 20) tokensRequired = 7;
 }
 
-const res = await fetch("/api/call/deduct-tokens", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ tokens: tokensRequired })
-});
+try {
+  const res = await fetch("/api/call/deduct-tokens", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tokens: tokensRequired })
+  });
 
-const data = await res.json();
+  const data = await res.json();
 
-if (!data.success) {
-  alert("❌ Not enough tokens");
-  return;
+  if (!data.success) {
+    alert("❌ Not enough tokens");
+    return;
+  }
+
+  // SUCCESS → redirect to call page
+  window.location.href = selectedCallUrl + "?duration=" + minutes;
+
+} catch (err) {
+  console.error("Call error:", err);
+  alert("Something went wrong starting the call");
+}
 }
 
-window.location.href = selectedCallUrl + "?duration=" + minutes;
-}
 
 </script>
   
