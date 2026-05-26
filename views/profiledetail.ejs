@@ -8,9 +8,13 @@
       %>
       <%- layout("/layouts/navbar.ejs") %>
         <% const canViewDetails=userProfile && userProfile.isSubscribed && (userProfile.subscriptionPlan==="Premium" ||
-          userProfile.subscriptionPlan==="Elite" ); %>
+          userProfile.subscriptionPlan==="Elite" || userProfile.subscriptionPlan==="Elite-3" ||
+          userProfile.subscriptionPlan==="Elite-6" || userProfile.subscriptionPlan==="NRI-3" ||
+          userProfile.subscriptionPlan==="NRI-6" ); %>
           <% const canViewPremium=userProfile && userProfile.isSubscribed===true &&
-            (userProfile.subscriptionPlan==="Premium" || userProfile.subscriptionPlan==="Elite" ); %>
+            (userProfile.subscriptionPlan==="Premium" || userProfile.subscriptionPlan==="Elite" ||
+            userProfile.subscriptionPlan==="Elite-3" || userProfile.subscriptionPlan==="Elite-6" ||
+            userProfile.subscriptionPlan==="NRI-3" || userProfile.subscriptionPlan==="NRI-6" ); %>
             <% const canViewMatchmaking=userProfile && (userProfile.isSubscribed===true); %>
 
 
