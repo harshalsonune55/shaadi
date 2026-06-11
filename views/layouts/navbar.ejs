@@ -1,32 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+<%
+  const pageSeo = typeof seo !== "undefined" ? seo : {
+    title: "Shaadiwali",
+    description: "Find verified matrimonial profiles and trusted matchmaking services on Shaadiwali.",
+    robots: "index,follow",
+    canonicalUrl: "https://shaadiwali.com/",
+    ogTitle: "Shaadiwali",
+    ogDescription: "Find verified matrimonial profiles and trusted matchmaking services on Shaadiwali.",
+    ogType: "website",
+    ogUrl: "https://shaadiwali.com/",
+    ogImage: "https://shaadiwali.com/images/Logo1.jpeg",
+    schema: []
+  };
+  const activePath = typeof currentPath !== "undefined" ? currentPath : "";
+  const activeGtmId = typeof gtmId !== "undefined" ? gtmId : "";
+%>
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shaadiwali</title>
+  <title><%= pageSeo.title %></title>
+  <meta name="description" content="<%= pageSeo.description %>" />
+  <meta name="robots" content="<%= pageSeo.robots %>" />
+  <link rel="canonical" href="<%= pageSeo.canonicalUrl %>" />
+  <meta property="og:title" content="<%= pageSeo.ogTitle %>" />
+  <meta property="og:description" content="<%= pageSeo.ogDescription %>" />
+  <meta property="og:type" content="<%= pageSeo.ogType %>" />
+  <meta property="og:url" content="<%= pageSeo.ogUrl %>" />
+  <meta property="og:image" content="<%= pageSeo.ogImage %>" />
+  <meta property="og:site_name" content="Shaadiwali" />
+  <% if (activePath === "/") { %>
+    <link rel="preload" as="image" href="/images/homemain.jpeg" />
+  <% } %>
   <link rel="icon" href="/images/Logo1.jpeg" type="image/jpeg" />
+  <% if (pageSeo.schema && pageSeo.schema.length) { %>
+    <% pageSeo.schema.forEach(schema => { %>
+      <script type="application/ld+json"><%- JSON.stringify(schema).replace(/</g, "\\u003c") %></script>
+    <% }) %>
+  <% } %>
+  <% if (activeGtmId) { %>
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','<%= activeGtmId %>');
+    </script>
+  <% } %>
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com" defer></script>
   <link rel="stylesheet" href="/home.css">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </noscript>
 
 
 
 </head>
 
 <body class="bg-gray-50">
+  <% if (activeGtmId) { %>
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=<%= activeGtmId %>" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+  <% } %>
 
   <!-- Header -->
   <header class="bg-white shadow-md">
     <div class="container mx-auto flex justify-between items-center px-4 py-3">
       <!-- Logo + Title + Plan Badge -->
       <div class="flex items-center space-x-3">
-        <img src="/images/Logo1.jpeg" alt="Logo" class="w-12 h-12 rounded-full border-2 border-pink-200" />
+        <img src="/images/Logo1.jpeg" alt="Shaadiwali logo" class="w-12 h-12 rounded-full border-2 border-pink-200" />
         <div class="flex flex-col leading-tight">
           <a href="/" class="text-xl font-bold text-pink-600 hover:text-pink-700">Shaadiwali Matrimony</a>
           <span class="text-xs text-gray-500">(All Caste Matchmaking)</span>

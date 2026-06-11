@@ -24,6 +24,8 @@
         <div class="relative">
           <img
             src="<%= chat.user.image || 'https://ui-avatars.com/api/?name=' + chat.user.first_name %>"
+            alt="<%= chat.user.first_name %> <%= chat.user.last_name || '' %> chat profile photo"
+            loading="lazy"
             class="w-14 h-14 rounded-full object-cover"
           />
 
@@ -78,6 +80,7 @@
        class="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition">
 
       <img src="${data.participant.image}"
+           alt="${data.participant.first_name} ${data.participant.last_name || ""} chat profile photo"
            class="w-12 h-12 rounded-full object-cover"/>
 
       <div class="flex-1">

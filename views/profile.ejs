@@ -16,7 +16,7 @@
 
       <img
   src="<%= userProfile.coverImage || 'https://images.unsplash.com/photo-1503264116251-35a269479413' %>"
-  alt="Cover Photo"
+  alt="<%= userProfile.first_name %> <%= userProfile.last_name %> matrimonial profile cover photo"
   class="w-full h-full object-cover"
 />
     </div>
@@ -37,7 +37,7 @@
 
           <img
   src="<%= userProfile.image || 'https://ui-avatars.com/api/?name=' + user.fullname %>"
-  alt="Profile"
+  alt="<%= userProfile.first_name %> <%= userProfile.last_name %> matrimonial profile photo"
   class="w-40 h-40 rounded-full border-4 border-white shadow-lg
          <%= userProfile.isBlurred ? 'blur-sm' : '' %>"
 />
@@ -233,6 +233,8 @@
                   <!-- Avatar -->
                   <img
                     src="<%= view.viewer?.image || 'https://ui-avatars.com/api/?name=User' %>"
+                    alt="<%= view.viewer ? `${view.viewer.first_name} ${view.viewer.last_name}` : 'Unknown user' %> profile viewer photo"
+                    loading="lazy"
                     class="w-10 h-10 rounded-full object-cover"
                   />
       
@@ -426,9 +428,10 @@
           <!-- PHOTO -->
           <img
             src="<%= photo %>"
+            alt="<%= userProfile.first_name %> <%= userProfile.last_name %> matrimonial profile gallery photo <%= index + 1 %>"
+            loading="lazy"
             class="w-full h-full object-cover rounded-xl shadow-md
        <%= userProfile.isBlurred ? 'blur-sm' : '' %>"
-            alt="Profile photo"
           />
       
           <!-- DELETE BUTTON -->

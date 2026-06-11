@@ -67,7 +67,7 @@
   id="mainProfileImage"
   src="<%= person.image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' %>"
   
-  alt="Profile photo"
+  alt="<%= person.first_name %> <%= person.last_name %> verified matrimonial profile photo"
   class="max-w-[95%] max-h-[95%] object-contain rounded-xl shadow-lg transition
          <%= (person.isBlurred || !person.image) ? 'blur-strong' : '' %>"
 />
@@ -97,7 +97,9 @@
                                 <img
                                   src="<%= photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' %>"
                       
-                                  alt="Additional photo" class="
+                                  alt="<%= person.first_name %> <%= person.last_name %> additional matrimonial profile photo <%= index + 1 %>"
+                                  loading="lazy"
+                                  class="
     person-thumb
     w-32 h-32 sm:w-40 sm:h-40
     object-cover rounded-xl shadow-md

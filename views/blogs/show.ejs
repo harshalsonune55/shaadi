@@ -8,6 +8,8 @@
       <% if (blog.coverImage) { %>
         <img
           src="<%= blog.coverImage %>"
+          alt="<%= blog.title %> blog cover image"
+          loading="lazy"
           class="w-full h-72 object-cover rounded-lg mb-6"
         />
       <% } %>
@@ -42,5 +44,4 @@
     </article>
   </div>
 </div>
-
 

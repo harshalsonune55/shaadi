@@ -158,6 +158,8 @@
         <% if (userProfile?.coverImage) { %>
           <img
             src="<%= userProfile.coverImage %>"
+            alt="<%= userProfile.first_name %> <%= userProfile.last_name %> matrimonial profile cover photo"
+            loading="lazy"
             class="w-full h-32 mt-2 object-cover rounded-lg"
           />
         <% } %>
@@ -183,6 +185,8 @@
         <% if (userProfile?.image) { %>
           <img
             src="<%= userProfile.image %>"
+            alt="<%= userProfile.first_name %> <%= userProfile.last_name %> matrimonial profile photo"
+            loading="lazy"
             class="w-24 h-24 rounded-full mt-2 object-cover"
           />
         <% } %>

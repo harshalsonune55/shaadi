@@ -122,6 +122,151 @@ const hasPlanAccess = (profile, allowedPlans) => {
   return Boolean(profile?.isSubscribed && normalizedPlan && allowedPlans.has(normalizedPlan));
 };
 
+const SITE_URL = (process.env.SITE_URL || "https://shaadiwali.com").replace(/\/$/, "");
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/Logo1.jpeg`;
+
+const SEO_PAGES = {
+  "/": {
+    title: "Indian Matrimonial & Matchmaking Services | Shaadiwali",
+    description: "Find verified matrimonial profiles, trusted matchmaking services, and meaningful connections across India. Start your journey with Shaadiwali today."
+  },
+  "/pricing": {
+    title: "Pricing Plans - Verified Matchmaking Services | Shaadiwali",
+    description: "Explore affordable matchmaking plans with verified profiles, priority support, and personalized matrimonial services from Shaadiwali."
+  },
+  "/about-us": {
+    title: "About Shaadiwali - Trusted Indian Matrimonial Platform",
+    description: "Learn how Shaadiwali helps individuals and families find compatible life partners through trusted, secure, and verified matchmaking services."
+  },
+  "/contact-us": {
+    title: "Contact Shaadiwali - Matrimonial Support & Assistance",
+    description: "Contact Shaadiwali for matrimonial support, profile assistance, membership inquiries, and expert guidance throughout your matchmaking journey."
+  },
+  "/customer-support": {
+    title: "Customer Support - Get Help with Your Matrimonial Journey",
+    description: "Get quick assistance for profile management, account issues, membership plans, and matrimonial services through Shaadiwali support."
+  },
+  "/privacy-policy": {
+    title: "Privacy Policy | Shaadiwali Matrimonial Services",
+    description: "Read Shaadiwali's privacy policy to understand how we collect, protect, and manage your personal information and matrimonial data."
+  },
+  "/terms-of-use": {
+    title: "Terms of Use | Shaadiwali",
+    description: "Review the terms and conditions governing the use of Shaadiwali's matrimonial platform, services, memberships, and user accounts."
+  },
+  "/be-safe-online": {
+    title: "Online Matrimonial Safety Tips & Guidelines | Shaadiwali",
+    description: "Stay safe while searching for a life partner with expert online matrimonial safety tips, scam prevention advice, and privacy guidelines."
+  },
+  "/login": {
+    title: "Member Login | Shaadiwali Matrimonial Platform",
+    description: "Securely log in to your Shaadiwali account to manage your matrimonial profile, connect with matches, and access premium features.",
+    robots: "noindex,follow"
+  },
+  "/blogs": {
+    title: "Matrimonial Advice, Relationship Tips & Marriage Blogs | Shaadiwali",
+    description: "Read expert relationship advice, marriage tips, matchmaking insights, and matrimonial success stories on the Shaadiwali blog."
+  },
+  "/profile/edit": {
+    title: "Edit Your Matrimonial Profile | Shaadiwali",
+    description: "Update your matrimonial profile, preferences, photos, and personal details to improve visibility and attract compatible matches.",
+    robots: "noindex,follow"
+  }
+};
+
+const buildOrganizationSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Shaadiwali",
+  url: SITE_URL,
+  logo: DEFAULT_OG_IMAGE,
+  sameAs: [
+    "https://www.youtube.com/@Shaadiwalidotcom"
+  ]
+});
+
+const buildWebsiteSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Shaadiwali",
+  url: SITE_URL,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/people?name={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  }
+});
+
+const buildFaqSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How does Shaadiwali verify matrimonial profiles?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Shaadiwali supports profile verification so members can connect with more confidence while searching for compatible life partners."
+      }
+    },
+    {
+      "@type": "Question",
+      name: "Can I browse matrimonial profiles before choosing a plan?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Members can browse profiles and choose a matchmaking plan when they need expanded access, priority support, and premium features."
+      }
+    },
+    {
+      "@type": "Question",
+      name: "How can I stay safe while using Shaadiwali?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Keep conversations inside the platform, avoid sharing sensitive personal details early, and report suspicious activity to Shaadiwali support."
+      }
+    }
+  ]
+});
+
+const buildPersonSchema = (person, canonicalUrl) => ({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: `${person.first_name || ""} ${person.last_name || ""}`.trim() || "Shaadiwali Member",
+  url: canonicalUrl,
+  image: person.image || DEFAULT_OG_IMAGE,
+  address: person.address || undefined,
+  gender: person.gender || undefined
+});
+
+const escapeXml = (value = "") => String(value)
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&apos;");
+
+const buildSeo = (req, overrides = {}) => {
+  const path = req.path === "" ? "/" : req.path;
+  const base = SEO_PAGES[path] || {};
+  const canonicalPath = overrides.canonicalPath || path;
+  const canonicalUrl = overrides.canonicalUrl || `${SITE_URL}${canonicalPath === "/" ? "/" : canonicalPath}`;
+  const title = overrides.title || base.title || "Shaadiwali";
+  const description = overrides.description || base.description || "Find verified matrimonial profiles and trusted matchmaking services on Shaadiwali.";
+
+  return {
+    title,
+    description,
+    canonicalUrl,
+    robots: overrides.robots || base.robots || "index,follow",
+    ogTitle: overrides.ogTitle || title,
+    ogDescription: overrides.ogDescription || description,
+    ogUrl: overrides.ogUrl || canonicalUrl,
+    ogImage: overrides.ogImage || DEFAULT_OG_IMAGE,
+    ogType: overrides.ogType || "website",
+    schema: overrides.schema || (path === "/" ? [buildOrganizationSchema(), buildWebsiteSchema(), buildFaqSchema()] : [])
+  };
+};
+
 /* ===================== DB ===================== */
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("✅ MongoDB Connected"))
@@ -190,6 +335,13 @@ app.use(async (req, res, next) => {
   
     next();
   });
+app.use((req, res, next) => {
+  res.locals.siteUrl = SITE_URL;
+  res.locals.gtmId = process.env.GTM_ID || process.env.GOOGLE_TAG_MANAGER_ID || "";
+  res.locals.currentPath = req.path;
+  res.locals.seo = buildSeo(req);
+  next();
+});
   //subscription cancle 
   app.use(async (req, res, next) => {
     if (req.user?.phone) {
@@ -798,6 +950,60 @@ app.get("/admin/profile/:id/chats/:otherPhone", isAdmin, async (req, res) => {
 
 
 /* ===================== ROUTES ===================== */
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain").send([
+    "User-agent: *",
+    "Allow: /",
+    "Disallow: /admin",
+    "Disallow: /login",
+    "Disallow: /profile/edit",
+    `Sitemap: ${SITE_URL}/sitemap.xml`
+  ].join("\n"));
+});
+
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const staticPaths = [
+      "/",
+      "/pricing",
+      "/about-us",
+      "/contact-us",
+      "/customer-support",
+      "/privacy-policy",
+      "/terms-of-use",
+      "/be-safe-online",
+      "/blogs"
+    ];
+
+    const [blogs, profiles] = await Promise.all([
+      Blog.find().select("_id updatedAt createdAt").lean(),
+      UserProfile.find().select("_id updatedAt createdAt").lean()
+    ]);
+
+    const urls = [
+      ...staticPaths.map(path => ({
+        loc: `${SITE_URL}${path === "/" ? "/" : path}`,
+        lastmod: new Date()
+      })),
+      ...blogs.map(blog => ({
+        loc: `${SITE_URL}/blogs/${blog._id}`,
+        lastmod: blog.updatedAt || blog.createdAt || new Date()
+      })),
+      ...profiles.map(profile => ({
+        loc: `${SITE_URL}/people/${profile._id}`,
+        lastmod: profile.updatedAt || profile.createdAt || new Date()
+      }))
+    ];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url => `  <url>\n    <loc>${escapeXml(url.loc)}</loc>\n    <lastmod>${new Date(url.lastmod).toISOString()}</lastmod>\n  </url>`).join("\n")}\n</urlset>`;
+
+    res.type("application/xml").send(xml);
+  } catch (err) {
+    console.error("Sitemap generation error:", err);
+    res.status(500).type("text/plain").send("Unable to generate sitemap");
+  }
+});
+
 app.get("/", async (req, res) => {
   try {
 
@@ -1611,6 +1817,29 @@ app.get("/blogs/:id", async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id).lean();
     if (!blog) return res.status(404).send("Blog not found");
+    const cleanContent = (blog.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    const blogSummary = cleanContent.slice(0, 120);
+    res.locals.seo = buildSeo(req, {
+      title: `${blog.title} | Shaadiwali Blog`,
+      description: "Learn how to create an attractive matrimonial profile and improve match responses with expert tips from Shaadiwali.",
+      canonicalPath: `/blogs/${blog._id}`,
+      ogType: "article",
+      ogImage: blog.coverImage || DEFAULT_OG_IMAGE,
+      schema: [{
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: blog.title,
+        description: blogSummary || "Shaadiwali matrimonial advice and relationship guidance.",
+        image: blog.coverImage || DEFAULT_OG_IMAGE,
+        author: {
+          "@type": "Organization",
+          name: blog.author || "Shaadiwali Team"
+        },
+        datePublished: blog.createdAt,
+        dateModified: blog.updatedAt || blog.createdAt,
+        mainEntityOfPage: `${SITE_URL}/blogs/${blog._id}`
+      }]
+    });
     res.render("blogs/show.ejs", { blog });
   } catch (err) {
     res.status(500).send("Error loading blog");
@@ -1991,6 +2220,19 @@ app.get("/people/:id", async (req, res) => {
   try {
     const person = await UserProfile.findById(req.params.id);
     if (!person) return res.status(404).send("Person not found");
+    const personObject = person.toObject();
+    const displayName = `${personObject.first_name || ""} ${personObject.last_name || ""}`.trim() || "Member";
+    const canonicalPath = `/people/${personObject._id}`;
+    const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+
+    res.locals.seo = buildSeo(req, {
+      title: `${personObject.first_name || displayName}'s Matrimonial Profile | Shaadiwali`,
+      description: `View ${displayName}'s verified matrimonial profile on Shaadiwali. Explore preferences, background details, and compatibility for marriage.`,
+      canonicalPath,
+      ogType: "profile",
+      ogImage: personObject.image || DEFAULT_OG_IMAGE,
+      schema: [buildPersonSchema(personObject, canonicalUrl)]
+    });
 
     // 🔍 Track profile view (only if logged in & not self)
     if (req.user && req.user.phone && req.user.phone !== person.phone) {
@@ -2022,7 +2264,7 @@ app.get("/people/:id", async (req, res) => {
     }
 
     res.render("profiledetail.ejs", {
-      person: person.toObject(),
+      person: personObject,
       user: req.user || null,
       userProfile: res.locals.userProfile || null
     });
@@ -2522,8 +2764,3 @@ app.post("/verify-payment", isLoggedIn, async (req, res) => {
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
-
-
-

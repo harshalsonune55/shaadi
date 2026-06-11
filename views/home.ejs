@@ -1,5 +1,4 @@
 <%- layout("/layouts/navbar.ejs") %>
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
 
   .hero-slide{
@@ -109,21 +108,21 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <!-- Card 1 -->
     <div class="bg-white shadow-md rounded-xl p-6 hover:-translate-y-1 transition">
-      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl"><img src="/images/testfull.jpeg"></div>
+      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl"><img src="/images/testfull.jpeg" alt="Successful Shaadiwali matchmaking" loading="lazy"></div>
       <h3 class="font-semibold text-base sm:text-lg mb-2">100% you will get match</h3>
       <p class="text-gray-600 text-sm sm:text-base">Get matched within 30 days</p>
     </div>
 
     <!-- Card 2 -->
     <div class="bg-white shadow-md rounded-xl p-6 hover:-translate-y-1 transition">
-      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl"><img src="/images/testfull2.jpeg"></div>
+      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl"><img src="/images/testfull2.jpeg" alt="Verified matrimonial profile badge" loading="lazy"></div>
       <h3 class="font-semibold text-base sm:text-lg mb-2">Verified Profile</h3>
       <p class="text-gray-600 text-sm sm:text-base">Blue-tick profiles get 40% more connection requests — verified and trusted.</p>
     </div>
 
     <!-- Card 3 -->
     <div class="bg-white shadow-md rounded-xl p-6 hover:-translate-y-1 transition">
-      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl"><img src="/images/testfull3-removebg-preview.png"></div>
+      <div class="bg-cyan-100 text-cyan-600 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg mb-4 text-xl sm:text-2xl"><img src="/images/testfull3-removebg-preview.png" alt="Expert matchmaking consultation" loading="lazy"></div>
       <h3 class="font-semibold text-base sm:text-lg mb-2">Matchmaking by Astrowani</h3>
       <p class="text-gray-600 text-sm sm:text-base">20 years of expertise help you find “the one”.</p>
     </div>
@@ -143,6 +142,7 @@
         <img
           src="/images/good.jpeg"
           alt="Astrowani Matchmaking"
+          loading="lazy"
           class="w-full h-full object-cover"
         />
       </div>
@@ -197,6 +197,8 @@
     <div class="relative">
       <img
         src="<%= bride.image || '/images/default-profile.png' %>"
+        alt="<%= bride.first_name %> <%= bride.last_name %> verified matrimonial profile photo"
+        loading="lazy"
         class="w-full h-52 object-cover rounded-lg transition
           <%= bride.isBlurred ? 'blur-[25px] scale-110 brightness-50 contrast-125' : '' %>"
       />
@@ -250,6 +252,8 @@
   
     <img
     src="<%= groom.image || '/images/default-profile.png' %>"
+    alt="<%= groom.first_name %> <%= groom.last_name %> verified matrimonial profile photo"
+    loading="lazy"
     class="w-full h-52 object-cover rounded-lg
       <%= groom.isBlurred ? 'blur-[20px] scale-110 brightness-75' : '' %>"
   />
@@ -313,6 +317,7 @@
       <img
         src="/images/gopi.jpeg"
         alt="Trusted Matchmaking"
+        loading="lazy"
         class="w-full h-72 sm:h-96 object-cover rounded-xl"
       />
     </div>
@@ -342,7 +347,7 @@
     <div id="carousel" class="flex gap-4 sm:gap-6 transition-transform duration-500">
       <!-- Card 1 -->
       <div class="bg-white shadow-md rounded-xl overflow-hidden min-w-[250px] sm:min-w-[300px]">
-        <img src="/images/testop1.jpeg" class="w-full h-48 sm:h-56 object-cover" />
+        <img src="/images/testop1.jpeg" alt="Shaadiwali success story couple Anjali and Rajesh" loading="lazy" class="w-full h-48 sm:h-56 object-cover" />
         <div class="p-4">
           <h3 class="font-semibold text-base sm:text-lg">Anjali &amp; Rajesh</h3>
           <p class="text-gray-600 text-xs sm:text-sm mt-2">At shaadiwali.com i found my soulemate here, After chatting we involved our famalies now we are happily engaged in 2025</p>
@@ -351,7 +356,7 @@
 
       <!-- Card 2 -->
       <div class="bg-white shadow-md rounded-xl overflow-hidden min-w-[250px] sm:min-w-[300px]">
-        <img src="/images/testop2.jpeg" class="w-full h-48 sm:h-56 object-cover" />
+        <img src="/images/testop2.jpeg" alt="Shaadiwali success story couple Simran and Advin" loading="lazy" class="w-full h-48 sm:h-56 object-cover" />
         <div class="p-4">
           <h3 class="font-semibold text-base sm:text-lg">Simran &amp; Advin</h3>
           <p class="text-gray-600 text-xs sm:text-sm mt-2">we met on shaadiwali and found our perfect match. thank you helping me in finding my soulemate and begin the beautiful chapter of my life.</p>
@@ -360,7 +365,7 @@
 
       <!-- Card 3 -->
       <div class="bg-white shadow-md rounded-xl overflow-hidden min-w-[250px] sm:min-w-[300px]">
-        <img src="/images/testimonial2.jpeg" class="w-full h-48 sm:h-56 object-cover" />
+        <img src="/images/testimonial2.jpeg" alt="Shaadiwali success story couple Ravi and Neha" loading="lazy" class="w-full h-48 sm:h-56 object-cover" />
         <div class="p-4">
           <h3 class="font-semibold text-base sm:text-lg">Ravi & Neha</h3>
           <p class="text-gray-600 text-xs sm:text-sm mt-2">We knew we were meant for each other — forever grateful!</p>

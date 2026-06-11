@@ -28,7 +28,8 @@
             <img
               src="<%= blog.coverImage %>"
               class="w-full h-48 object-cover"
-              alt="Blog cover"
+              alt="<%= blog.title %> blog cover image"
+              loading="lazy"
             />
           <% } %>
 
@@ -53,5 +54,4 @@
     </div>
   </div>
 </div>
-
 
